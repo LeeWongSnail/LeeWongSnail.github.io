@@ -1,28 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>SVProgressHUD的简单封装</title>
-    <url>/2016/09/01/ALiProgressHud/</url>
-    <content><![CDATA[<p> 项目中，大多数时候都是在view或者控制器中进行弹窗的操作，有时候仅仅是为了一个弹窗还要把状态从view或者model中传到控制器进行弹窗，这相当的麻烦，为什么不让所有的NSObject都可以弹窗呢！</p>
-<a id="more"></a>
-
-<h4 id="1、目的"><a href="#1、目的" class="headerlink" title="1、目的"></a>1、目的</h4><p> 项目中，大多数时候都是在view或者控制器中进行弹窗的操作，有时候仅仅是为了一个弹窗还要把状态从view或者model中传到控制器进行弹窗，这相当的麻烦，为什么不让所有的NSObject都可以弹窗呢！</p>
-<h4 id="2、具体的方法"><a href="#2、具体的方法" class="headerlink" title="2、具体的方法"></a>2、具体的方法</h4><p>废话不多说直接上方法，相信不用我解释大家都可以看得懂</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> *  显示纯文本 加一个转圈</span><br><span class="line"> *</span><br><span class="line"> *  @param aText 要显示的文本</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)showText:(NSString *)aText;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  显示错误信息</span><br><span class="line"> *</span><br><span class="line"> *  @param aText 错误信息文本</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)showErrorText:(NSString *)aText;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  显示成功信息</span><br><span class="line"> *</span><br><span class="line"> *  @param aText 成功信息文本</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)showSuccessText:(NSString *)aText;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  只显示一个加载框</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)showLoading;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  隐藏加载框（所有类型的加载框 都可以通过这个方法 隐藏）</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)dismissLoading;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  显示百分比</span><br><span class="line"> *</span><br><span class="line"> *  @param progress 百分比（整型 100 &#x3D; 100%）</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)showProgress:(NSInteger)progress;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  显示图文提示</span><br><span class="line"> *</span><br><span class="line"> *  @param image 自定义的图片</span><br><span class="line"> *  @param aText 要显示的文本</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)showImage:(UIImage*)image text:(NSString*)aText;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><code>如果你想自定义显示的图片 可以在ALiProgressHUD中替换那几张图片即可</code></p>
-<p>demo演示：</p>
-<p><img src="https://i.niupic.com/images/2016/09/08/RnE9pQ.gif" alt="demo"></p>
-<h4 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h4><p> 项目中有很多让我们头疼的问题，就不要让这一个小小的弹窗困扰我们了。如果你还需要其他的样式 欢迎给我提issues，我会及时回复的！</p>
-]]></content>
-      <categories>
-        <category>开源代码</category>
-      </categories>
-      <tags>
-        <tag>弹窗,SVProgressHUD</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>抽象工厂模式</title>
     <url>/2016/09/27/AbstractFactoryPattern/</url>
     <content><![CDATA[<p>在上一篇工厂模式中，我开了一家pizza店，生意非常好哇，然后我就想着在国内多开几家分店。但是，问题来了，我如何确保每个地方pizza原材料的质量呢？接下来 我们可以使用抽象工厂方法来解决这个问题。</p>
@@ -60,6 +38,28 @@
       </tags>
   </entry>
   <entry>
+    <title>SVProgressHUD的简单封装</title>
+    <url>/2016/09/01/ALiProgressHud/</url>
+    <content><![CDATA[<p> 项目中，大多数时候都是在view或者控制器中进行弹窗的操作，有时候仅仅是为了一个弹窗还要把状态从view或者model中传到控制器进行弹窗，这相当的麻烦，为什么不让所有的NSObject都可以弹窗呢！</p>
+<a id="more"></a>
+
+<h4 id="1、目的"><a href="#1、目的" class="headerlink" title="1、目的"></a>1、目的</h4><p> 项目中，大多数时候都是在view或者控制器中进行弹窗的操作，有时候仅仅是为了一个弹窗还要把状态从view或者model中传到控制器进行弹窗，这相当的麻烦，为什么不让所有的NSObject都可以弹窗呢！</p>
+<h4 id="2、具体的方法"><a href="#2、具体的方法" class="headerlink" title="2、具体的方法"></a>2、具体的方法</h4><p>废话不多说直接上方法，相信不用我解释大家都可以看得懂</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> *  显示纯文本 加一个转圈</span><br><span class="line"> *</span><br><span class="line"> *  @param aText 要显示的文本</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)showText:(NSString *)aText;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  显示错误信息</span><br><span class="line"> *</span><br><span class="line"> *  @param aText 错误信息文本</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)showErrorText:(NSString *)aText;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  显示成功信息</span><br><span class="line"> *</span><br><span class="line"> *  @param aText 成功信息文本</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)showSuccessText:(NSString *)aText;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  只显示一个加载框</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)showLoading;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  隐藏加载框（所有类型的加载框 都可以通过这个方法 隐藏）</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)dismissLoading;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  显示百分比</span><br><span class="line"> *</span><br><span class="line"> *  @param progress 百分比（整型 100 &#x3D; 100%）</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)showProgress:(NSInteger)progress;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  显示图文提示</span><br><span class="line"> *</span><br><span class="line"> *  @param image 自定义的图片</span><br><span class="line"> *  @param aText 要显示的文本</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)showImage:(UIImage*)image text:(NSString*)aText;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>如果你想自定义显示的图片 可以在ALiProgressHUD中替换那几张图片即可</code></p>
+<p>demo演示：</p>
+<p><img src="https://i.niupic.com/images/2016/09/08/RnE9pQ.gif" alt="demo"></p>
+<h4 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h4><p> 项目中有很多让我们头疼的问题，就不要让这一个小小的弹窗困扰我们了。如果你还需要其他的样式 欢迎给我提issues，我会及时回复的！</p>
+]]></content>
+      <categories>
+        <category>开源代码</category>
+      </categories>
+      <tags>
+        <tag>弹窗,SVProgressHUD</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>App组件化文章收集</title>
     <url>/2016/06/12/App%E7%BB%84%E4%BB%B6%E5%8C%96%E6%96%87%E7%AB%A0%E6%94%B6%E9%9B%86/</url>
     <content><![CDATA[<p>公司打算新启一个APP，希望实现组件化，或者说我们几个对组件化毫无所知的人，打算用起来这个牛逼的东西，下面是我搜集的一些文章，以及我对这些文章的理解。</p>
@@ -80,6 +80,41 @@
       <tags>
         <tag>文章收集</tag>
         <tag>组件化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>工厂模式</title>
+    <url>/2016/09/26/Factory-Pattern/</url>
+    <content><![CDATA[<p>最近买了本设计模式的书Header First 非常喜欢其中的讲解方式。虽然买了有一段时间了但是没有认真的看过。这段时间工作相对没有那么难了，所以抽出点时间看一下这本书，同时，在这里做一下分享，希望可以帮到你！</p>
+<a id="more"></a>
+
+<h4 id="1、定义"><a href="#1、定义" class="headerlink" title="1、定义"></a>1、定义</h4><p>工厂方法模式：定义了一个创建对象的接口，但由子类决定要实例化的类是哪一个。工厂方法让类的实例化推迟到子类。</p>
+<p>所有工厂模式都用来封装对象的创建，工厂方法模式通过让子类决定该创建的对象是什么，来达到将对象创建的过程封装的目的。</p>
+<h4 id="2、使用场景"><a href="#2、使用场景" class="headerlink" title="2、使用场景"></a>2、使用场景</h4><p>假如我有一个披萨店，刚开始没有分店也只是提供了北京口味的pizza。所以我的创建很简单。</p>
+<p><img src="https://i.niupic.com/images/2016/09/26/MZGIaS.png" alt="我的pizza"></p>
+<p>但是后来用户给我反馈，因为他们来自不同的地区所以希望我提供，北京口味、东北口味的披萨。</p>
+<p>OK 那么我在点单的时候让用户自主的去选择order(type);<br>那么我的点单的方法改成了这样</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- (void)order:(NSInteger)aType</span><br><span class="line">&#123;</span><br><span class="line">    Pizza *pizza &#x3D; nil;</span><br><span class="line">    if (type &#x3D;&#x3D; @&quot;东北&quot;) &#123;</span><br><span class="line">        pizza &#x3D; DBPizza();</span><br><span class="line">    &#125; else if (type &#x3D;&#x3D; @&quot;北京&quot;)&#123;</span><br><span class="line">        pizza &#x3D; BJPizza();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>后来生意更好了，全国开了很多分店，就会不断的加入更多的其他口味的pizza，同时也有可能有很多pizza的口味因为不符合要求被下架。所以这可能导致我的点餐方法越来越复杂。</p>
+<p>同时，因为全国都有分店，分店中可能很多同一口味的做法都不同，所以这时候要考虑把这个全国都使用的方法下方到地方，不再做统一的管理。</p>
+<p>首先想到的肯定是把这个方法抽出来，单独放到一个类中。这个类实际上就是一个工厂类。我们将要点餐的type传入之后由这个工厂类决定到底实例化哪一种pizza。</p>
+<h4 id="3、思考"><a href="#3、思考" class="headerlink" title="3、思考"></a>3、思考</h4><p> 1、这么做的好处是什么？还是只是做了简单的代码的分离。</p>
+<p> 我们这里，在这个工厂类中只是提供了这一个方法，之后我们可能还会有其他的工厂方法，都可以放到这个类中，所以这个工厂方法为代码以后的扩展提供了方便，同时如果以后需要修改或者添加可以直接修改这个类就可以了。</p>
+<p>2、对于pizza的工厂方法，我们可能有很多的类型比如BJPizzaFactory,DBPizzaFactory 如果有很多的这种工厂方法，我们如何做统一的管理呢？</p>
+<p>我们可以设置一个基类，这个基类用来控制Pizza的整个制作流程，同时提供一个抽象方法createPizza，我们让BJPizzaFactory,DBPizzaFactory继承自这个类，同时实现createPizza这个抽象方法。</p>
+<h4 id="4、修改思路"><a href="#4、修改思路" class="headerlink" title="4、修改思路"></a>4、修改思路</h4><p>1、客户点单<br>PizzaStore bjPizzaStore = new BJPizzaStore();<br>bjPizzaStore.orderPizza(“cheese”);</p>
+<p>2、制作pizza<br>Pizza pizza = createPizza(“cheese”);</p>
+<p>3、其他流程<br>pizza.bake();<br>pizza.cut();<br>pizza.box();</p>
+<h4 id="5、具体实现"><a href="#5、具体实现" class="headerlink" title="5、具体实现"></a>5、具体实现</h4><p><img src="https://i.niupic.com/images/2016/09/26/6NdcNG.png" alt="流程"></p>
+<p><img src="https://i.niupic.com/images/2016/09/27/5O6pj1.png" alt="结果"></p>
+<p><a href="https://github.com/LeeWongSnail/Head-First-DesignPattern/tree/master/FactoryPattern">代码实现在这里</a></p>
+]]></content>
+      <categories>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>工厂模式</tag>
       </tags>
   </entry>
   <entry>
@@ -195,70 +230,6 @@
       </categories>
       <tags>
         <tag>冲突</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>工厂模式</title>
-    <url>/2016/09/26/Factory-Pattern/</url>
-    <content><![CDATA[<p>最近买了本设计模式的书Header First 非常喜欢其中的讲解方式。虽然买了有一段时间了但是没有认真的看过。这段时间工作相对没有那么难了，所以抽出点时间看一下这本书，同时，在这里做一下分享，希望可以帮到你！</p>
-<a id="more"></a>
-
-<h4 id="1、定义"><a href="#1、定义" class="headerlink" title="1、定义"></a>1、定义</h4><p>工厂方法模式：定义了一个创建对象的接口，但由子类决定要实例化的类是哪一个。工厂方法让类的实例化推迟到子类。</p>
-<p>所有工厂模式都用来封装对象的创建，工厂方法模式通过让子类决定该创建的对象是什么，来达到将对象创建的过程封装的目的。</p>
-<h4 id="2、使用场景"><a href="#2、使用场景" class="headerlink" title="2、使用场景"></a>2、使用场景</h4><p>假如我有一个披萨店，刚开始没有分店也只是提供了北京口味的pizza。所以我的创建很简单。</p>
-<p><img src="https://i.niupic.com/images/2016/09/26/MZGIaS.png" alt="我的pizza"></p>
-<p>但是后来用户给我反馈，因为他们来自不同的地区所以希望我提供，北京口味、东北口味的披萨。</p>
-<p>OK 那么我在点单的时候让用户自主的去选择order(type);<br>那么我的点单的方法改成了这样</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- (void)order:(NSInteger)aType</span><br><span class="line">&#123;</span><br><span class="line">    Pizza *pizza &#x3D; nil;</span><br><span class="line">    if (type &#x3D;&#x3D; @&quot;东北&quot;) &#123;</span><br><span class="line">        pizza &#x3D; DBPizza();</span><br><span class="line">    &#125; else if (type &#x3D;&#x3D; @&quot;北京&quot;)&#123;</span><br><span class="line">        pizza &#x3D; BJPizza();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>后来生意更好了，全国开了很多分店，就会不断的加入更多的其他口味的pizza，同时也有可能有很多pizza的口味因为不符合要求被下架。所以这可能导致我的点餐方法越来越复杂。</p>
-<p>同时，因为全国都有分店，分店中可能很多同一口味的做法都不同，所以这时候要考虑把这个全国都使用的方法下方到地方，不再做统一的管理。</p>
-<p>首先想到的肯定是把这个方法抽出来，单独放到一个类中。这个类实际上就是一个工厂类。我们将要点餐的type传入之后由这个工厂类决定到底实例化哪一种pizza。</p>
-<h4 id="3、思考"><a href="#3、思考" class="headerlink" title="3、思考"></a>3、思考</h4><p> 1、这么做的好处是什么？还是只是做了简单的代码的分离。</p>
-<p> 我们这里，在这个工厂类中只是提供了这一个方法，之后我们可能还会有其他的工厂方法，都可以放到这个类中，所以这个工厂方法为代码以后的扩展提供了方便，同时如果以后需要修改或者添加可以直接修改这个类就可以了。</p>
-<p>2、对于pizza的工厂方法，我们可能有很多的类型比如BJPizzaFactory,DBPizzaFactory 如果有很多的这种工厂方法，我们如何做统一的管理呢？</p>
-<p>我们可以设置一个基类，这个基类用来控制Pizza的整个制作流程，同时提供一个抽象方法createPizza，我们让BJPizzaFactory,DBPizzaFactory继承自这个类，同时实现createPizza这个抽象方法。</p>
-<h4 id="4、修改思路"><a href="#4、修改思路" class="headerlink" title="4、修改思路"></a>4、修改思路</h4><p>1、客户点单<br>PizzaStore bjPizzaStore = new BJPizzaStore();<br>bjPizzaStore.orderPizza(“cheese”);</p>
-<p>2、制作pizza<br>Pizza pizza = createPizza(“cheese”);</p>
-<p>3、其他流程<br>pizza.bake();<br>pizza.cut();<br>pizza.box();</p>
-<h4 id="5、具体实现"><a href="#5、具体实现" class="headerlink" title="5、具体实现"></a>5、具体实现</h4><p><img src="https://i.niupic.com/images/2016/09/26/6NdcNG.png" alt="流程"></p>
-<p><img src="https://i.niupic.com/images/2016/09/27/5O6pj1.png" alt="结果"></p>
-<p><a href="https://github.com/LeeWongSnail/Head-First-DesignPattern/tree/master/FactoryPattern">代码实现在这里</a></p>
-]]></content>
-      <categories>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>工厂模式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>二维码生成扫描和识别(基于系统提供方法)</title>
-    <url>/2016/09/07/QRCode/</url>
-    <content><![CDATA[<p> 现在越来越多的App添加了一个扫码的功能，方便而且很实用，但是目前对弈iOS来说有些比较知名的库（比如<a href="https://github.com/TheLevelUp/ZXingObjC">ZXingObjC</a>）库都比较大，而实际上，在iOS 7.0之后系统在AVFoundation框架中就已经实现了对于二维码扫描和生成的的支持，我的方法主要是对系统的一些东西稍作封装（<a href="https://github.com/LeeWongSnail/QRCode">QRCode</a>）</p>
-<a id="more"></a>
-
-<h4 id="1、目的"><a href="#1、目的" class="headerlink" title="1、目的"></a>1、目的</h4><p> 现在越来越多的App添加了一个扫码的功能，方便而且很实用，但是目前对弈iOS来说有些比较知名的库（比如<a href="https://github.com/TheLevelUp/ZXingObjC">ZXingObjC</a>）库都比较大，而实际上，在iOS 7.0之后系统在AVFoundation框架中就已经实现了对于二维码扫描和生成的的支持，我的方法主要是对系统的一些东西稍作封装（<a href="https://github.com/LeeWongSnail/QRCode">QRCode</a>）</p>
-<h4 id="2、生成二维码"><a href="#2、生成二维码" class="headerlink" title="2、生成二维码"></a>2、生成二维码</h4><p>目前见到的二维码一般是两种，中间有图片和没有图片的(通常是APP图标或者个人头像)或者是为二维码添加了背景颜色。这里我提供了三个方法，可以满足这几种需求。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> *  生成二维码图片的方法</span><br><span class="line"> *</span><br><span class="line"> *  @param string 二维码包含的内容</span><br><span class="line"> *  @param size   图片的尺寸</span><br><span class="line"> *  @param topimg 如果中间需要添加 头像可以传入此参数</span><br><span class="line"> *</span><br><span class="line"> *  @return 包含要生成内容的二维码图片</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line">+ (UIImage *)qrImageForString:(NSString *)string </span><br><span class="line">	imageSize:(CGFloat)size Topimg:(UIImage *)topimg;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  生成二维码图片的方法</span><br><span class="line"> *</span><br><span class="line"> *  @param string       二维码包含的内容</span><br><span class="line"> *  @param size         图片的尺寸</span><br><span class="line"> *  @param pointType    点的类型（QRPointRect，</span><br><span class="line"> 										QRPointRound）</span><br><span class="line"> *  @param positionType 位置的类型 （QRPositionNormal，</span><br><span class="line"> 										QRPositionRound）</span><br><span class="line"> *  @param color        背景颜色</span><br><span class="line"> *</span><br><span class="line"> *  @return 包含要生成内容的二维码图片</span><br><span class="line"> *&#x2F;</span><br><span class="line">+(UIImage *)qrImageForString:(NSString *)string </span><br><span class="line">				    imageSize:(CGFloat)size </span><br><span class="line">				withPointType:(QRPointType)pointType</span><br><span class="line">			withPositionType:	</span><br><span class="line">				 			(QRPositionType)positionType</span><br><span class="line">				    withColor:(UIColor *)color;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  生成二维码图片的方法</span><br><span class="line"> *</span><br><span class="line"> *  @param string 二维码包含的内容</span><br><span class="line"> *  @param size    图片的尺寸</span><br><span class="line"> *  @param topimg 如果中间需要添加 头像可以传入此参数</span><br><span class="line"> *  @param color  背景颜色</span><br><span class="line"> *</span><br><span class="line"> *  @return 包含要生成内容的二维码图片</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line">+(UIImage*)qrImageForString:(NSString *)string </span><br><span class="line">				  imageSize:(CGFloat)size </span><br><span class="line">				     Topimg:(UIImage *)topimg </span><br><span class="line">				  withColor:(UIColor*)color;</span><br><span class="line">				  </span><br></pre></td></tr></table></figure>
-
-<h4 id="3、二维码扫描"><a href="#3、二维码扫描" class="headerlink" title="3、二维码扫描"></a>3、二维码扫描</h4><p>这里 需要重要注意的是 rectOfInterest属性的设置</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">&#x2F;&#x2F;它的作用就是设置扫描范围</span><br><span class="line">output.rectOfInterest &#x3D; scanCrop;</span><br><span class="line"></span><br><span class="line">这个CGRect参数和普通的Rect范围不太一样，它的四个值的范围都是0-1，表示比例。</span><br><span class="line"></span><br><span class="line">rectOfInterest都是按照横屏来计算的 所以当竖屏的情况下 x轴和y轴要交换一下。</span><br><span class="line"></span><br><span class="line">宽度和高度设置的情况也是类似。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>具体的扫描结果通过遵守<code>AVCaptureMetadataOutputObjectsDelegate</code>协议并实现</p>
-<p><code>-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection</code></p>
-<p>代理方法就可以拿到</p>
-<p><img src="https://i.niupic.com/images/2016/09/07/2ea1uC.gif" alt="扫描"></p>
-<h4 id="4、其他的使用场景"><a href="#4、其他的使用场景" class="headerlink" title="4、其他的使用场景"></a>4、其他的使用场景</h4><p>除了最常见的扫描识别二维码的方式之外 还有点击弹出框 选择识别图中二维码，或者 长按直接识别二维码的方式</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> *  识别图中的二维码</span><br><span class="line"> *</span><br><span class="line"> *  @param aImage      图片</span><br><span class="line"> *  @param aCompletion 识别完成的回调</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)recognitionQRCodeFromImage:(UIImageView *)aImage</span><br><span class="line">		 completion:(void (^)(NSString *result,</span><br><span class="line">		 					 NSError *error))aCompletion;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><img src="https://i.niupic.com/images/2016/09/07/f1hIfp.gif" alt="长按识别"></p>
-<h4 id="5、总结"><a href="#5、总结" class="headerlink" title="5、总结"></a>5、总结</h4><p>这样的话在我们日常使用中常见的几种对于二维码的操作，基本可以实现。希望这个demo对你有所帮助。</p>
-]]></content>
-      <categories>
-        <category>iOS进阶</category>
-      </categories>
-      <tags>
-        <tag>QRCode</tag>
       </tags>
   </entry>
   <entry>
@@ -466,6 +437,35 @@
       <tags>
         <tag>SDWebImage</tag>
         <tag>流程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>二维码生成扫描和识别(基于系统提供方法)</title>
+    <url>/2016/09/07/QRCode/</url>
+    <content><![CDATA[<p> 现在越来越多的App添加了一个扫码的功能，方便而且很实用，但是目前对弈iOS来说有些比较知名的库（比如<a href="https://github.com/TheLevelUp/ZXingObjC">ZXingObjC</a>）库都比较大，而实际上，在iOS 7.0之后系统在AVFoundation框架中就已经实现了对于二维码扫描和生成的的支持，我的方法主要是对系统的一些东西稍作封装（<a href="https://github.com/LeeWongSnail/QRCode">QRCode</a>）</p>
+<a id="more"></a>
+
+<h4 id="1、目的"><a href="#1、目的" class="headerlink" title="1、目的"></a>1、目的</h4><p> 现在越来越多的App添加了一个扫码的功能，方便而且很实用，但是目前对弈iOS来说有些比较知名的库（比如<a href="https://github.com/TheLevelUp/ZXingObjC">ZXingObjC</a>）库都比较大，而实际上，在iOS 7.0之后系统在AVFoundation框架中就已经实现了对于二维码扫描和生成的的支持，我的方法主要是对系统的一些东西稍作封装（<a href="https://github.com/LeeWongSnail/QRCode">QRCode</a>）</p>
+<h4 id="2、生成二维码"><a href="#2、生成二维码" class="headerlink" title="2、生成二维码"></a>2、生成二维码</h4><p>目前见到的二维码一般是两种，中间有图片和没有图片的(通常是APP图标或者个人头像)或者是为二维码添加了背景颜色。这里我提供了三个方法，可以满足这几种需求。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> *  生成二维码图片的方法</span><br><span class="line"> *</span><br><span class="line"> *  @param string 二维码包含的内容</span><br><span class="line"> *  @param size   图片的尺寸</span><br><span class="line"> *  @param topimg 如果中间需要添加 头像可以传入此参数</span><br><span class="line"> *</span><br><span class="line"> *  @return 包含要生成内容的二维码图片</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line">+ (UIImage *)qrImageForString:(NSString *)string </span><br><span class="line">	imageSize:(CGFloat)size Topimg:(UIImage *)topimg;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  生成二维码图片的方法</span><br><span class="line"> *</span><br><span class="line"> *  @param string       二维码包含的内容</span><br><span class="line"> *  @param size         图片的尺寸</span><br><span class="line"> *  @param pointType    点的类型（QRPointRect，</span><br><span class="line"> 										QRPointRound）</span><br><span class="line"> *  @param positionType 位置的类型 （QRPositionNormal，</span><br><span class="line"> 										QRPositionRound）</span><br><span class="line"> *  @param color        背景颜色</span><br><span class="line"> *</span><br><span class="line"> *  @return 包含要生成内容的二维码图片</span><br><span class="line"> *&#x2F;</span><br><span class="line">+(UIImage *)qrImageForString:(NSString *)string </span><br><span class="line">				    imageSize:(CGFloat)size </span><br><span class="line">				withPointType:(QRPointType)pointType</span><br><span class="line">			withPositionType:	</span><br><span class="line">				 			(QRPositionType)positionType</span><br><span class="line">				    withColor:(UIColor *)color;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  生成二维码图片的方法</span><br><span class="line"> *</span><br><span class="line"> *  @param string 二维码包含的内容</span><br><span class="line"> *  @param size    图片的尺寸</span><br><span class="line"> *  @param topimg 如果中间需要添加 头像可以传入此参数</span><br><span class="line"> *  @param color  背景颜色</span><br><span class="line"> *</span><br><span class="line"> *  @return 包含要生成内容的二维码图片</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line">+(UIImage*)qrImageForString:(NSString *)string </span><br><span class="line">				  imageSize:(CGFloat)size </span><br><span class="line">				     Topimg:(UIImage *)topimg </span><br><span class="line">				  withColor:(UIColor*)color;</span><br><span class="line">				  </span><br></pre></td></tr></table></figure>
+
+<h4 id="3、二维码扫描"><a href="#3、二维码扫描" class="headerlink" title="3、二维码扫描"></a>3、二维码扫描</h4><p>这里 需要重要注意的是 rectOfInterest属性的设置</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">&#x2F;&#x2F;它的作用就是设置扫描范围</span><br><span class="line">output.rectOfInterest &#x3D; scanCrop;</span><br><span class="line"></span><br><span class="line">这个CGRect参数和普通的Rect范围不太一样，它的四个值的范围都是0-1，表示比例。</span><br><span class="line"></span><br><span class="line">rectOfInterest都是按照横屏来计算的 所以当竖屏的情况下 x轴和y轴要交换一下。</span><br><span class="line"></span><br><span class="line">宽度和高度设置的情况也是类似。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>具体的扫描结果通过遵守<code>AVCaptureMetadataOutputObjectsDelegate</code>协议并实现</p>
+<p><code>-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection</code></p>
+<p>代理方法就可以拿到</p>
+<p><img src="https://i.niupic.com/images/2016/09/07/2ea1uC.gif" alt="扫描"></p>
+<h4 id="4、其他的使用场景"><a href="#4、其他的使用场景" class="headerlink" title="4、其他的使用场景"></a>4、其他的使用场景</h4><p>除了最常见的扫描识别二维码的方式之外 还有点击弹出框 选择识别图中二维码，或者 长按直接识别二维码的方式</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> *  识别图中的二维码</span><br><span class="line"> *</span><br><span class="line"> *  @param aImage      图片</span><br><span class="line"> *  @param aCompletion 识别完成的回调</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)recognitionQRCodeFromImage:(UIImageView *)aImage</span><br><span class="line">		 completion:(void (^)(NSString *result,</span><br><span class="line">		 					 NSError *error))aCompletion;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="https://i.niupic.com/images/2016/09/07/f1hIfp.gif" alt="长按识别"></p>
+<h4 id="5、总结"><a href="#5、总结" class="headerlink" title="5、总结"></a>5、总结</h4><p>这样的话在我们日常使用中常见的几种对于二维码的操作，基本可以实现。希望这个demo对你有所帮助。</p>
+]]></content>
+      <categories>
+        <category>iOS进阶</category>
+      </categories>
+      <tags>
+        <tag>QRCode</tag>
       </tags>
   </entry>
   <entry>
@@ -911,6 +911,26 @@ self.tableView.registerClass(NewsCell.self,
       </tags>
   </entry>
   <entry>
+    <title>基于CTMediator的组件间跳转</title>
+    <url>/2016/09/26/alimediator/</url>
+    <content><![CDATA[<p>  大概在去年，APP组件化讨论的非常热，各类组件化的文章也非常的多，看了其中的几篇，也是写的挺不错，我的这个思路就是继承其中一位采用(Target-Action)思路实现跳转解耦的。</p>
+<a id="more"></a>
+
+<h4 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h4><p>  大概在去年，APP组件化讨论的非常热，各类组件化的文章也非常的多，看了其中的几篇，也是写的挺不错，我的这个思路就是继承其中一位采用(Target-Action)思路实现跳转解耦的。</p>
+<p>  我看过的几个<a href="http://leewongsnail.github.io/2016/06/12/App%E7%BB%84%E4%BB%B6%E5%8C%96%E6%96%87%E7%AB%A0%E6%94%B6%E9%9B%86/">文章</a>,这里跟大家分享一下。这篇文章的demo我放到了<a href="https://github.com/LeeWongSnail/ALiMediator">这里</a></p>
+<h4 id="2、跳转方法实现（借用casatwy图片）"><a href="#2、跳转方法实现（借用casatwy图片）" class="headerlink" title="2、跳转方法实现（借用casatwy图片）"></a>2、跳转方法实现（借用casatwy图片）</h4><h5 id="2-1-方案的架构图"><a href="#2-1-方案的架构图" class="headerlink" title="2.1 方案的架构图"></a>2.1 方案的架构图</h5><p><img src="https://i.niupic.com/images/2016/09/08/xk7Jto.png" alt="mediator"></p>
+<h5 id="2-2-调用方式"><a href="#2-2-调用方式" class="headerlink" title="2.2 调用方式"></a>2.2 调用方式</h5><p><img src="https://i.niupic.com/images/2016/09/08/nZc6mm.png" alt="Method"></p>
+<h4 id="3、项目相关"><a href="#3、项目相关" class="headerlink" title="3、项目相关"></a>3、项目相关</h4><p>  我的项目中，将每一个模块，放在一个文件夹内，将每一个模块看做一个APP，在APP内部高度封装，必要时可将整个模块复用。千万不要因为某一个模块比较小就将其放到一个大的模块中，我认为只要感觉这个模块有一定的复用性，都要把他抽出来，即使这个项目不能服用，其他项目可能也可以复用。比如 分享 搜索。</p>
+<h4 id="4、最后"><a href="#4、最后" class="headerlink" title="4、最后"></a>4、最后</h4><p>  我所写的只是 我对组件化的一个入门的小理解，感觉组件化大势所趋。如果觉得这篇文章没有什么，不妨去拜读一下 前面我提供的那几篇文章。希望对你有帮助。</p>
+]]></content>
+      <categories>
+        <category>组件化</category>
+      </categories>
+      <tags>
+        <tag>组件跳转 中间者模式 CTMediator</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>组件化设计方案</title>
     <url>/2020/07/25/appmodule/</url>
     <content><![CDATA[<p>随着多个功能需要在多个业务线短时间内实现功能同步，我们需要将新增功能模块和已有的功能模块逐步组件化，以达到多个业务线间可快速同步的效果</p>
@@ -1219,26 +1239,6 @@ self.tableView.registerClass(NewsCell.self,
       </categories>
       <tags>
         <tag>Block 循环引用 内存管理 引用计数</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>基于CTMediator的组件间跳转</title>
-    <url>/2016/09/26/alimediator/</url>
-    <content><![CDATA[<p>  大概在去年，APP组件化讨论的非常热，各类组件化的文章也非常的多，看了其中的几篇，也是写的挺不错，我的这个思路就是继承其中一位采用(Target-Action)思路实现跳转解耦的。</p>
-<a id="more"></a>
-
-<h4 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h4><p>  大概在去年，APP组件化讨论的非常热，各类组件化的文章也非常的多，看了其中的几篇，也是写的挺不错，我的这个思路就是继承其中一位采用(Target-Action)思路实现跳转解耦的。</p>
-<p>  我看过的几个<a href="http://leewongsnail.github.io/2016/06/12/App%E7%BB%84%E4%BB%B6%E5%8C%96%E6%96%87%E7%AB%A0%E6%94%B6%E9%9B%86/">文章</a>,这里跟大家分享一下。这篇文章的demo我放到了<a href="https://github.com/LeeWongSnail/ALiMediator">这里</a></p>
-<h4 id="2、跳转方法实现（借用casatwy图片）"><a href="#2、跳转方法实现（借用casatwy图片）" class="headerlink" title="2、跳转方法实现（借用casatwy图片）"></a>2、跳转方法实现（借用casatwy图片）</h4><h5 id="2-1-方案的架构图"><a href="#2-1-方案的架构图" class="headerlink" title="2.1 方案的架构图"></a>2.1 方案的架构图</h5><p><img src="https://i.niupic.com/images/2016/09/08/xk7Jto.png" alt="mediator"></p>
-<h5 id="2-2-调用方式"><a href="#2-2-调用方式" class="headerlink" title="2.2 调用方式"></a>2.2 调用方式</h5><p><img src="https://i.niupic.com/images/2016/09/08/nZc6mm.png" alt="Method"></p>
-<h4 id="3、项目相关"><a href="#3、项目相关" class="headerlink" title="3、项目相关"></a>3、项目相关</h4><p>  我的项目中，将每一个模块，放在一个文件夹内，将每一个模块看做一个APP，在APP内部高度封装，必要时可将整个模块复用。千万不要因为某一个模块比较小就将其放到一个大的模块中，我认为只要感觉这个模块有一定的复用性，都要把他抽出来，即使这个项目不能服用，其他项目可能也可以复用。比如 分享 搜索。</p>
-<h4 id="4、最后"><a href="#4、最后" class="headerlink" title="4、最后"></a>4、最后</h4><p>  我所写的只是 我对组件化的一个入门的小理解，感觉组件化大势所趋。如果觉得这篇文章没有什么，不妨去拜读一下 前面我提供的那几篇文章。希望对你有帮助。</p>
-]]></content>
-      <categories>
-        <category>组件化</category>
-      </categories>
-      <tags>
-        <tag>组件跳转 中间者模式 CTMediator</tag>
       </tags>
   </entry>
   <entry>
@@ -4768,6 +4768,177 @@ weak 此特质表明该属性定义了一种“非拥有关系” (nonowning rel
 ]]></content>
   </entry>
   <entry>
+    <title>内存管理之Tagged pointer</title>
+    <url>/2020/08/08/tagpointer/</url>
+    <content><![CDATA[<p>iOS开发者对<code>引用计数</code>这个名词肯定不陌生,引用计数是苹果为了方便开发者管理内存而引入的一个概念,当引用计数为0时，对象就会被释放。但是，真的是所有对象都是这样吗？</p>
+<a id="more"></a>
+
+<h3 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h3><p>iOS将虚拟内存按照地址由低到高划分为如下五个区：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ghjbitqd60j30cn09ljrw.jpg"></p>
+<p>在程序运行时，代码区，常量区以及全局静态区的大小是固定的，会变化的只有栈和堆的大小。而栈的内存是有操作系统自动释放的，我们平常说所的iOS内存引用计数，其实是就堆上的对象来说的。</p>
+<h3 id="如何引入tagged-pointer"><a href="#如何引入tagged-pointer" class="headerlink" title="如何引入tagged pointer"></a>如何引入tagged pointer</h3><p>自2013年苹果推出iphone5s之后，iOS的寻址空间扩大到了64位。我们可以用63位来表示一个数字(一位做符号位)。那么这个数字的范围是2^63 ,很明显我们一般不会用到这么大的数字，那么在我们定义一个数字时<code>NSNumber *num = @100</code>,实际上内存中浪费了很多的内存空间。</p>
+<p>当然苹果肯定也认识到了这个问题，于是就引入了<code>tagged pointer</code>,<code>tagged pointer</code>是一种特殊的“指针”，其特殊在于，其实它存储的并不是地址，而是真实的数据和一些附加的信息。</p>
+<p>我们可以在WWDC2013的《Session 404 Advanced in Objective-C》视频中，看到苹果对于Tagged Pointer特点的介绍：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ghjdbgf38nj31el0u0afd.jpg"></p>
+<ul>
+<li>Tagged Pointer专门用来存储小的对象，例如NSNumber, NSDate, NSString。</li>
+<li>Tagged Pointer指针的值不再是地址了，而是真正的值。所以，实际上它不再是一个对象了，它只是一个披着对象皮的普通变量而已。所以，它的内存并不存储在堆中，也不需要malloc和free。</li>
+<li>在内存读取上有着3倍的效率，创建时比以前快106倍。</li>
+</ul>
+<h3 id="NSTaggedPointer"><a href="#NSTaggedPointer" class="headerlink" title="NSTaggedPointer"></a>NSTaggedPointer</h3><p>我们先看下下面这段代码：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSMutableString</span> *mutableStr = [<span class="built_in">NSMutableString</span> string];</span><br><span class="line"><span class="built_in">NSString</span> *immutable = <span class="literal">nil</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _OBJC_TAG_MASK (1UL&lt;&lt;63)</span></span><br><span class="line"><span class="keyword">char</span> c = <span class="string">&#x27;a&#x27;</span>;</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    [mutableStr appendFormat:<span class="string">@&quot;%c&quot;</span>, c++];</span><br><span class="line">    immutable = [mutableStr <span class="keyword">copy</span>];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;%p %@ %@&quot;</span>, immutable, immutable, immutable.class);</span><br><span class="line">&#125;<span class="keyword">while</span>(((uintptr_t)immutable &amp; _OBJC_TAG_MASK) == _OBJC_TAG_MASK);</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">2020-08-08 14:15:54.480862+0800 TaggedPointerDemo[55468:2078125] 0xdc5050684e86e57c a NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.481719+0800 TaggedPointerDemo[55468:2078125] 0xdc5050684e80c57f ab NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.482480+0800 TaggedPointerDemo[55468:2078125] 0xdc50506848b0c57e abc NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.483342+0800 TaggedPointerDemo[55468:2078125] 0xdc50506e08b0c579 abcd NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.483950+0800 TaggedPointerDemo[55468:2078125] 0xdc50563e08b0c578 abcde NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.484246+0800 TaggedPointerDemo[55468:2078125] 0xdc56363e08b0c57b abcdef NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.484800+0800 TaggedPointerDemo[55468:2078125] 0xda26363e08b0c57a abcdefg NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.485200+0800 TaggedPointerDemo[55468:2078125] 0xdc527050ee978a35 abcdefgh NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.485644+0800 TaggedPointerDemo[55468:2078125] 0xdcd85e404adcb774 abcdefghi NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.486003+0800 TaggedPointerDemo[55468:2078125] 0x28334c2c0 abcdefghij __NSCFString</span><br></pre></td></tr></table></figure>
+<p>上图我们可以看到，当字符串的长度为10个以内时，字符串的类型都是<code>NSTaggedPointerString</code>类型，当超过10个时，字符串的类型才是<code>__NSCFString</code></p>
+<p>打印结果分析：</p>
+<h4 id="NSTaggedPointer标志位"><a href="#NSTaggedPointer标志位" class="headerlink" title="NSTaggedPointer标志位"></a>NSTaggedPointer标志位</h4><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">bool</span> </span><br><span class="line">_objc_isTaggedPointer(<span class="keyword">const</span> <span class="keyword">void</span> * _Nullable ptr)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> ((uintptr_t)ptr &amp; _OBJC_TAG_MASK) == _OBJC_TAG_MASK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面这个方法我们看到，判断一个对象类型是否为<code>NSTaggedPointerString</code>类型实际上是讲对象的地址与<code>_OBJC_TAG_MASK</code>进行按位与操作,结果在跟<code>_OBJC_TAG_MASK</code>进行对比,我们在看下<code>_OBJC_TAG_MASK</code>的定义:</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">if</span> OBJC_MSB_TAGGED_POINTERS</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> _OBJC_TAG_MASK (1UL&lt;&lt;63)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> _OBJC_TAG_MASK 1UL</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>我们都知道一个对象地址为64位二进制，它表明如果64位数据中，最高位是1的话，则表明当前是一个<code>tagged pointer</code>类型。</p>
+<p>那么我们在看下上面打印出的地址，所有<code>NSTaggedPointerString</code>地址都是<code>0xd</code>开头，d转换为二进制<code>1110</code>，根据上面的结论，我们看到首位为1表示为<code>NSTaggedPointerString</code>类型。在这里得到验证。</p>
+<p><code>注意</code>:<code>TaggedPointer</code>类型在iOS和MacOS中标志位是不同的iOS为最高位而MacOS为最低位</p>
+<h4 id="对象类型"><a href="#对象类型" class="headerlink" title="对象类型"></a>对象类型</h4><p>正常情况下一个对象的类型，是通过这个对象的ISA指针来判断的，那么对于<code>NSTaggedPointer</code>类型我们如何通过地址判断对应数据是什么类型的呢？</p>
+<h5 id="objc4-723之前"><a href="#objc4-723之前" class="headerlink" title="objc4-723之前"></a>objc4-723之前</h5><p>在objc4-723之前，我们可以通过与判断<code>TaggedPointer</code>标志位一样根据地址来判断，而类型的标志位就是对象地址的61-63位,比如对象地址为<code>0xa</code>开头，那么转换成二进制位<code>1010</code>,那么去掉最高位标志位后，剩余为<code>010</code>,即10进制中的2。</p>
+<p>接着我们看下runtime源码objc-internal.h中有关于标志位的定义如下：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">if</span> __has_feature(objc_fixed_enum)  ||  __cplusplus &gt;= 201103L</span></span><br><span class="line"><span class="keyword">enum</span> objc_tag_index_t : uint16_t</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="keyword">typedef</span> uint16_t objc_tag_index_t;</span><br><span class="line"><span class="keyword">enum</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 60-bit payloads</span></span><br><span class="line">    OBJC_TAG_NSAtom            = <span class="number">0</span>, </span><br><span class="line">    OBJC_TAG_1                 = <span class="number">1</span>, </span><br><span class="line">    OBJC_TAG_NSString          = <span class="number">2</span>, </span><br><span class="line">    OBJC_TAG_NSNumber          = <span class="number">3</span>, </span><br><span class="line">    OBJC_TAG_NSIndexPath       = <span class="number">4</span>, </span><br><span class="line">    OBJC_TAG_NSManagedObjectID = <span class="number">5</span>, </span><br><span class="line">    OBJC_TAG_NSDate            = <span class="number">6</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 60-bit reserved</span></span><br><span class="line">    OBJC_TAG_RESERVED_7        = <span class="number">7</span>, </span><br><span class="line"></span><br><span class="line">    <span class="comment">// 52-bit payloads</span></span><br><span class="line">    OBJC_TAG_Photos_1          = <span class="number">8</span>,</span><br><span class="line">    OBJC_TAG_Photos_2          = <span class="number">9</span>,</span><br><span class="line">    OBJC_TAG_Photos_3          = <span class="number">10</span>,</span><br><span class="line">    OBJC_TAG_Photos_4          = <span class="number">11</span>,</span><br><span class="line">    OBJC_TAG_XPC_1             = <span class="number">12</span>,</span><br><span class="line">    OBJC_TAG_XPC_2             = <span class="number">13</span>,</span><br><span class="line">    OBJC_TAG_XPC_3             = <span class="number">14</span>,</span><br><span class="line">    OBJC_TAG_XPC_4             = <span class="number">15</span>,</span><br><span class="line"></span><br><span class="line">    OBJC_TAG_First60BitPayload = <span class="number">0</span>, </span><br><span class="line">    OBJC_TAG_Last60BitPayload  = <span class="number">6</span>, </span><br><span class="line">    OBJC_TAG_First52BitPayload = <span class="number">8</span>, </span><br><span class="line">    OBJC_TAG_Last52BitPayload  = <span class="number">263</span>, </span><br><span class="line"></span><br><span class="line">    OBJC_TAG_RESERVED_264      = <span class="number">264</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> __has_feature(objc_fixed_enum)  &amp;&amp;  !defined(__cplusplus)</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">enum</span> objc_tag_index_t objc_tag_index_t;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>那么我们知道2表示的<code>OBJC_TAG_NSString</code>即字符串类型。因为目前已经无法验证这种情况了 所以我们不做其他类型验证。</p>
+<h5 id="objc4-750之后"><a href="#objc4-750之后" class="headerlink" title="objc4-750之后"></a>objc4-750之后</h5><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Returns a pointer to the class&#x27;s storage in the tagged class arrays.</span></span><br><span class="line"><span class="comment">// Assumes the tag is a valid basic tag.</span></span><br><span class="line"><span class="keyword">static</span> Class *</span><br><span class="line">classSlotForBasicTagIndex(objc_tag_index_t tag)</span><br><span class="line">&#123;</span><br><span class="line">    uintptr_t tagObfuscator = ((objc_debug_taggedpointer_obfuscator</span><br><span class="line">                                &gt;&gt; _OBJC_TAG_INDEX_SHIFT)</span><br><span class="line">                               &amp; _OBJC_TAG_INDEX_MASK);</span><br><span class="line">    uintptr_t obfuscatedTag = tag ^ tagObfuscator;</span><br><span class="line">    <span class="comment">// Array index in objc_tag_classes includes the tagged bit itself</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> SUPPORT_MSB_TAGGED_POINTERS <span class="comment">////高位优先</span></span></span><br><span class="line">    <span class="keyword">return</span> &amp;objc_tag_classes[<span class="number">0x8</span> | obfuscatedTag];</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    <span class="keyword">return</span> &amp;objc_tag_classes[(obfuscatedTag &lt;&lt; <span class="number">1</span>) | <span class="number">1</span>];</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>classSlotForBasicTagIndex() 函数的主要功能就是根据指定索引 tag 从数组objc_tag_classes中获取类指针,而下标的计算方法发是根据外部传递的索引tag。比如字符串 tag = 2。当然这并不是简单的从数组中获取某条数据。</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"> uint16_t <span class="built_in">NSString_Tag</span> = <span class="number">2</span>;</span><br><span class="line">uint16_t <span class="built_in">NSNumber_Tag</span> = <span class="number">3</span>;</span><br><span class="line"><span class="comment">// 3 = 0011</span></span><br><span class="line"><span class="comment">// _OBJC_TAG_INDEX_MASK = 0x7 = 0111</span></span><br><span class="line">        uintptr_t string_tagObfuscator = ((objc_debug_taggedpointer_obfuscator</span><br><span class="line">                                           &gt;&gt; _OBJC_TAG_INDEX_SHIFT)</span><br><span class="line">                                          &amp; _OBJC_TAG_INDEX_MASK);</span><br><span class="line"></span><br><span class="line">        uintptr_t number_tagObfuscator = ((objc_debug_taggedpointer_obfuscator</span><br><span class="line">                                           &gt;&gt; _OBJC_TAG_INDEX_SHIFT)</span><br><span class="line">                                          &amp; _OBJC_TAG_INDEX_MASK);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异或操作 相同返回0 不同返回1</span></span><br><span class="line"><span class="comment">// 2 ^ 3 = 0010 ^ 0011 = 0001</span></span><br><span class="line"><span class="comment">// 3^ 3 = 0011 ^ 0011 = 0000</span></span><br><span class="line">        uintptr_t string_obfuscatedTag = <span class="built_in">NSString_Tag</span> ^ string_tagObfuscator;</span><br><span class="line">        uintptr_t number_obfuscatedTag = <span class="built_in">NSNumber_Tag</span> ^ number_tagObfuscator;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按位或</span></span><br><span class="line"><span class="comment">// 1000 | 0001 = 1001 = 9</span></span><br><span class="line"><span class="comment">// 1000 | 0000 = 1000 = 8</span></span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, objc_tag_classes[<span class="number">0x8</span> | string_obfuscatedTag]);</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, objc_tag_classes[<span class="number">0x8</span> | number_obfuscatedTag]);</span><br></pre></td></tr></table></figure>
+
+<p>控制台输出为：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">TaggedPointer[89420:3027642] NSTaggedPointerString</span><br><span class="line">TaggedPointer[89420:3027642] __NSCFNumber</span><br></pre></td></tr></table></figure>
+
+<p>当我们多次运行时,我们发现实际上每次获取到的<code>string_tagObfuscator</code>和<code>number_obfuscatedTag</code>都不一样，但是每次从<code>objc_tag_classes</code>中取出的类型均是一致的，因此实际上每次运行objc_tag_classes中的内容也是不断变化的。</p>
+<p>如果你想进一步的了解可以参考<a href="https://jinxuebin.cn/2019/06/Objective-C%E4%B8%AD%E7%9A%84%E4%BC%AA%E6%8C%87%E9%92%88/">Objective-C中伪指针Tagged Pointer</a></p>
+<h4 id="NSCFNumber"><a href="#NSCFNumber" class="headerlink" title="NSCFNumber"></a>NSCFNumber</h4><p>下面我们在看下NSNumber类型</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSNumber</span> *number1 = @(<span class="number">0x1</span>);</span><br><span class="line"><span class="built_in">NSNumber</span> *number2 = @(<span class="number">0x20</span>);</span><br><span class="line"><span class="built_in">NSNumber</span> *number3 = @(<span class="number">0x3F</span>);</span><br><span class="line"><span class="built_in">NSNumber</span> *numberFFFF = @(<span class="number">0xFFFFFFFFFFEFE</span>);</span><br><span class="line"><span class="built_in">NSNumber</span> *maxNum = @(MAXFLOAT);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;number1 pointer is %p class is %@&quot;</span>, number1, number1.class);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;number2 pointer is %p class is %@&quot;</span>, number2, number2.class);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;number3 pointer is %p class is %@&quot;</span>, number3, number3.class);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;numberffff pointer is %p class is %@&quot;</span>, numberFFFF, numberFFFF.class);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;maxNum pointer is %p class is %@&quot;</span>, maxNum, maxNum.class);</span><br></pre></td></tr></table></figure>
+
+<p>我们在看下打印结果:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">TaggedPointerDemo[59218:2167895] number1 pointer is 0xf7cb914ffb51479a class is __NSCFNumber</span><br><span class="line">TaggedPointerDemo[59218:2167895] number2 pointer is 0xf7cb914ffb51458a class is __NSCFNumber</span><br><span class="line">TaggedPointerDemo[59218:2167895] number3 pointer is 0xf7cb914ffb51447a class is __NSCFNumber</span><br><span class="line">TaggedPointerDemo[59218:2167895] numberffff pointer is 0xf7346eb004aea86b class is __NSCFNumber</span><br><span class="line">TaggedPointerDemo[59218:2167895] maxNum pointer is 0x28172a0c0 class is __NSCFNumber</span><br></pre></td></tr></table></figure>
+
+<p>我们发现对于NSNumber，我们打印出来的数据类型均为<code>__NSCFNumber</code>,但是我们发现对于<code>MAXFLOAT</code>打印出的地址显然与其他几项不符，上面几个NSNumber的地址以<code>0xf</code>开头，根据字符串地址的经验我们可以看出<code>f = 1111</code>,首位标记位为1，表示这个数据类型属于<code>TaggedPointer</code>。而MAXFLOAT不是。</p>
+<h4 id="获取TaggedPointer的值"><a href="#获取TaggedPointer的值" class="headerlink" title="获取TaggedPointer的值"></a>获取TaggedPointer的值</h4><h5 id="objc4-723之前-1"><a href="#objc4-723之前-1" class="headerlink" title="objc4-723之前"></a>objc4-723之前</h5><p>字符串：<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghki3kum3kj30cw04ljss.jpg"></p>
+<p>从上图的地址中我们就可以看出,从低位到高位分别表示的就是字符串的值(在ASCII码表中的值)</p>
+<p>数字:<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghki3v25qqj30fa02iq3q.jpg"></p>
+<p>对于数字来说从地址中也是直接读出存储的值，如上图。</p>
+<h5 id="objc4-750之后-1"><a href="#objc4-750之后-1" class="headerlink" title="objc4-750之后"></a>objc4-750之后</h5><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> uintptr_t</span><br><span class="line">_objc_decodeTaggedPointer(<span class="keyword">const</span> <span class="keyword">void</span> * _Nullable ptr)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> (uintptr_t)ptr ^ objc_debug_taggedpointer_obfuscator;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> uintptr_t</span><br><span class="line">_objc_getTaggedPointerValue(<span class="keyword">const</span> <span class="keyword">void</span> * _Nullable ptr) </span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// assert(_objc_isTaggedPointer(ptr));</span></span><br><span class="line">    uintptr_t value = _objc_decodeTaggedPointer(ptr);</span><br><span class="line">    uintptr_t basicTag = (value &gt;&gt; _OBJC_TAG_INDEX_SHIFT) &amp; _OBJC_TAG_INDEX_MASK;</span><br><span class="line">    <span class="keyword">if</span> (basicTag == _OBJC_TAG_INDEX_MASK) &#123;</span><br><span class="line">        <span class="keyword">return</span> (value &lt;&lt; _OBJC_TAG_EXT_PAYLOAD_LSHIFT) &gt;&gt; _OBJC_TAG_EXT_PAYLOAD_RSHIFT;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> (value &lt;&lt; _OBJC_TAG_PAYLOAD_LSHIFT) &gt;&gt; _OBJC_TAG_PAYLOAD_RSHIFT;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> intptr_t</span><br><span class="line">_objc_getTaggedPointerSignedValue(<span class="keyword">const</span> <span class="keyword">void</span> * _Nullable ptr) </span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// assert(_objc_isTaggedPointer(ptr));</span></span><br><span class="line">    uintptr_t value = _objc_decodeTaggedPointer(ptr);</span><br><span class="line">    uintptr_t basicTag = (value &gt;&gt; _OBJC_TAG_INDEX_SHIFT) &amp; _OBJC_TAG_INDEX_MASK;</span><br><span class="line">    <span class="keyword">if</span> (basicTag == _OBJC_TAG_INDEX_MASK) &#123;</span><br><span class="line">        <span class="keyword">return</span> ((intptr_t)value &lt;&lt; _OBJC_TAG_EXT_PAYLOAD_LSHIFT) &gt;&gt; _OBJC_TAG_EXT_PAYLOAD_RSHIFT;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ((intptr_t)value &lt;&lt; _OBJC_TAG_PAYLOAD_LSHIFT) &gt;&gt; _OBJC_TAG_PAYLOAD_RSHIFT;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>示例代码：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSString</span> *str1 = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;1&quot;</span>];</span><br><span class="line">      <span class="built_in">NSString</span> *str11 = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;11&quot;</span>];</span><br><span class="line">      <span class="built_in">NSString</span> *str2 = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;2&quot;</span>];</span><br><span class="line">      <span class="built_in">NSString</span> *str22 = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;22&quot;</span>];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">      <span class="comment">// 0x31 1 0x32 1</span></span><br><span class="line">      uintptr_t value1 = objc_getTaggedPointerValue((__bridge <span class="keyword">void</span> *)str1);</span><br><span class="line">      uintptr_t value2 = objc_getTaggedPointerValue((__bridge <span class="keyword">void</span> *)str2);</span><br><span class="line">      uintptr_t value11 = objc_getTaggedPointerValue((__bridge <span class="keyword">void</span> *)str11);</span><br><span class="line">      uintptr_t value22 = objc_getTaggedPointerValue((__bridge <span class="keyword">void</span> *)str22);</span><br><span class="line">      <span class="comment">// 以16进制形式输出</span></span><br><span class="line">      <span class="built_in">NSLog</span>(<span class="string">@&quot;%lx&quot;</span>, value1);</span><br><span class="line">      <span class="built_in">NSLog</span>(<span class="string">@&quot;%lx&quot;</span>, value11);</span><br><span class="line">      <span class="built_in">NSLog</span>(<span class="string">@&quot;%lx&quot;</span>, value2);</span><br><span class="line">      <span class="built_in">NSLog</span>(<span class="string">@&quot;%lx&quot;</span>, value22);</span><br></pre></td></tr></table></figure>
+<p>控制台输出:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">TaggedPointer[89535:3033433] 311</span><br><span class="line">TaggedPointer[89535:3033433] 31312</span><br><span class="line">TaggedPointer[89535:3033433] 321</span><br><span class="line">TaggedPointer[89535:3033433] 32322</span><br></pre></td></tr></table></figure>
+
+<p>即 “1” = 0x31 1,最后一位表示长度，在ASCII码表中31表示的就是字符1。而且从字符串“11”的结果我们也可以验证上面的说法。</p>
+<h3 id="isa-指针-NONPOINTER-ISA"><a href="#isa-指针-NONPOINTER-ISA" class="headerlink" title="isa 指针(NONPOINTER_ISA)"></a>isa 指针(NONPOINTER_ISA)</h3><p>上面我们说了，对于一个对象的存储，苹果做了优化，那么对于ISA指针呢？</p>
+<p>对象的isa指针，用来表明对象所属的类类型。</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">union</span> isa_t &#123;</span><br><span class="line">    isa_t() &#123; &#125;</span><br><span class="line">    isa_t(uintptr_t value) : bits(value) &#123; &#125;</span><br><span class="line"></span><br><span class="line">    Class cls;</span><br><span class="line">    uintptr_t bits;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(ISA_BITFIELD)</span></span><br><span class="line">    <span class="keyword">struct</span> &#123;</span><br><span class="line">        ISA_BITFIELD;  <span class="comment">// defined in isa.h</span></span><br><span class="line">    &#125;;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>同时结合下图，我们可以更清晰的了解isa指针的作用以及类对象的概念。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghjtmvzlxwj30w20j9tas.jpg"></p>
+<p>从图中可以看出，我们所谓的isa指针，最后实际上落脚于isa_t的联合类型。那么何为联合类型呢？<br><code>联合类型是C语言中的一种类型，是一种n选1的关系,联合的作用在于，用更少的空间，表示了更多的可能的类型，虽然这些类型是不能够共存的</code>。比如isa_t 中包含有<code>cls</code>，<code>bits</code>， <code>struct</code>三个变量，它们的内存空间是重叠的。在实际使用时，仅能够使用它们中的一种，你把它当做cls，就不能当bits访问，你把它当bits，就不能用cls来访问。</p>
+<p>对于<code>isa_t</code>联合类型，主要包含了两个构造函数<code>isa_t()</code>,<code>isa_t(uintptr_t value)</code>和三个变量<code>cls</code>,<code>bits</code>,<code>struct</code>,而<code>uintptr_t</code>的定义为<code>typedef unsigned long</code>。         </p>
+<p>当isa_t作为Class cls使用时，这符合了我们之前一贯的认知：isa是一个指向对象所属Class类型的指针。然而，仅让一个64位的指针表示一个类型，显然不划算。</p>
+<p>因此，绝大多数情况下，苹果采用了优化的<code>isa策略</code>，即，<code>isa_t</code>类型并不等同而<code>Class cls</code>, 而是<code>struct</code>。</p>
+<h4 id="struct"><a href="#struct" class="headerlink" title="struct"></a>struct</h4><p>下面我们先来看下struct的结构体</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// ISA_BITFIELD定义如下</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">if</span> __arm64__</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> ISA_MASK        0x0000000ffffffff8ULL</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> ISA_MAGIC_MASK  0x000003f000000001ULL</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> ISA_MAGIC_VALUE 0x000001a000000001ULL</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> ISA_BITFIELD                                                      \</span></span><br><span class="line">      uintptr_t nonpointer        : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t has_assoc         : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t has_cxx_dtor      : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t shiftcls          : <span class="number">33</span>; <span class="comment">/*MACH_VM_MAX_ADDRESS 0x1000000000*/</span> \</span><br><span class="line">      uintptr_t magic             : <span class="number">6</span>;                                       \</span><br><span class="line">      uintptr_t weakly_referenced : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t deallocating      : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t has_sidetable_rc  : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t extra_rc          : <span class="number">19</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> RC_ONE   (1ULL&lt;&lt;45)</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> RC_HALF  (1ULL&lt;&lt;18)</span></span><br></pre></td></tr></table></figure>
+
+<p>注意:<code>成员后面的：表明了该成员占用几个bit</code><br>而每个成员的意义如下表</p>
+<h4 id="标志位说明"><a href="#标志位说明" class="headerlink" title="标志位说明"></a>标志位说明</h4><table>
+<thead>
+<tr>
+<th>成员</th>
+<th>bit位</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>nonpointer</td>
+<td>1bit</td>
+<td>标志位。1(奇数)表示开启了isa优化，0(偶数)表示没有启用isa优化。所以，我们可以通过判断isa是否为奇数来判断对象是否启用了isa优化</td>
+</tr>
+<tr>
+<td>has_assoc</td>
+<td>1bit</td>
+<td>标志位。表明对象是否有关联对象。没有关联对象的对象释放的更快。</td>
+</tr>
+<tr>
+<td>has_cxx_dtor</td>
+<td>1bit</td>
+<td>标志位。表明对象是否有C++或ARC析构函数。没有析构函数的对象释放的更快</td>
+</tr>
+<tr>
+<td>shiftcls</td>
+<td>33bit</td>
+<td>类指针的非零位。</td>
+</tr>
+<tr>
+<td>magic</td>
+<td>6bit</td>
+<td>固定为0x1a，用于在调试时区分对象是否已经初始化。</td>
+</tr>
+<tr>
+<td>weakly_referenced</td>
+<td>1bit</td>
+<td>标志位。用于表示该对象是否被别的对象弱引用。没有被弱引用的对象释放的更快。</td>
+</tr>
+<tr>
+<td>deallocating</td>
+<td>1bit</td>
+<td>标志位。用于表示该对象是否正在被释放。</td>
+</tr>
+<tr>
+<td>has_sidetable_rc</td>
+<td>1bit</td>
+<td>标志位。用于标识是否当前的引用计数过大，无法在isa中存储，而需要借用sidetable来存储。（这种情况大多不会发生）</td>
+</tr>
+<tr>
+<td>extra_rc</td>
+<td>19bit</td>
+<td>对象的引用计数减1。比如，一个object对象的引用计数为7，则此时extra_rc的值为6。</td>
+</tr>
+</tbody></table>
+<p>从上表我们发现，<code>extra_rc</code>和<code>has_sidetable_rc</code>是和引用计数相关的标志位，当extra_rc 不够用时，还会借助sidetable来存储计数值，这时，has_sidetable_rc会被标志为1。</p>
+<p>接下来我们来验证下，这些标志位是否真的如表中介绍那样。</p>
+<h4 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h4><p>我们先来看下面这段代码</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)testisa &#123;</span><br><span class="line">    <span class="built_in">NSObject</span> *obj = [[<span class="built_in">NSObject</span> alloc] init];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;1. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>控制台输出结果</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">TaggedPointerDemo[59983:2185591] 1. obj isa_t &#x3D; 0x1a1f335beb1</span><br></pre></td></tr></table></figure>
+<p>我们将地址<code>0x1a1f335beb1</code>转换过后：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfjfbyu0j30fe0dogmb.jpg"></p>
+<p>我们看到这时候 对象是<code>nonpointer</code>开启了isa优化，且当前的引用计数器为 extra_rc = 0 + 1 = 1;</p>
+<p>下面我们接着测试</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSObject</span> *obj = [[<span class="built_in">NSObject</span> alloc] init];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;1. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)obj);</span><br><span class="line">_obj1 = obj;</span><br><span class="line"><span class="built_in">NSObject</span> *tmpObj = obj;</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;2. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)obj);</span><br></pre></td></tr></table></figure>
+<p>控制台输出为</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">TaggedPointerDemo[63235:2266690] 1. obj isa_t &#x3D; 0x1a1f335beb1</span><br><span class="line">TaggedPointerDemo[63235:2266690] 2. obj isa_t &#x3D; 0x41a1f335beb1</span><br></pre></td></tr></table></figure>
+<p>我们将地址<code>0x41a1f335beb1</code>转换过后：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfvyc4tkj30fe0dot9f.jpg"></p>
+<p>我们看到这时候，我们将obj强引用之后，又实用了一个局部变量对其进行引用，所以这时的引用计数应该为2，当然从图中我们也可以验证这一点。</p>
+<h4 id="weakly-referenced"><a href="#weakly-referenced" class="headerlink" title="weakly_referenced"></a>weakly_referenced</h4><p>我们这次添加一个弱引用来验证</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"> _weakRefObj = _obj1;</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;3. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)_obj1);</span><br></pre></td></tr></table></figure>
+
+<p>控制台输出为</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">TaggedPointerDemo[<span class="number">63235</span>:<span class="number">2266690</span>] <span class="number">3.</span> obj isa_t = <span class="number">0x45a1f335beb1</span></span><br></pre></td></tr></table></figure>
+
+<p>这时候我们仅仅通过地址进行判断 当添加了<code>_obj2 = _obj1</code>后，地址变为<code>0x61a1f335beb1</code>与之前地址<code>0x41a1f335beb1</code>对比</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfxt2qagj30fe0doq3n.jpg"></p>
+<p>上图我们可以看到<code>weakly_referenced</code>标志位被置为1.表示这个对象有被弱引用。</p>
+<h4 id="has-assoc"><a href="#has-assoc" class="headerlink" title="has_assoc"></a>has_assoc</h4><p>然后我们在添加一个关联属性</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSObject</span> *attachObj = [[<span class="built_in">NSObject</span> alloc] init];</span><br><span class="line">objc_setAssociatedObject(_obj1, <span class="string">&quot;attachKey&quot;</span>, attachObj, OBJC_ASSOCIATION_RETAIN_NONATOMIC);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;4. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)_obj1);</span><br></pre></td></tr></table></figure>
+
+<p>控制台输出为:</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">TaggedPointerDemo[<span class="number">63235</span>:<span class="number">2266690</span>] <span class="number">4.</span> obj isa_t = <span class="number">0x45a1f335beb3</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfzqpmq2j30fe0doq3n.jpg"></p>
+<p>从上图中我们看到<code>has_assoc</code>标志位被置为1.</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>截止到这里，我们通过观察<code>NSTaggedPointer</code>,相关标志位我们基本了解了NSTaggedPointer是如何存储数据以及标志位的作用。</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a href="https://jinxuebin.cn/2019/06/Objective-C%E4%B8%AD%E7%9A%84%E4%BC%AA%E6%8C%87%E9%92%88/">Objective-C中伪指针Tagged Pointer</a></p>
+<p><a href="https://mikeash.com/pyblog/friday-qa-2015-07-31-tagged-pointer-strings.html">Friday Q&amp;A 2015-07-31: Tagged Pointer Strings</a></p>
+]]></content>
+  </entry>
+  <entry>
     <title>swift知识点(网络搜集)</title>
     <url>/2017/09/05/swift%E7%9F%A5%E8%AF%86%E7%82%B9/</url>
     <content><![CDATA[<p>近期在学习swift,本篇文章是在网络上看到的一些知识和总结,非原创文章</p>
@@ -4984,177 +5155,6 @@ weak 此特质表明该属性定义了一种“非拥有关系” (nonowning rel
       <tags>
         <tag>基础知识</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>内存管理之Tagged pointer</title>
-    <url>/2020/08/08/tagpointer/</url>
-    <content><![CDATA[<p>iOS开发者对<code>引用计数</code>这个名词肯定不陌生,引用计数是苹果为了方便开发者管理内存而引入的一个概念,当引用计数为0时，对象就会被释放。但是，真的是所有对象都是这样吗？</p>
-<a id="more"></a>
-
-<h3 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h3><p>iOS将虚拟内存按照地址由低到高划分为如下五个区：</p>
-<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ghjbitqd60j30cn09ljrw.jpg"></p>
-<p>在程序运行时，代码区，常量区以及全局静态区的大小是固定的，会变化的只有栈和堆的大小。而栈的内存是有操作系统自动释放的，我们平常说所的iOS内存引用计数，其实是就堆上的对象来说的。</p>
-<h3 id="如何引入tagged-pointer"><a href="#如何引入tagged-pointer" class="headerlink" title="如何引入tagged pointer"></a>如何引入tagged pointer</h3><p>自2013年苹果推出iphone5s之后，iOS的寻址空间扩大到了64位。我们可以用63位来表示一个数字(一位做符号位)。那么这个数字的范围是2^63 ,很明显我们一般不会用到这么大的数字，那么在我们定义一个数字时<code>NSNumber *num = @100</code>,实际上内存中浪费了很多的内存空间。</p>
-<p>当然苹果肯定也认识到了这个问题，于是就引入了<code>tagged pointer</code>,<code>tagged pointer</code>是一种特殊的“指针”，其特殊在于，其实它存储的并不是地址，而是真实的数据和一些附加的信息。</p>
-<p>我们可以在WWDC2013的《Session 404 Advanced in Objective-C》视频中，看到苹果对于Tagged Pointer特点的介绍：</p>
-<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ghjdbgf38nj31el0u0afd.jpg"></p>
-<ul>
-<li>Tagged Pointer专门用来存储小的对象，例如NSNumber, NSDate, NSString。</li>
-<li>Tagged Pointer指针的值不再是地址了，而是真正的值。所以，实际上它不再是一个对象了，它只是一个披着对象皮的普通变量而已。所以，它的内存并不存储在堆中，也不需要malloc和free。</li>
-<li>在内存读取上有着3倍的效率，创建时比以前快106倍。</li>
-</ul>
-<h3 id="NSTaggedPointer"><a href="#NSTaggedPointer" class="headerlink" title="NSTaggedPointer"></a>NSTaggedPointer</h3><p>我们先看下下面这段代码：</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSMutableString</span> *mutableStr = [<span class="built_in">NSMutableString</span> string];</span><br><span class="line"><span class="built_in">NSString</span> *immutable = <span class="literal">nil</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _OBJC_TAG_MASK (1UL&lt;&lt;63)</span></span><br><span class="line"><span class="keyword">char</span> c = <span class="string">&#x27;a&#x27;</span>;</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    [mutableStr appendFormat:<span class="string">@&quot;%c&quot;</span>, c++];</span><br><span class="line">    immutable = [mutableStr <span class="keyword">copy</span>];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;%p %@ %@&quot;</span>, immutable, immutable, immutable.class);</span><br><span class="line">&#125;<span class="keyword">while</span>(((uintptr_t)immutable &amp; _OBJC_TAG_MASK) == _OBJC_TAG_MASK);</span><br></pre></td></tr></table></figure>
-
-<p>运行结果：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">2020-08-08 14:15:54.480862+0800 TaggedPointerDemo[55468:2078125] 0xdc5050684e86e57c a NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.481719+0800 TaggedPointerDemo[55468:2078125] 0xdc5050684e80c57f ab NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.482480+0800 TaggedPointerDemo[55468:2078125] 0xdc50506848b0c57e abc NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.483342+0800 TaggedPointerDemo[55468:2078125] 0xdc50506e08b0c579 abcd NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.483950+0800 TaggedPointerDemo[55468:2078125] 0xdc50563e08b0c578 abcde NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.484246+0800 TaggedPointerDemo[55468:2078125] 0xdc56363e08b0c57b abcdef NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.484800+0800 TaggedPointerDemo[55468:2078125] 0xda26363e08b0c57a abcdefg NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.485200+0800 TaggedPointerDemo[55468:2078125] 0xdc527050ee978a35 abcdefgh NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.485644+0800 TaggedPointerDemo[55468:2078125] 0xdcd85e404adcb774 abcdefghi NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.486003+0800 TaggedPointerDemo[55468:2078125] 0x28334c2c0 abcdefghij __NSCFString</span><br></pre></td></tr></table></figure>
-<p>上图我们可以看到，当字符串的长度为10个以内时，字符串的类型都是<code>NSTaggedPointerString</code>类型，当超过10个时，字符串的类型才是<code>__NSCFString</code></p>
-<p>打印结果分析：</p>
-<h4 id="NSTaggedPointer标志位"><a href="#NSTaggedPointer标志位" class="headerlink" title="NSTaggedPointer标志位"></a>NSTaggedPointer标志位</h4><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">bool</span> </span><br><span class="line">_objc_isTaggedPointer(<span class="keyword">const</span> <span class="keyword">void</span> * _Nullable ptr)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> ((uintptr_t)ptr &amp; _OBJC_TAG_MASK) == _OBJC_TAG_MASK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上面这个方法我们看到，判断一个对象类型是否为<code>NSTaggedPointerString</code>类型实际上是讲对象的地址与<code>_OBJC_TAG_MASK</code>进行按位与操作,结果在跟<code>_OBJC_TAG_MASK</code>进行对比,我们在看下<code>_OBJC_TAG_MASK</code>的定义:</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">if</span> OBJC_MSB_TAGGED_POINTERS</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> _OBJC_TAG_MASK (1UL&lt;&lt;63)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> _OBJC_TAG_MASK 1UL</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
-<p>我们都知道一个对象地址为64位二进制，它表明如果64位数据中，最高位是1的话，则表明当前是一个<code>tagged pointer</code>类型。</p>
-<p>那么我们在看下上面打印出的地址，所有<code>NSTaggedPointerString</code>地址都是<code>0xd</code>开头，d转换为二进制<code>1110</code>，根据上面的结论，我们看到首位为1表示为<code>NSTaggedPointerString</code>类型。在这里得到验证。</p>
-<p><code>注意</code>:<code>TaggedPointer</code>类型在iOS和MacOS中标志位是不同的iOS为最高位而MacOS为最低位</p>
-<h4 id="对象类型"><a href="#对象类型" class="headerlink" title="对象类型"></a>对象类型</h4><p>正常情况下一个对象的类型，是通过这个对象的ISA指针来判断的，那么对于<code>NSTaggedPointer</code>类型我们如何通过地址判断对应数据是什么类型的呢？</p>
-<h5 id="objc4-723之前"><a href="#objc4-723之前" class="headerlink" title="objc4-723之前"></a>objc4-723之前</h5><p>在objc4-723之前，我们可以通过与判断<code>TaggedPointer</code>标志位一样根据地址来判断，而类型的标志位就是对象地址的61-63位,比如对象地址为<code>0xa</code>开头，那么转换成二进制位<code>1010</code>,那么去掉最高位标志位后，剩余为<code>010</code>,即10进制中的2。</p>
-<p>接着我们看下runtime源码objc-internal.h中有关于标志位的定义如下：</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">if</span> __has_feature(objc_fixed_enum)  ||  __cplusplus &gt;= 201103L</span></span><br><span class="line"><span class="keyword">enum</span> objc_tag_index_t : uint16_t</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="keyword">typedef</span> uint16_t objc_tag_index_t;</span><br><span class="line"><span class="keyword">enum</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 60-bit payloads</span></span><br><span class="line">    OBJC_TAG_NSAtom            = <span class="number">0</span>, </span><br><span class="line">    OBJC_TAG_1                 = <span class="number">1</span>, </span><br><span class="line">    OBJC_TAG_NSString          = <span class="number">2</span>, </span><br><span class="line">    OBJC_TAG_NSNumber          = <span class="number">3</span>, </span><br><span class="line">    OBJC_TAG_NSIndexPath       = <span class="number">4</span>, </span><br><span class="line">    OBJC_TAG_NSManagedObjectID = <span class="number">5</span>, </span><br><span class="line">    OBJC_TAG_NSDate            = <span class="number">6</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 60-bit reserved</span></span><br><span class="line">    OBJC_TAG_RESERVED_7        = <span class="number">7</span>, </span><br><span class="line"></span><br><span class="line">    <span class="comment">// 52-bit payloads</span></span><br><span class="line">    OBJC_TAG_Photos_1          = <span class="number">8</span>,</span><br><span class="line">    OBJC_TAG_Photos_2          = <span class="number">9</span>,</span><br><span class="line">    OBJC_TAG_Photos_3          = <span class="number">10</span>,</span><br><span class="line">    OBJC_TAG_Photos_4          = <span class="number">11</span>,</span><br><span class="line">    OBJC_TAG_XPC_1             = <span class="number">12</span>,</span><br><span class="line">    OBJC_TAG_XPC_2             = <span class="number">13</span>,</span><br><span class="line">    OBJC_TAG_XPC_3             = <span class="number">14</span>,</span><br><span class="line">    OBJC_TAG_XPC_4             = <span class="number">15</span>,</span><br><span class="line"></span><br><span class="line">    OBJC_TAG_First60BitPayload = <span class="number">0</span>, </span><br><span class="line">    OBJC_TAG_Last60BitPayload  = <span class="number">6</span>, </span><br><span class="line">    OBJC_TAG_First52BitPayload = <span class="number">8</span>, </span><br><span class="line">    OBJC_TAG_Last52BitPayload  = <span class="number">263</span>, </span><br><span class="line"></span><br><span class="line">    OBJC_TAG_RESERVED_264      = <span class="number">264</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> __has_feature(objc_fixed_enum)  &amp;&amp;  !defined(__cplusplus)</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">enum</span> objc_tag_index_t objc_tag_index_t;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
-<p>那么我们知道2表示的<code>OBJC_TAG_NSString</code>即字符串类型。因为目前已经无法验证这种情况了 所以我们不做其他类型验证。</p>
-<h5 id="objc4-750之后"><a href="#objc4-750之后" class="headerlink" title="objc4-750之后"></a>objc4-750之后</h5><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Returns a pointer to the class&#x27;s storage in the tagged class arrays.</span></span><br><span class="line"><span class="comment">// Assumes the tag is a valid basic tag.</span></span><br><span class="line"><span class="keyword">static</span> Class *</span><br><span class="line">classSlotForBasicTagIndex(objc_tag_index_t tag)</span><br><span class="line">&#123;</span><br><span class="line">    uintptr_t tagObfuscator = ((objc_debug_taggedpointer_obfuscator</span><br><span class="line">                                &gt;&gt; _OBJC_TAG_INDEX_SHIFT)</span><br><span class="line">                               &amp; _OBJC_TAG_INDEX_MASK);</span><br><span class="line">    uintptr_t obfuscatedTag = tag ^ tagObfuscator;</span><br><span class="line">    <span class="comment">// Array index in objc_tag_classes includes the tagged bit itself</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> SUPPORT_MSB_TAGGED_POINTERS <span class="comment">////高位优先</span></span></span><br><span class="line">    <span class="keyword">return</span> &amp;objc_tag_classes[<span class="number">0x8</span> | obfuscatedTag];</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    <span class="keyword">return</span> &amp;objc_tag_classes[(obfuscatedTag &lt;&lt; <span class="number">1</span>) | <span class="number">1</span>];</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>classSlotForBasicTagIndex() 函数的主要功能就是根据指定索引 tag 从数组objc_tag_classes中获取类指针,而下标的计算方法发是根据外部传递的索引tag。比如字符串 tag = 2。当然这并不是简单的从数组中获取某条数据。</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"> uint16_t <span class="built_in">NSString_Tag</span> = <span class="number">2</span>;</span><br><span class="line">uint16_t <span class="built_in">NSNumber_Tag</span> = <span class="number">3</span>;</span><br><span class="line"><span class="comment">// 3 = 0011</span></span><br><span class="line"><span class="comment">// _OBJC_TAG_INDEX_MASK = 0x7 = 0111</span></span><br><span class="line">        uintptr_t string_tagObfuscator = ((objc_debug_taggedpointer_obfuscator</span><br><span class="line">                                           &gt;&gt; _OBJC_TAG_INDEX_SHIFT)</span><br><span class="line">                                          &amp; _OBJC_TAG_INDEX_MASK);</span><br><span class="line"></span><br><span class="line">        uintptr_t number_tagObfuscator = ((objc_debug_taggedpointer_obfuscator</span><br><span class="line">                                           &gt;&gt; _OBJC_TAG_INDEX_SHIFT)</span><br><span class="line">                                          &amp; _OBJC_TAG_INDEX_MASK);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异或操作 相同返回0 不同返回1</span></span><br><span class="line"><span class="comment">// 2 ^ 3 = 0010 ^ 0011 = 0001</span></span><br><span class="line"><span class="comment">// 3^ 3 = 0011 ^ 0011 = 0000</span></span><br><span class="line">        uintptr_t string_obfuscatedTag = <span class="built_in">NSString_Tag</span> ^ string_tagObfuscator;</span><br><span class="line">        uintptr_t number_obfuscatedTag = <span class="built_in">NSNumber_Tag</span> ^ number_tagObfuscator;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按位或</span></span><br><span class="line"><span class="comment">// 1000 | 0001 = 1001 = 9</span></span><br><span class="line"><span class="comment">// 1000 | 0000 = 1000 = 8</span></span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, objc_tag_classes[<span class="number">0x8</span> | string_obfuscatedTag]);</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, objc_tag_classes[<span class="number">0x8</span> | number_obfuscatedTag]);</span><br></pre></td></tr></table></figure>
-
-<p>控制台输出为：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">TaggedPointer[89420:3027642] NSTaggedPointerString</span><br><span class="line">TaggedPointer[89420:3027642] __NSCFNumber</span><br></pre></td></tr></table></figure>
-
-<p>当我们多次运行时,我们发现实际上每次获取到的<code>string_tagObfuscator</code>和<code>number_obfuscatedTag</code>都不一样，但是每次从<code>objc_tag_classes</code>中取出的类型均是一致的，因此实际上每次运行objc_tag_classes中的内容也是不断变化的。</p>
-<p>如果你想进一步的了解可以参考<a href="https://jinxuebin.cn/2019/06/Objective-C%E4%B8%AD%E7%9A%84%E4%BC%AA%E6%8C%87%E9%92%88/">Objective-C中伪指针Tagged Pointer</a></p>
-<h4 id="NSCFNumber"><a href="#NSCFNumber" class="headerlink" title="NSCFNumber"></a>NSCFNumber</h4><p>下面我们在看下NSNumber类型</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSNumber</span> *number1 = @(<span class="number">0x1</span>);</span><br><span class="line"><span class="built_in">NSNumber</span> *number2 = @(<span class="number">0x20</span>);</span><br><span class="line"><span class="built_in">NSNumber</span> *number3 = @(<span class="number">0x3F</span>);</span><br><span class="line"><span class="built_in">NSNumber</span> *numberFFFF = @(<span class="number">0xFFFFFFFFFFEFE</span>);</span><br><span class="line"><span class="built_in">NSNumber</span> *maxNum = @(MAXFLOAT);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;number1 pointer is %p class is %@&quot;</span>, number1, number1.class);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;number2 pointer is %p class is %@&quot;</span>, number2, number2.class);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;number3 pointer is %p class is %@&quot;</span>, number3, number3.class);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;numberffff pointer is %p class is %@&quot;</span>, numberFFFF, numberFFFF.class);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;maxNum pointer is %p class is %@&quot;</span>, maxNum, maxNum.class);</span><br></pre></td></tr></table></figure>
-
-<p>我们在看下打印结果:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">TaggedPointerDemo[59218:2167895] number1 pointer is 0xf7cb914ffb51479a class is __NSCFNumber</span><br><span class="line">TaggedPointerDemo[59218:2167895] number2 pointer is 0xf7cb914ffb51458a class is __NSCFNumber</span><br><span class="line">TaggedPointerDemo[59218:2167895] number3 pointer is 0xf7cb914ffb51447a class is __NSCFNumber</span><br><span class="line">TaggedPointerDemo[59218:2167895] numberffff pointer is 0xf7346eb004aea86b class is __NSCFNumber</span><br><span class="line">TaggedPointerDemo[59218:2167895] maxNum pointer is 0x28172a0c0 class is __NSCFNumber</span><br></pre></td></tr></table></figure>
-
-<p>我们发现对于NSNumber，我们打印出来的数据类型均为<code>__NSCFNumber</code>,但是我们发现对于<code>MAXFLOAT</code>打印出的地址显然与其他几项不符，上面几个NSNumber的地址以<code>0xf</code>开头，根据字符串地址的经验我们可以看出<code>f = 1111</code>,首位标记位为1，表示这个数据类型属于<code>TaggedPointer</code>。而MAXFLOAT不是。</p>
-<h4 id="获取TaggedPointer的值"><a href="#获取TaggedPointer的值" class="headerlink" title="获取TaggedPointer的值"></a>获取TaggedPointer的值</h4><h5 id="objc4-723之前-1"><a href="#objc4-723之前-1" class="headerlink" title="objc4-723之前"></a>objc4-723之前</h5><p>字符串：<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghki3kum3kj30cw04ljss.jpg"></p>
-<p>从上图的地址中我们就可以看出,从低位到高位分别表示的就是字符串的值(在ASCII码表中的值)</p>
-<p>数字:<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghki3v25qqj30fa02iq3q.jpg"></p>
-<p>对于数字来说从地址中也是直接读出存储的值，如上图。</p>
-<h5 id="objc4-750之后-1"><a href="#objc4-750之后-1" class="headerlink" title="objc4-750之后"></a>objc4-750之后</h5><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> uintptr_t</span><br><span class="line">_objc_decodeTaggedPointer(<span class="keyword">const</span> <span class="keyword">void</span> * _Nullable ptr)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> (uintptr_t)ptr ^ objc_debug_taggedpointer_obfuscator;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> uintptr_t</span><br><span class="line">_objc_getTaggedPointerValue(<span class="keyword">const</span> <span class="keyword">void</span> * _Nullable ptr) </span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// assert(_objc_isTaggedPointer(ptr));</span></span><br><span class="line">    uintptr_t value = _objc_decodeTaggedPointer(ptr);</span><br><span class="line">    uintptr_t basicTag = (value &gt;&gt; _OBJC_TAG_INDEX_SHIFT) &amp; _OBJC_TAG_INDEX_MASK;</span><br><span class="line">    <span class="keyword">if</span> (basicTag == _OBJC_TAG_INDEX_MASK) &#123;</span><br><span class="line">        <span class="keyword">return</span> (value &lt;&lt; _OBJC_TAG_EXT_PAYLOAD_LSHIFT) &gt;&gt; _OBJC_TAG_EXT_PAYLOAD_RSHIFT;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> (value &lt;&lt; _OBJC_TAG_PAYLOAD_LSHIFT) &gt;&gt; _OBJC_TAG_PAYLOAD_RSHIFT;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> intptr_t</span><br><span class="line">_objc_getTaggedPointerSignedValue(<span class="keyword">const</span> <span class="keyword">void</span> * _Nullable ptr) </span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// assert(_objc_isTaggedPointer(ptr));</span></span><br><span class="line">    uintptr_t value = _objc_decodeTaggedPointer(ptr);</span><br><span class="line">    uintptr_t basicTag = (value &gt;&gt; _OBJC_TAG_INDEX_SHIFT) &amp; _OBJC_TAG_INDEX_MASK;</span><br><span class="line">    <span class="keyword">if</span> (basicTag == _OBJC_TAG_INDEX_MASK) &#123;</span><br><span class="line">        <span class="keyword">return</span> ((intptr_t)value &lt;&lt; _OBJC_TAG_EXT_PAYLOAD_LSHIFT) &gt;&gt; _OBJC_TAG_EXT_PAYLOAD_RSHIFT;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ((intptr_t)value &lt;&lt; _OBJC_TAG_PAYLOAD_LSHIFT) &gt;&gt; _OBJC_TAG_PAYLOAD_RSHIFT;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>示例代码：</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSString</span> *str1 = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;1&quot;</span>];</span><br><span class="line">      <span class="built_in">NSString</span> *str11 = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;11&quot;</span>];</span><br><span class="line">      <span class="built_in">NSString</span> *str2 = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;2&quot;</span>];</span><br><span class="line">      <span class="built_in">NSString</span> *str22 = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;22&quot;</span>];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">      <span class="comment">// 0x31 1 0x32 1</span></span><br><span class="line">      uintptr_t value1 = objc_getTaggedPointerValue((__bridge <span class="keyword">void</span> *)str1);</span><br><span class="line">      uintptr_t value2 = objc_getTaggedPointerValue((__bridge <span class="keyword">void</span> *)str2);</span><br><span class="line">      uintptr_t value11 = objc_getTaggedPointerValue((__bridge <span class="keyword">void</span> *)str11);</span><br><span class="line">      uintptr_t value22 = objc_getTaggedPointerValue((__bridge <span class="keyword">void</span> *)str22);</span><br><span class="line">      <span class="comment">// 以16进制形式输出</span></span><br><span class="line">      <span class="built_in">NSLog</span>(<span class="string">@&quot;%lx&quot;</span>, value1);</span><br><span class="line">      <span class="built_in">NSLog</span>(<span class="string">@&quot;%lx&quot;</span>, value11);</span><br><span class="line">      <span class="built_in">NSLog</span>(<span class="string">@&quot;%lx&quot;</span>, value2);</span><br><span class="line">      <span class="built_in">NSLog</span>(<span class="string">@&quot;%lx&quot;</span>, value22);</span><br></pre></td></tr></table></figure>
-<p>控制台输出:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">TaggedPointer[89535:3033433] 311</span><br><span class="line">TaggedPointer[89535:3033433] 31312</span><br><span class="line">TaggedPointer[89535:3033433] 321</span><br><span class="line">TaggedPointer[89535:3033433] 32322</span><br></pre></td></tr></table></figure>
-
-<p>即 “1” = 0x31 1,最后一位表示长度，在ASCII码表中31表示的就是字符1。而且从字符串“11”的结果我们也可以验证上面的说法。</p>
-<h3 id="isa-指针-NONPOINTER-ISA"><a href="#isa-指针-NONPOINTER-ISA" class="headerlink" title="isa 指针(NONPOINTER_ISA)"></a>isa 指针(NONPOINTER_ISA)</h3><p>上面我们说了，对于一个对象的存储，苹果做了优化，那么对于ISA指针呢？</p>
-<p>对象的isa指针，用来表明对象所属的类类型。</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">union</span> isa_t &#123;</span><br><span class="line">    isa_t() &#123; &#125;</span><br><span class="line">    isa_t(uintptr_t value) : bits(value) &#123; &#125;</span><br><span class="line"></span><br><span class="line">    Class cls;</span><br><span class="line">    uintptr_t bits;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(ISA_BITFIELD)</span></span><br><span class="line">    <span class="keyword">struct</span> &#123;</span><br><span class="line">        ISA_BITFIELD;  <span class="comment">// defined in isa.h</span></span><br><span class="line">    &#125;;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>同时结合下图，我们可以更清晰的了解isa指针的作用以及类对象的概念。</p>
-<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghjtmvzlxwj30w20j9tas.jpg"></p>
-<p>从图中可以看出，我们所谓的isa指针，最后实际上落脚于isa_t的联合类型。那么何为联合类型呢？<br><code>联合类型是C语言中的一种类型，是一种n选1的关系,联合的作用在于，用更少的空间，表示了更多的可能的类型，虽然这些类型是不能够共存的</code>。比如isa_t 中包含有<code>cls</code>，<code>bits</code>， <code>struct</code>三个变量，它们的内存空间是重叠的。在实际使用时，仅能够使用它们中的一种，你把它当做cls，就不能当bits访问，你把它当bits，就不能用cls来访问。</p>
-<p>对于<code>isa_t</code>联合类型，主要包含了两个构造函数<code>isa_t()</code>,<code>isa_t(uintptr_t value)</code>和三个变量<code>cls</code>,<code>bits</code>,<code>struct</code>,而<code>uintptr_t</code>的定义为<code>typedef unsigned long</code>。         </p>
-<p>当isa_t作为Class cls使用时，这符合了我们之前一贯的认知：isa是一个指向对象所属Class类型的指针。然而，仅让一个64位的指针表示一个类型，显然不划算。</p>
-<p>因此，绝大多数情况下，苹果采用了优化的<code>isa策略</code>，即，<code>isa_t</code>类型并不等同而<code>Class cls</code>, 而是<code>struct</code>。</p>
-<h4 id="struct"><a href="#struct" class="headerlink" title="struct"></a>struct</h4><p>下面我们先来看下struct的结构体</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// ISA_BITFIELD定义如下</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">if</span> __arm64__</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> ISA_MASK        0x0000000ffffffff8ULL</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> ISA_MAGIC_MASK  0x000003f000000001ULL</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> ISA_MAGIC_VALUE 0x000001a000000001ULL</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> ISA_BITFIELD                                                      \</span></span><br><span class="line">      uintptr_t nonpointer        : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t has_assoc         : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t has_cxx_dtor      : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t shiftcls          : <span class="number">33</span>; <span class="comment">/*MACH_VM_MAX_ADDRESS 0x1000000000*/</span> \</span><br><span class="line">      uintptr_t magic             : <span class="number">6</span>;                                       \</span><br><span class="line">      uintptr_t weakly_referenced : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t deallocating      : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t has_sidetable_rc  : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t extra_rc          : <span class="number">19</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> RC_ONE   (1ULL&lt;&lt;45)</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> RC_HALF  (1ULL&lt;&lt;18)</span></span><br></pre></td></tr></table></figure>
-
-<p>注意:<code>成员后面的：表明了该成员占用几个bit</code><br>而每个成员的意义如下表</p>
-<h4 id="标志位说明"><a href="#标志位说明" class="headerlink" title="标志位说明"></a>标志位说明</h4><table>
-<thead>
-<tr>
-<th>成员</th>
-<th>bit位</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>nonpointer</td>
-<td>1bit</td>
-<td>标志位。1(奇数)表示开启了isa优化，0(偶数)表示没有启用isa优化。所以，我们可以通过判断isa是否为奇数来判断对象是否启用了isa优化</td>
-</tr>
-<tr>
-<td>has_assoc</td>
-<td>1bit</td>
-<td>标志位。表明对象是否有关联对象。没有关联对象的对象释放的更快。</td>
-</tr>
-<tr>
-<td>has_cxx_dtor</td>
-<td>1bit</td>
-<td>标志位。表明对象是否有C++或ARC析构函数。没有析构函数的对象释放的更快</td>
-</tr>
-<tr>
-<td>shiftcls</td>
-<td>33bit</td>
-<td>类指针的非零位。</td>
-</tr>
-<tr>
-<td>magic</td>
-<td>6bit</td>
-<td>固定为0x1a，用于在调试时区分对象是否已经初始化。</td>
-</tr>
-<tr>
-<td>weakly_referenced</td>
-<td>1bit</td>
-<td>标志位。用于表示该对象是否被别的对象弱引用。没有被弱引用的对象释放的更快。</td>
-</tr>
-<tr>
-<td>deallocating</td>
-<td>1bit</td>
-<td>标志位。用于表示该对象是否正在被释放。</td>
-</tr>
-<tr>
-<td>has_sidetable_rc</td>
-<td>1bit</td>
-<td>标志位。用于标识是否当前的引用计数过大，无法在isa中存储，而需要借用sidetable来存储。（这种情况大多不会发生）</td>
-</tr>
-<tr>
-<td>extra_rc</td>
-<td>19bit</td>
-<td>对象的引用计数减1。比如，一个object对象的引用计数为7，则此时extra_rc的值为6。</td>
-</tr>
-</tbody></table>
-<p>从上表我们发现，<code>extra_rc</code>和<code>has_sidetable_rc</code>是和引用计数相关的标志位，当extra_rc 不够用时，还会借助sidetable来存储计数值，这时，has_sidetable_rc会被标志为1。</p>
-<p>接下来我们来验证下，这些标志位是否真的如表中介绍那样。</p>
-<h4 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h4><p>我们先来看下面这段代码</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)testisa &#123;</span><br><span class="line">    <span class="built_in">NSObject</span> *obj = [[<span class="built_in">NSObject</span> alloc] init];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;1. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>控制台输出结果</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">TaggedPointerDemo[59983:2185591] 1. obj isa_t &#x3D; 0x1a1f335beb1</span><br></pre></td></tr></table></figure>
-<p>我们将地址<code>0x1a1f335beb1</code>转换过后：</p>
-<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfjfbyu0j30fe0dogmb.jpg"></p>
-<p>我们看到这时候 对象是<code>nonpointer</code>开启了isa优化，且当前的引用计数器为 extra_rc = 0 + 1 = 1;</p>
-<p>下面我们接着测试</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSObject</span> *obj = [[<span class="built_in">NSObject</span> alloc] init];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;1. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)obj);</span><br><span class="line">_obj1 = obj;</span><br><span class="line"><span class="built_in">NSObject</span> *tmpObj = obj;</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;2. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)obj);</span><br></pre></td></tr></table></figure>
-<p>控制台输出为</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">TaggedPointerDemo[63235:2266690] 1. obj isa_t &#x3D; 0x1a1f335beb1</span><br><span class="line">TaggedPointerDemo[63235:2266690] 2. obj isa_t &#x3D; 0x41a1f335beb1</span><br></pre></td></tr></table></figure>
-<p>我们将地址<code>0x41a1f335beb1</code>转换过后：</p>
-<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfvyc4tkj30fe0dot9f.jpg"></p>
-<p>我们看到这时候，我们将obj强引用之后，又实用了一个局部变量对其进行引用，所以这时的引用计数应该为2，当然从图中我们也可以验证这一点。</p>
-<h4 id="weakly-referenced"><a href="#weakly-referenced" class="headerlink" title="weakly_referenced"></a>weakly_referenced</h4><p>我们这次添加一个弱引用来验证</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"> _weakRefObj = _obj1;</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;3. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)_obj1);</span><br></pre></td></tr></table></figure>
-
-<p>控制台输出为</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">TaggedPointerDemo[<span class="number">63235</span>:<span class="number">2266690</span>] <span class="number">3.</span> obj isa_t = <span class="number">0x45a1f335beb1</span></span><br></pre></td></tr></table></figure>
-
-<p>这时候我们仅仅通过地址进行判断 当添加了<code>_obj2 = _obj1</code>后，地址变为<code>0x61a1f335beb1</code>与之前地址<code>0x41a1f335beb1</code>对比</p>
-<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfxt2qagj30fe0doq3n.jpg"></p>
-<p>上图我们可以看到<code>weakly_referenced</code>标志位被置为1.表示这个对象有被弱引用。</p>
-<h4 id="has-assoc"><a href="#has-assoc" class="headerlink" title="has_assoc"></a>has_assoc</h4><p>然后我们在添加一个关联属性</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSObject</span> *attachObj = [[<span class="built_in">NSObject</span> alloc] init];</span><br><span class="line">objc_setAssociatedObject(_obj1, <span class="string">&quot;attachKey&quot;</span>, attachObj, OBJC_ASSOCIATION_RETAIN_NONATOMIC);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;4. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)_obj1);</span><br></pre></td></tr></table></figure>
-
-<p>控制台输出为:</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">TaggedPointerDemo[<span class="number">63235</span>:<span class="number">2266690</span>] <span class="number">4.</span> obj isa_t = <span class="number">0x45a1f335beb3</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfzqpmq2j30fe0doq3n.jpg"></p>
-<p>从上图中我们看到<code>has_assoc</code>标志位被置为1.</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>截止到这里，我们通过观察<code>NSTaggedPointer</code>,相关标志位我们基本了解了NSTaggedPointer是如何存储数据以及标志位的作用。</p>
-<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a href="https://jinxuebin.cn/2019/06/Objective-C%E4%B8%AD%E7%9A%84%E4%BC%AA%E6%8C%87%E9%92%88/">Objective-C中伪指针Tagged Pointer</a></p>
-<p><a href="https://mikeash.com/pyblog/friday-qa-2015-07-31-tagged-pointer-strings.html">Friday Q&amp;A 2015-07-31: Tagged Pointer Strings</a></p>
-]]></content>
   </entry>
   <entry>
     <title>__Block 到底做了什么</title>
