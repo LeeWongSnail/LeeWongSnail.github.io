@@ -132,6 +132,41 @@
       </tags>
   </entry>
   <entry>
+    <title>工厂模式</title>
+    <url>/2016/09/26/Factory-Pattern/</url>
+    <content><![CDATA[<p>最近买了本设计模式的书Header First 非常喜欢其中的讲解方式。虽然买了有一段时间了但是没有认真的看过。这段时间工作相对没有那么难了，所以抽出点时间看一下这本书，同时，在这里做一下分享，希望可以帮到你！</p>
+<a id="more"></a>
+
+<h4 id="1、定义"><a href="#1、定义" class="headerlink" title="1、定义"></a>1、定义</h4><p>工厂方法模式：定义了一个创建对象的接口，但由子类决定要实例化的类是哪一个。工厂方法让类的实例化推迟到子类。</p>
+<p>所有工厂模式都用来封装对象的创建，工厂方法模式通过让子类决定该创建的对象是什么，来达到将对象创建的过程封装的目的。</p>
+<h4 id="2、使用场景"><a href="#2、使用场景" class="headerlink" title="2、使用场景"></a>2、使用场景</h4><p>假如我有一个披萨店，刚开始没有分店也只是提供了北京口味的pizza。所以我的创建很简单。</p>
+<p><img src="https://i.niupic.com/images/2016/09/26/MZGIaS.png" alt="我的pizza"></p>
+<p>但是后来用户给我反馈，因为他们来自不同的地区所以希望我提供，北京口味、东北口味的披萨。</p>
+<p>OK 那么我在点单的时候让用户自主的去选择order(type);<br>那么我的点单的方法改成了这样</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- (void)order:(NSInteger)aType</span><br><span class="line">&#123;</span><br><span class="line">    Pizza *pizza &#x3D; nil;</span><br><span class="line">    if (type &#x3D;&#x3D; @&quot;东北&quot;) &#123;</span><br><span class="line">        pizza &#x3D; DBPizza();</span><br><span class="line">    &#125; else if (type &#x3D;&#x3D; @&quot;北京&quot;)&#123;</span><br><span class="line">        pizza &#x3D; BJPizza();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>后来生意更好了，全国开了很多分店，就会不断的加入更多的其他口味的pizza，同时也有可能有很多pizza的口味因为不符合要求被下架。所以这可能导致我的点餐方法越来越复杂。</p>
+<p>同时，因为全国都有分店，分店中可能很多同一口味的做法都不同，所以这时候要考虑把这个全国都使用的方法下方到地方，不再做统一的管理。</p>
+<p>首先想到的肯定是把这个方法抽出来，单独放到一个类中。这个类实际上就是一个工厂类。我们将要点餐的type传入之后由这个工厂类决定到底实例化哪一种pizza。</p>
+<h4 id="3、思考"><a href="#3、思考" class="headerlink" title="3、思考"></a>3、思考</h4><p> 1、这么做的好处是什么？还是只是做了简单的代码的分离。</p>
+<p> 我们这里，在这个工厂类中只是提供了这一个方法，之后我们可能还会有其他的工厂方法，都可以放到这个类中，所以这个工厂方法为代码以后的扩展提供了方便，同时如果以后需要修改或者添加可以直接修改这个类就可以了。</p>
+<p>2、对于pizza的工厂方法，我们可能有很多的类型比如BJPizzaFactory,DBPizzaFactory 如果有很多的这种工厂方法，我们如何做统一的管理呢？</p>
+<p>我们可以设置一个基类，这个基类用来控制Pizza的整个制作流程，同时提供一个抽象方法createPizza，我们让BJPizzaFactory,DBPizzaFactory继承自这个类，同时实现createPizza这个抽象方法。</p>
+<h4 id="4、修改思路"><a href="#4、修改思路" class="headerlink" title="4、修改思路"></a>4、修改思路</h4><p>1、客户点单<br>PizzaStore bjPizzaStore = new BJPizzaStore();<br>bjPizzaStore.orderPizza(“cheese”);</p>
+<p>2、制作pizza<br>Pizza pizza = createPizza(“cheese”);</p>
+<p>3、其他流程<br>pizza.bake();<br>pizza.cut();<br>pizza.box();</p>
+<h4 id="5、具体实现"><a href="#5、具体实现" class="headerlink" title="5、具体实现"></a>5、具体实现</h4><p><img src="https://i.niupic.com/images/2016/09/26/6NdcNG.png" alt="流程"></p>
+<p><img src="https://i.niupic.com/images/2016/09/27/5O6pj1.png" alt="结果"></p>
+<p><a href="https://github.com/LeeWongSnail/Head-First-DesignPattern/tree/master/FactoryPattern">代码实现在这里</a></p>
+]]></content>
+      <categories>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>工厂模式</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Git使用笔记之冲突解决</title>
     <url>/2019/07/14/Git%E4%BD%BF%E7%94%A8%E7%AC%94%E8%AE%B0%E4%B9%8B%E5%86%B2%E7%AA%81%E8%A7%A3%E5%86%B3/</url>
     <content><![CDATA[<p>我们公司产品有两条线 一个是针对日本地区的一个独立APP(B),另一个是针对除日本地区之外的其他的地区的APP(A) 。B是基于A的某个分支建立的,并且删除了部分功能,在过去的一段时间内两条产品线各自为战,但是前段时间公司希望将A中的某个功能直接迁移到B上,为此我们开始了下面的工作。</p>
@@ -195,70 +230,6 @@
       </categories>
       <tags>
         <tag>冲突</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>工厂模式</title>
-    <url>/2016/09/26/Factory-Pattern/</url>
-    <content><![CDATA[<p>最近买了本设计模式的书Header First 非常喜欢其中的讲解方式。虽然买了有一段时间了但是没有认真的看过。这段时间工作相对没有那么难了，所以抽出点时间看一下这本书，同时，在这里做一下分享，希望可以帮到你！</p>
-<a id="more"></a>
-
-<h4 id="1、定义"><a href="#1、定义" class="headerlink" title="1、定义"></a>1、定义</h4><p>工厂方法模式：定义了一个创建对象的接口，但由子类决定要实例化的类是哪一个。工厂方法让类的实例化推迟到子类。</p>
-<p>所有工厂模式都用来封装对象的创建，工厂方法模式通过让子类决定该创建的对象是什么，来达到将对象创建的过程封装的目的。</p>
-<h4 id="2、使用场景"><a href="#2、使用场景" class="headerlink" title="2、使用场景"></a>2、使用场景</h4><p>假如我有一个披萨店，刚开始没有分店也只是提供了北京口味的pizza。所以我的创建很简单。</p>
-<p><img src="https://i.niupic.com/images/2016/09/26/MZGIaS.png" alt="我的pizza"></p>
-<p>但是后来用户给我反馈，因为他们来自不同的地区所以希望我提供，北京口味、东北口味的披萨。</p>
-<p>OK 那么我在点单的时候让用户自主的去选择order(type);<br>那么我的点单的方法改成了这样</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- (void)order:(NSInteger)aType</span><br><span class="line">&#123;</span><br><span class="line">    Pizza *pizza &#x3D; nil;</span><br><span class="line">    if (type &#x3D;&#x3D; @&quot;东北&quot;) &#123;</span><br><span class="line">        pizza &#x3D; DBPizza();</span><br><span class="line">    &#125; else if (type &#x3D;&#x3D; @&quot;北京&quot;)&#123;</span><br><span class="line">        pizza &#x3D; BJPizza();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>后来生意更好了，全国开了很多分店，就会不断的加入更多的其他口味的pizza，同时也有可能有很多pizza的口味因为不符合要求被下架。所以这可能导致我的点餐方法越来越复杂。</p>
-<p>同时，因为全国都有分店，分店中可能很多同一口味的做法都不同，所以这时候要考虑把这个全国都使用的方法下方到地方，不再做统一的管理。</p>
-<p>首先想到的肯定是把这个方法抽出来，单独放到一个类中。这个类实际上就是一个工厂类。我们将要点餐的type传入之后由这个工厂类决定到底实例化哪一种pizza。</p>
-<h4 id="3、思考"><a href="#3、思考" class="headerlink" title="3、思考"></a>3、思考</h4><p> 1、这么做的好处是什么？还是只是做了简单的代码的分离。</p>
-<p> 我们这里，在这个工厂类中只是提供了这一个方法，之后我们可能还会有其他的工厂方法，都可以放到这个类中，所以这个工厂方法为代码以后的扩展提供了方便，同时如果以后需要修改或者添加可以直接修改这个类就可以了。</p>
-<p>2、对于pizza的工厂方法，我们可能有很多的类型比如BJPizzaFactory,DBPizzaFactory 如果有很多的这种工厂方法，我们如何做统一的管理呢？</p>
-<p>我们可以设置一个基类，这个基类用来控制Pizza的整个制作流程，同时提供一个抽象方法createPizza，我们让BJPizzaFactory,DBPizzaFactory继承自这个类，同时实现createPizza这个抽象方法。</p>
-<h4 id="4、修改思路"><a href="#4、修改思路" class="headerlink" title="4、修改思路"></a>4、修改思路</h4><p>1、客户点单<br>PizzaStore bjPizzaStore = new BJPizzaStore();<br>bjPizzaStore.orderPizza(“cheese”);</p>
-<p>2、制作pizza<br>Pizza pizza = createPizza(“cheese”);</p>
-<p>3、其他流程<br>pizza.bake();<br>pizza.cut();<br>pizza.box();</p>
-<h4 id="5、具体实现"><a href="#5、具体实现" class="headerlink" title="5、具体实现"></a>5、具体实现</h4><p><img src="https://i.niupic.com/images/2016/09/26/6NdcNG.png" alt="流程"></p>
-<p><img src="https://i.niupic.com/images/2016/09/27/5O6pj1.png" alt="结果"></p>
-<p><a href="https://github.com/LeeWongSnail/Head-First-DesignPattern/tree/master/FactoryPattern">代码实现在这里</a></p>
-]]></content>
-      <categories>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>工厂模式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>二维码生成扫描和识别(基于系统提供方法)</title>
-    <url>/2016/09/07/QRCode/</url>
-    <content><![CDATA[<p> 现在越来越多的App添加了一个扫码的功能，方便而且很实用，但是目前对弈iOS来说有些比较知名的库（比如<a href="https://github.com/TheLevelUp/ZXingObjC">ZXingObjC</a>）库都比较大，而实际上，在iOS 7.0之后系统在AVFoundation框架中就已经实现了对于二维码扫描和生成的的支持，我的方法主要是对系统的一些东西稍作封装（<a href="https://github.com/LeeWongSnail/QRCode">QRCode</a>）</p>
-<a id="more"></a>
-
-<h4 id="1、目的"><a href="#1、目的" class="headerlink" title="1、目的"></a>1、目的</h4><p> 现在越来越多的App添加了一个扫码的功能，方便而且很实用，但是目前对弈iOS来说有些比较知名的库（比如<a href="https://github.com/TheLevelUp/ZXingObjC">ZXingObjC</a>）库都比较大，而实际上，在iOS 7.0之后系统在AVFoundation框架中就已经实现了对于二维码扫描和生成的的支持，我的方法主要是对系统的一些东西稍作封装（<a href="https://github.com/LeeWongSnail/QRCode">QRCode</a>）</p>
-<h4 id="2、生成二维码"><a href="#2、生成二维码" class="headerlink" title="2、生成二维码"></a>2、生成二维码</h4><p>目前见到的二维码一般是两种，中间有图片和没有图片的(通常是APP图标或者个人头像)或者是为二维码添加了背景颜色。这里我提供了三个方法，可以满足这几种需求。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> *  生成二维码图片的方法</span><br><span class="line"> *</span><br><span class="line"> *  @param string 二维码包含的内容</span><br><span class="line"> *  @param size   图片的尺寸</span><br><span class="line"> *  @param topimg 如果中间需要添加 头像可以传入此参数</span><br><span class="line"> *</span><br><span class="line"> *  @return 包含要生成内容的二维码图片</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line">+ (UIImage *)qrImageForString:(NSString *)string </span><br><span class="line">	imageSize:(CGFloat)size Topimg:(UIImage *)topimg;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  生成二维码图片的方法</span><br><span class="line"> *</span><br><span class="line"> *  @param string       二维码包含的内容</span><br><span class="line"> *  @param size         图片的尺寸</span><br><span class="line"> *  @param pointType    点的类型（QRPointRect，</span><br><span class="line"> 										QRPointRound）</span><br><span class="line"> *  @param positionType 位置的类型 （QRPositionNormal，</span><br><span class="line"> 										QRPositionRound）</span><br><span class="line"> *  @param color        背景颜色</span><br><span class="line"> *</span><br><span class="line"> *  @return 包含要生成内容的二维码图片</span><br><span class="line"> *&#x2F;</span><br><span class="line">+(UIImage *)qrImageForString:(NSString *)string </span><br><span class="line">				    imageSize:(CGFloat)size </span><br><span class="line">				withPointType:(QRPointType)pointType</span><br><span class="line">			withPositionType:	</span><br><span class="line">				 			(QRPositionType)positionType</span><br><span class="line">				    withColor:(UIColor *)color;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  生成二维码图片的方法</span><br><span class="line"> *</span><br><span class="line"> *  @param string 二维码包含的内容</span><br><span class="line"> *  @param size    图片的尺寸</span><br><span class="line"> *  @param topimg 如果中间需要添加 头像可以传入此参数</span><br><span class="line"> *  @param color  背景颜色</span><br><span class="line"> *</span><br><span class="line"> *  @return 包含要生成内容的二维码图片</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line">+(UIImage*)qrImageForString:(NSString *)string </span><br><span class="line">				  imageSize:(CGFloat)size </span><br><span class="line">				     Topimg:(UIImage *)topimg </span><br><span class="line">				  withColor:(UIColor*)color;</span><br><span class="line">				  </span><br></pre></td></tr></table></figure>
-
-<h4 id="3、二维码扫描"><a href="#3、二维码扫描" class="headerlink" title="3、二维码扫描"></a>3、二维码扫描</h4><p>这里 需要重要注意的是 rectOfInterest属性的设置</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">&#x2F;&#x2F;它的作用就是设置扫描范围</span><br><span class="line">output.rectOfInterest &#x3D; scanCrop;</span><br><span class="line"></span><br><span class="line">这个CGRect参数和普通的Rect范围不太一样，它的四个值的范围都是0-1，表示比例。</span><br><span class="line"></span><br><span class="line">rectOfInterest都是按照横屏来计算的 所以当竖屏的情况下 x轴和y轴要交换一下。</span><br><span class="line"></span><br><span class="line">宽度和高度设置的情况也是类似。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>具体的扫描结果通过遵守<code>AVCaptureMetadataOutputObjectsDelegate</code>协议并实现</p>
-<p><code>-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection</code></p>
-<p>代理方法就可以拿到</p>
-<p><img src="https://i.niupic.com/images/2016/09/07/2ea1uC.gif" alt="扫描"></p>
-<h4 id="4、其他的使用场景"><a href="#4、其他的使用场景" class="headerlink" title="4、其他的使用场景"></a>4、其他的使用场景</h4><p>除了最常见的扫描识别二维码的方式之外 还有点击弹出框 选择识别图中二维码，或者 长按直接识别二维码的方式</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> *  识别图中的二维码</span><br><span class="line"> *</span><br><span class="line"> *  @param aImage      图片</span><br><span class="line"> *  @param aCompletion 识别完成的回调</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)recognitionQRCodeFromImage:(UIImageView *)aImage</span><br><span class="line">		 completion:(void (^)(NSString *result,</span><br><span class="line">		 					 NSError *error))aCompletion;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><img src="https://i.niupic.com/images/2016/09/07/f1hIfp.gif" alt="长按识别"></p>
-<h4 id="5、总结"><a href="#5、总结" class="headerlink" title="5、总结"></a>5、总结</h4><p>这样的话在我们日常使用中常见的几种对于二维码的操作，基本可以实现。希望这个demo对你有所帮助。</p>
-]]></content>
-      <categories>
-        <category>iOS进阶</category>
-      </categories>
-      <tags>
-        <tag>QRCode</tag>
       </tags>
   </entry>
   <entry>
@@ -424,6 +395,35 @@
       </tags>
   </entry>
   <entry>
+    <title>二维码生成扫描和识别(基于系统提供方法)</title>
+    <url>/2016/09/07/QRCode/</url>
+    <content><![CDATA[<p> 现在越来越多的App添加了一个扫码的功能，方便而且很实用，但是目前对弈iOS来说有些比较知名的库（比如<a href="https://github.com/TheLevelUp/ZXingObjC">ZXingObjC</a>）库都比较大，而实际上，在iOS 7.0之后系统在AVFoundation框架中就已经实现了对于二维码扫描和生成的的支持，我的方法主要是对系统的一些东西稍作封装（<a href="https://github.com/LeeWongSnail/QRCode">QRCode</a>）</p>
+<a id="more"></a>
+
+<h4 id="1、目的"><a href="#1、目的" class="headerlink" title="1、目的"></a>1、目的</h4><p> 现在越来越多的App添加了一个扫码的功能，方便而且很实用，但是目前对弈iOS来说有些比较知名的库（比如<a href="https://github.com/TheLevelUp/ZXingObjC">ZXingObjC</a>）库都比较大，而实际上，在iOS 7.0之后系统在AVFoundation框架中就已经实现了对于二维码扫描和生成的的支持，我的方法主要是对系统的一些东西稍作封装（<a href="https://github.com/LeeWongSnail/QRCode">QRCode</a>）</p>
+<h4 id="2、生成二维码"><a href="#2、生成二维码" class="headerlink" title="2、生成二维码"></a>2、生成二维码</h4><p>目前见到的二维码一般是两种，中间有图片和没有图片的(通常是APP图标或者个人头像)或者是为二维码添加了背景颜色。这里我提供了三个方法，可以满足这几种需求。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> *  生成二维码图片的方法</span><br><span class="line"> *</span><br><span class="line"> *  @param string 二维码包含的内容</span><br><span class="line"> *  @param size   图片的尺寸</span><br><span class="line"> *  @param topimg 如果中间需要添加 头像可以传入此参数</span><br><span class="line"> *</span><br><span class="line"> *  @return 包含要生成内容的二维码图片</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line">+ (UIImage *)qrImageForString:(NSString *)string </span><br><span class="line">	imageSize:(CGFloat)size Topimg:(UIImage *)topimg;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  生成二维码图片的方法</span><br><span class="line"> *</span><br><span class="line"> *  @param string       二维码包含的内容</span><br><span class="line"> *  @param size         图片的尺寸</span><br><span class="line"> *  @param pointType    点的类型（QRPointRect，</span><br><span class="line"> 										QRPointRound）</span><br><span class="line"> *  @param positionType 位置的类型 （QRPositionNormal，</span><br><span class="line"> 										QRPositionRound）</span><br><span class="line"> *  @param color        背景颜色</span><br><span class="line"> *</span><br><span class="line"> *  @return 包含要生成内容的二维码图片</span><br><span class="line"> *&#x2F;</span><br><span class="line">+(UIImage *)qrImageForString:(NSString *)string </span><br><span class="line">				    imageSize:(CGFloat)size </span><br><span class="line">				withPointType:(QRPointType)pointType</span><br><span class="line">			withPositionType:	</span><br><span class="line">				 			(QRPositionType)positionType</span><br><span class="line">				    withColor:(UIColor *)color;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> *  生成二维码图片的方法</span><br><span class="line"> *</span><br><span class="line"> *  @param string 二维码包含的内容</span><br><span class="line"> *  @param size    图片的尺寸</span><br><span class="line"> *  @param topimg 如果中间需要添加 头像可以传入此参数</span><br><span class="line"> *  @param color  背景颜色</span><br><span class="line"> *</span><br><span class="line"> *  @return 包含要生成内容的二维码图片</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line">+(UIImage*)qrImageForString:(NSString *)string </span><br><span class="line">				  imageSize:(CGFloat)size </span><br><span class="line">				     Topimg:(UIImage *)topimg </span><br><span class="line">				  withColor:(UIColor*)color;</span><br><span class="line">				  </span><br></pre></td></tr></table></figure>
+
+<h4 id="3、二维码扫描"><a href="#3、二维码扫描" class="headerlink" title="3、二维码扫描"></a>3、二维码扫描</h4><p>这里 需要重要注意的是 rectOfInterest属性的设置</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">&#x2F;&#x2F;它的作用就是设置扫描范围</span><br><span class="line">output.rectOfInterest &#x3D; scanCrop;</span><br><span class="line"></span><br><span class="line">这个CGRect参数和普通的Rect范围不太一样，它的四个值的范围都是0-1，表示比例。</span><br><span class="line"></span><br><span class="line">rectOfInterest都是按照横屏来计算的 所以当竖屏的情况下 x轴和y轴要交换一下。</span><br><span class="line"></span><br><span class="line">宽度和高度设置的情况也是类似。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>具体的扫描结果通过遵守<code>AVCaptureMetadataOutputObjectsDelegate</code>协议并实现</p>
+<p><code>-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection</code></p>
+<p>代理方法就可以拿到</p>
+<p><img src="https://i.niupic.com/images/2016/09/07/2ea1uC.gif" alt="扫描"></p>
+<h4 id="4、其他的使用场景"><a href="#4、其他的使用场景" class="headerlink" title="4、其他的使用场景"></a>4、其他的使用场景</h4><p>除了最常见的扫描识别二维码的方式之外 还有点击弹出框 选择识别图中二维码，或者 长按直接识别二维码的方式</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> *  识别图中的二维码</span><br><span class="line"> *</span><br><span class="line"> *  @param aImage      图片</span><br><span class="line"> *  @param aCompletion 识别完成的回调</span><br><span class="line"> *&#x2F;</span><br><span class="line">- (void)recognitionQRCodeFromImage:(UIImageView *)aImage</span><br><span class="line">		 completion:(void (^)(NSString *result,</span><br><span class="line">		 					 NSError *error))aCompletion;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="https://i.niupic.com/images/2016/09/07/f1hIfp.gif" alt="长按识别"></p>
+<h4 id="5、总结"><a href="#5、总结" class="headerlink" title="5、总结"></a>5、总结</h4><p>这样的话在我们日常使用中常见的几种对于二维码的操作，基本可以实现。希望这个demo对你有所帮助。</p>
+]]></content>
+      <categories>
+        <category>iOS进阶</category>
+      </categories>
+      <tags>
+        <tag>QRCode</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SDWebImage解析</title>
     <url>/2016/01/26/SDWebImage-1/</url>
     <content><![CDATA[<p>最近，公司的活比较少，所以特地抽出来一点时间，看了一下SDWebImage的源码，并写了这篇文章，查看源码的过程中看了很多相关的文章，总体思路是划分为几个大模块，会分几个博客讲述，下面提供了目录。</p>
@@ -524,6 +524,28 @@
       </tags>
   </entry>
   <entry>
+    <title>Swift for stanford</title>
+    <url>/2016/03/04/Swift-for-stanford/</url>
+    <content><![CDATA[<p>最近Swift的发展速度很是迅速，所以决定开始搞一下Swift练练手，第一步打算看一下视频，首选当然是敬爱的白胡子老头的（网易公开课上都可以找到）</p>
+<a id="more"></a>
+
+<p>下面是看视频过程中，写的一些Demo,供大家参考</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">SwiftTest:一个简单的swift的计算器的实现，其中包含了部分方法演变的过程</span><br><span class="line"></span><br><span class="line">SwiftTest-MVC:使用MVC设计模式，同时对于运算做了封装</span><br><span class="line"></span><br><span class="line">Happiness : 使用贝塞尔曲线画出了一个笑脸</span><br><span class="line"></span><br><span class="line">Psychologist : Multi MVC 简单的使用 SplitViewController UINavigationController Popover</span><br><span class="line"></span><br><span class="line">ViewControllerLifeCycle: 控制器的生命周期</span><br><span class="line"></span><br><span class="line">AutoLayout : 简单的AutoLayout布局介绍</span><br><span class="line"></span><br><span class="line">Cassini: UIScrollView的简单介绍</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p><code>这是课程中所敲的所有代码 关于UITableView中的代码暂无！！</code></p>
+<p><a href="https://github.com/LeeWongSnail/SwiftTestDemo">我的代码放到这里了</a></p>
+]]></content>
+      <categories>
+        <category>Swift</category>
+      </categories>
+      <tags>
+        <tag>Swift</tag>
+        <tag>Stanford</tag>
+        <tag>基础</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SDWebImage - 图片处理</title>
     <url>/2016/01/27/SDWebImage-5/</url>
     <content><![CDATA[<p>本篇文章主要是介绍了，在SDWebImage源码查看过程中的一些对于图片处理的方法，这些方法可能在平时的工作中也会用到，所以单独拿出来一篇文章来介绍这些方法。</p>
@@ -553,121 +575,6 @@
         <tag>SDWebImage</tag>
         <tag>图片解码</tag>
         <tag>图片格式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Swift little tips</title>
-    <url>/2016/02/15/Swift-little-tips/</url>
-    <content><![CDATA[<p>本文主要讲述了，我在学习swift过程中遇到的一些问题以及总结出的一些技巧，在这里分享给大家。</p>
-<a id="more"></a>
-
-<h4 id="1、方法的重载"><a href="#1、方法的重载" class="headerlink" title="1、方法的重载"></a>1、方法的重载</h4><p>大家都知道OC是不支持方法的重载（存在两个名称相同的方法）的，而swift支持方法的重载，所以在项目中，我们可能会遇到下面这个问题</p>
-<p>我的代码</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import UIKit</span><br><span class="line"></span><br><span class="line">class BugViewController: UIViewController</span><br><span class="line">&#123;</span><br><span class="line">    func perform(operation: (Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    func perform(operation: (Double, Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>错误</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Method &#39;perform&#39; with Objective-C selector &#39;perform: &#39; conflicts with previous declaration with the same Objective-C selector</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>疑问：</p>
-<p>我是在用纯swift写代码，为什么会提示OC的东西？<br>原因：你的代码中包含了OC或者间接继承了OC的相关对象(我这里是因为控制器继承自UIViewController)<br>解决方法：</p>
-<p>1、去掉和OC相关的部分（删除继承）</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import UIKit</span><br><span class="line"></span><br><span class="line">class BugViewController</span><br><span class="line">&#123;</span><br><span class="line">    func perform(operation: (Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    func perform(operation: (Double, Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>2、添加@objc</p>
-<p>在重载的方法前，加上@nonobjc</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import UIKit</span><br><span class="line"></span><br><span class="line">class BugViewController: UIViewController</span><br><span class="line">&#123;</span><br><span class="line">    func perform(operation: (Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">	@nonobjc</span><br><span class="line">    func perform(operation: (Double, Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>3、添加private标志</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import UIKit</span><br><span class="line"></span><br><span class="line">class BugViewController: UIViewController</span><br><span class="line">&#123;</span><br><span class="line">    func perform(operation: (Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">   private func perform(operation: (Double, Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>详细请参考<a href="http://stackoverflow.com/questions/29457720/compiler-error-method-with-objective-c-selector-conflicts-with-previous-declara/31500740#31500740">链接</a></p>
-<h4 id="2、类方法"><a href="#2、类方法" class="headerlink" title="2、类方法"></a>2、类方法</h4><p>实例方法是被类型的某个实例调用的方法。你也可以定义类型本身调用的方法，这种方法就叫做类型方法。声明类的类型方法，在方法的func关键字之前加上关键字class；声明结构体和枚举的类型方法，在方法的func关键字之前加上关键字static</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">注意：</span><br><span class="line">在 Objective-C 里面，你只能为 Objective-C 的类定义类型方法(type-level methods)。在 Swift 中，你可以为所有的类、结构体和枚举定义类型方法：每一个类型方法都被它所支持的类型显式包含。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>示例：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">class SomeClass &#123;</span><br><span class="line">  class func someTypeMethod() &#123;</span><br><span class="line">    &#x2F;&#x2F; type method implementation goes here</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">SomeClass.someTypeMethod()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-<p>参考文章：</p>
-<p><a href="http://www.topthink.com/topic/8972.html">1、static和class的使用</a></p>
-<h4 id="3、Class-has-no-initializers错误"><a href="#3、Class-has-no-initializers错误" class="headerlink" title="3、Class has no initializers错误"></a>3、Class has no initializers错误</h4><p><img src="http://img.hoop8.com/attachments/1602/9323165027545.png" alt="errorTips"></p>
-<p>这是我在swift学习中常见的一个错误，<br>这个错误通常是由于你的这个类中声明的某一个变量，<br>在声明的时候没有指定这个变量是否是optional，<br>这时你只需要检查一下，自己声明的变量是否需要添加！或者？</p>
-<h4 id="4、获取类名或者实例的类型"><a href="#4、获取类名或者实例的类型" class="headerlink" title="4、获取类名或者实例的类型"></a>4、获取类名或者实例的类型</h4><p>使用类名获取</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">UITableViewCell.self   UITableViewCell.classForCoder()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>实例对象获取类型</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">let date &#x3D; NSDate()</span><br><span class="line">let name &#x3D; date.dynamicType</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><a href="http://swifter.tips/instance-type/">获取对象类型</a></p>
-<h4 id="5、使用Storyboard和纯代码创建Cell"><a href="#5、使用Storyboard和纯代码创建Cell" class="headerlink" title="5、使用Storyboard和纯代码创建Cell"></a>5、使用Storyboard和纯代码创建Cell</h4><p>在Swift开发中我们有两种方式 创建一个tableviewcell </p>
-<p>1、纯代码</p>
-<pre><code>一般需要重写init方法
-
-override init(style: UITableViewCellStyle, 
-                        reuseIdentifier: String?)
-
-在使用cell之前要先注册
-
-self.tableView.registerClass(NewsCell.self, 
-            forCellReuseIdentifier: &quot;newscell&quot;)</code></pre>
-<p>2、Storyboard</p>
-<pre><code>需要在xib中定义好cell的结构，设置重用标示符，这样才可以重用</code></pre>
-<p>注意：如果重写了init方法，则默认使用纯代码的方式去构造这个cell，不会走awakefromnib方法，</p>
-<h4 id="6、Swift中错误的处理"><a href="#6、Swift中错误的处理" class="headerlink" title="6、Swift中错误的处理"></a>6、Swift中错误的处理</h4><p>异常处理的写法：</p>
-<p><code>OC</code>：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">NSError *error;</span><br><span class="line">BOOL success &#x3D; [data writeToFile: path options: options error: &amp;error];</span><br><span class="line">if(error) &#123;</span><br><span class="line">    &#x2F;&#x2F; 发生了错误</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><code>Swift</code>:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">do &#123;</span><br><span class="line">    try d.writeToFile(&quot;Hello&quot;, options: [])</span><br><span class="line">&#125; catch let error as NSError &#123;</span><br><span class="line">    print (&quot;Error: \(error.domain)&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><code>如果已知错误的类型可以采用这种枚举的方式</code>：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">enum LoginError: ErrorType &#123;</span><br><span class="line">    case UserNotFound, UserPasswordNotMatch</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">do &#123;</span><br><span class="line">    try login(&quot;onevcat&quot;, password: &quot;123&quot;)</span><br><span class="line">&#125; catch LoginError.UserNotFound &#123;</span><br><span class="line">    print(&quot;UserNotFound&quot;)</span><br><span class="line">&#125; catch LoginError.UserPasswordNotMatch &#123;</span><br><span class="line">    print(&quot;UserPasswordNotMatch&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h4 id="7、Swift中互斥锁的使用"><a href="#7、Swift中互斥锁的使用" class="headerlink" title="7、Swift中互斥锁的使用"></a>7、Swift中互斥锁的使用</h4><p>OC中的锁的使用</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- (void)myMethod:(id)anObj &#123;</span><br><span class="line">    @synchronized(anObj) &#123;</span><br><span class="line">        &#x2F;&#x2F; 在括号内 anObj 不会被其他线程改变</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><code>这个方法在Swift中已经无法使用了</code></p>
-<p>解析@synchronized方法实现原理：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@synchronized 在幕后做的事情是调用了 objc_sync 中的 objc_sync_enter 和 objc_sync_exit 方法，并且加入了一些异常判断 </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>因此Swift中锁的实现可以这么写</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">func synchronized(lock: AnyObject, closure: () -&gt; ()) &#123;</span><br><span class="line">    objc_sync_enter(lock)</span><br><span class="line">    closure()</span><br><span class="line">    objc_sync_exit(lock)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>根据Swift尾随闭包的特性，可以简化为：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">func myMethod(anObj: AnyObject!) &#123;</span><br><span class="line">    synchronized(anObj) &#123;</span><br><span class="line">        &#x2F;&#x2F; 在括号内 anObj 不会被其他线程改变</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="7、Swift中单例的创建"><a href="#7、Swift中单例的创建" class="headerlink" title="7、Swift中单例的创建"></a>7、Swift中单例的创建</h4><p>OC中单例的创建：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ (id)sharedManager &#123;</span><br><span class="line"></span><br><span class="line">    static MyManager *staticInstance &#x3D; nil;</span><br><span class="line">    static dispatch_once_t onceToken;</span><br><span class="line"></span><br><span class="line">    dispatch_once(&amp;onceToken, ^&#123;</span><br><span class="line">        staticInstance &#x3D; [[self alloc] init];</span><br><span class="line">    &#125;);</span><br><span class="line">    return staticInstance;”</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>Swift中创建单例：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">private let sharedInstance &#x3D; MyManager()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>Swift</category>
-      </categories>
-      <tags>
-        <tag>开发技巧</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Swift for stanford</title>
-    <url>/2016/03/04/Swift-for-stanford/</url>
-    <content><![CDATA[<p>最近Swift的发展速度很是迅速，所以决定开始搞一下Swift练练手，第一步打算看一下视频，首选当然是敬爱的白胡子老头的（网易公开课上都可以找到）</p>
-<a id="more"></a>
-
-<p>下面是看视频过程中，写的一些Demo,供大家参考</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">SwiftTest:一个简单的swift的计算器的实现，其中包含了部分方法演变的过程</span><br><span class="line"></span><br><span class="line">SwiftTest-MVC:使用MVC设计模式，同时对于运算做了封装</span><br><span class="line"></span><br><span class="line">Happiness : 使用贝塞尔曲线画出了一个笑脸</span><br><span class="line"></span><br><span class="line">Psychologist : Multi MVC 简单的使用 SplitViewController UINavigationController Popover</span><br><span class="line"></span><br><span class="line">ViewControllerLifeCycle: 控制器的生命周期</span><br><span class="line"></span><br><span class="line">AutoLayout : 简单的AutoLayout布局介绍</span><br><span class="line"></span><br><span class="line">Cassini: UIScrollView的简单介绍</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-<p><code>这是课程中所敲的所有代码 关于UITableView中的代码暂无！！</code></p>
-<p><a href="https://github.com/LeeWongSnail/SwiftTestDemo">我的代码放到这里了</a></p>
-]]></content>
-      <categories>
-        <category>Swift</category>
-      </categories>
-      <tags>
-        <tag>Swift</tag>
-        <tag>Stanford</tag>
-        <tag>基础</tag>
       </tags>
   </entry>
   <entry>
@@ -807,6 +714,99 @@ self.tableView.registerClass(NewsCell.self,
       <tags>
         <tag>Swift</tag>
         <tag>Demo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Swift little tips</title>
+    <url>/2016/02/15/Swift-little-tips/</url>
+    <content><![CDATA[<p>本文主要讲述了，我在学习swift过程中遇到的一些问题以及总结出的一些技巧，在这里分享给大家。</p>
+<a id="more"></a>
+
+<h4 id="1、方法的重载"><a href="#1、方法的重载" class="headerlink" title="1、方法的重载"></a>1、方法的重载</h4><p>大家都知道OC是不支持方法的重载（存在两个名称相同的方法）的，而swift支持方法的重载，所以在项目中，我们可能会遇到下面这个问题</p>
+<p>我的代码</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import UIKit</span><br><span class="line"></span><br><span class="line">class BugViewController: UIViewController</span><br><span class="line">&#123;</span><br><span class="line">    func perform(operation: (Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    func perform(operation: (Double, Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>错误</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Method &#39;perform&#39; with Objective-C selector &#39;perform: &#39; conflicts with previous declaration with the same Objective-C selector</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>疑问：</p>
+<p>我是在用纯swift写代码，为什么会提示OC的东西？<br>原因：你的代码中包含了OC或者间接继承了OC的相关对象(我这里是因为控制器继承自UIViewController)<br>解决方法：</p>
+<p>1、去掉和OC相关的部分（删除继承）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import UIKit</span><br><span class="line"></span><br><span class="line">class BugViewController</span><br><span class="line">&#123;</span><br><span class="line">    func perform(operation: (Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    func perform(operation: (Double, Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>2、添加@objc</p>
+<p>在重载的方法前，加上@nonobjc</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import UIKit</span><br><span class="line"></span><br><span class="line">class BugViewController: UIViewController</span><br><span class="line">&#123;</span><br><span class="line">    func perform(operation: (Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">	@nonobjc</span><br><span class="line">    func perform(operation: (Double, Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>3、添加private标志</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import UIKit</span><br><span class="line"></span><br><span class="line">class BugViewController: UIViewController</span><br><span class="line">&#123;</span><br><span class="line">    func perform(operation: (Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">   private func perform(operation: (Double, Double) -&gt; Double) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>详细请参考<a href="http://stackoverflow.com/questions/29457720/compiler-error-method-with-objective-c-selector-conflicts-with-previous-declara/31500740#31500740">链接</a></p>
+<h4 id="2、类方法"><a href="#2、类方法" class="headerlink" title="2、类方法"></a>2、类方法</h4><p>实例方法是被类型的某个实例调用的方法。你也可以定义类型本身调用的方法，这种方法就叫做类型方法。声明类的类型方法，在方法的func关键字之前加上关键字class；声明结构体和枚举的类型方法，在方法的func关键字之前加上关键字static</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">注意：</span><br><span class="line">在 Objective-C 里面，你只能为 Objective-C 的类定义类型方法(type-level methods)。在 Swift 中，你可以为所有的类、结构体和枚举定义类型方法：每一个类型方法都被它所支持的类型显式包含。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>示例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">class SomeClass &#123;</span><br><span class="line">  class func someTypeMethod() &#123;</span><br><span class="line">    &#x2F;&#x2F; type method implementation goes here</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">SomeClass.someTypeMethod()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>参考文章：</p>
+<p><a href="http://www.topthink.com/topic/8972.html">1、static和class的使用</a></p>
+<h4 id="3、Class-has-no-initializers错误"><a href="#3、Class-has-no-initializers错误" class="headerlink" title="3、Class has no initializers错误"></a>3、Class has no initializers错误</h4><p><img src="http://img.hoop8.com/attachments/1602/9323165027545.png" alt="errorTips"></p>
+<p>这是我在swift学习中常见的一个错误，<br>这个错误通常是由于你的这个类中声明的某一个变量，<br>在声明的时候没有指定这个变量是否是optional，<br>这时你只需要检查一下，自己声明的变量是否需要添加！或者？</p>
+<h4 id="4、获取类名或者实例的类型"><a href="#4、获取类名或者实例的类型" class="headerlink" title="4、获取类名或者实例的类型"></a>4、获取类名或者实例的类型</h4><p>使用类名获取</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">UITableViewCell.self   UITableViewCell.classForCoder()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>实例对象获取类型</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">let date &#x3D; NSDate()</span><br><span class="line">let name &#x3D; date.dynamicType</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><a href="http://swifter.tips/instance-type/">获取对象类型</a></p>
+<h4 id="5、使用Storyboard和纯代码创建Cell"><a href="#5、使用Storyboard和纯代码创建Cell" class="headerlink" title="5、使用Storyboard和纯代码创建Cell"></a>5、使用Storyboard和纯代码创建Cell</h4><p>在Swift开发中我们有两种方式 创建一个tableviewcell </p>
+<p>1、纯代码</p>
+<pre><code>一般需要重写init方法
+
+override init(style: UITableViewCellStyle, 
+                        reuseIdentifier: String?)
+
+在使用cell之前要先注册
+
+self.tableView.registerClass(NewsCell.self, 
+            forCellReuseIdentifier: &quot;newscell&quot;)</code></pre>
+<p>2、Storyboard</p>
+<pre><code>需要在xib中定义好cell的结构，设置重用标示符，这样才可以重用</code></pre>
+<p>注意：如果重写了init方法，则默认使用纯代码的方式去构造这个cell，不会走awakefromnib方法，</p>
+<h4 id="6、Swift中错误的处理"><a href="#6、Swift中错误的处理" class="headerlink" title="6、Swift中错误的处理"></a>6、Swift中错误的处理</h4><p>异常处理的写法：</p>
+<p><code>OC</code>：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">NSError *error;</span><br><span class="line">BOOL success &#x3D; [data writeToFile: path options: options error: &amp;error];</span><br><span class="line">if(error) &#123;</span><br><span class="line">    &#x2F;&#x2F; 发生了错误</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>Swift</code>:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">do &#123;</span><br><span class="line">    try d.writeToFile(&quot;Hello&quot;, options: [])</span><br><span class="line">&#125; catch let error as NSError &#123;</span><br><span class="line">    print (&quot;Error: \(error.domain)&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>如果已知错误的类型可以采用这种枚举的方式</code>：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">enum LoginError: ErrorType &#123;</span><br><span class="line">    case UserNotFound, UserPasswordNotMatch</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">do &#123;</span><br><span class="line">    try login(&quot;onevcat&quot;, password: &quot;123&quot;)</span><br><span class="line">&#125; catch LoginError.UserNotFound &#123;</span><br><span class="line">    print(&quot;UserNotFound&quot;)</span><br><span class="line">&#125; catch LoginError.UserPasswordNotMatch &#123;</span><br><span class="line">    print(&quot;UserPasswordNotMatch&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="7、Swift中互斥锁的使用"><a href="#7、Swift中互斥锁的使用" class="headerlink" title="7、Swift中互斥锁的使用"></a>7、Swift中互斥锁的使用</h4><p>OC中的锁的使用</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- (void)myMethod:(id)anObj &#123;</span><br><span class="line">    @synchronized(anObj) &#123;</span><br><span class="line">        &#x2F;&#x2F; 在括号内 anObj 不会被其他线程改变</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>这个方法在Swift中已经无法使用了</code></p>
+<p>解析@synchronized方法实现原理：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@synchronized 在幕后做的事情是调用了 objc_sync 中的 objc_sync_enter 和 objc_sync_exit 方法，并且加入了一些异常判断 </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>因此Swift中锁的实现可以这么写</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">func synchronized(lock: AnyObject, closure: () -&gt; ()) &#123;</span><br><span class="line">    objc_sync_enter(lock)</span><br><span class="line">    closure()</span><br><span class="line">    objc_sync_exit(lock)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>根据Swift尾随闭包的特性，可以简化为：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">func myMethod(anObj: AnyObject!) &#123;</span><br><span class="line">    synchronized(anObj) &#123;</span><br><span class="line">        &#x2F;&#x2F; 在括号内 anObj 不会被其他线程改变</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="7、Swift中单例的创建"><a href="#7、Swift中单例的创建" class="headerlink" title="7、Swift中单例的创建"></a>7、Swift中单例的创建</h4><p>OC中单例的创建：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ (id)sharedManager &#123;</span><br><span class="line"></span><br><span class="line">    static MyManager *staticInstance &#x3D; nil;</span><br><span class="line">    static dispatch_once_t onceToken;</span><br><span class="line"></span><br><span class="line">    dispatch_once(&amp;onceToken, ^&#123;</span><br><span class="line">        staticInstance &#x3D; [[self alloc] init];</span><br><span class="line">    &#125;);</span><br><span class="line">    return staticInstance;”</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Swift中创建单例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">private let sharedInstance &#x3D; MyManager()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Swift</category>
+      </categories>
+      <tags>
+        <tag>开发技巧</tag>
       </tags>
   </entry>
   <entry>
@@ -1091,154 +1091,6 @@ self.tableView.registerClass(NewsCell.self,
       </categories>
       <tags>
         <tag>UI框架</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>block的那些事</title>
-    <url>/2018/02/27/block-something/</url>
-    <content><![CDATA[<p>Blocks是C语言的扩充功能，而Apple 在OS X Snow Leopard 和 iOS 4中引入了这个新功能“Blocks”。从那开始，Block就出现在iOS和Mac系统各个API中，并被大家广泛使用。一句话来形容Blocks，带有自动变量（局部变量）的匿名函数。</p>
-<a id="more"></a>
-
-<h1 id="Block的那些事"><a href="#Block的那些事" class="headerlink" title="Block的那些事"></a>Block的那些事</h1><h2 id="Block-基础"><a href="#Block-基础" class="headerlink" title="Block 基础"></a>Block 基础</h2><h4 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h4><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Block_layout</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span> *isa;  <span class="comment">//指向block的类型</span></span><br><span class="line">    <span class="keyword">int</span> flags;  <span class="comment">//附加信息</span></span><br><span class="line">    <span class="keyword">int</span> reserved;   <span class="comment">//block内部的变量数</span></span><br><span class="line">    <span class="keyword">void</span> (*invoke)(<span class="keyword">void</span> *, ...);    <span class="comment">//函数指针，指向block具体的函数调用地址</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Block_descriptor</span> *<span class="title">descriptor</span>;</span>    <span class="comment">//附加描述信息，比如变量数、大小、copy和dispose辅助操作函数指针</span></span><br><span class="line">    <span class="comment">/* Imported variables. */</span></span><br><span class="line">    <span class="comment">//复制到结构体中的外部局部变量或变量地址</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Block_descriptor</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">int</span> reserved;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">int</span> size;</span><br><span class="line">    <span class="keyword">void</span> (*copy)(<span class="keyword">void</span> *dst, <span class="keyword">void</span> *src);</span><br><span class="line">    <span class="keyword">void</span> (*dispose)(<span class="keyword">void</span> *);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://upload-images.jianshu.io/upload_images/1194012-1739b7e85e46b4db.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/510" alt="结构"></p>
-<p>block中也存在一个isa指针,因此在OC中block也是被当做一个对象来看待的。</p>
-<h4 id="Block的类型"><a href="#Block的类型" class="headerlink" title="Block的类型"></a>Block的类型</h4><h5 id="NSConcreteStackBlock"><a href="#NSConcreteStackBlock" class="headerlink" title="NSConcreteStackBlock"></a>NSConcreteStackBlock</h5><ul>
-<li><p>只用到外部局部变量、成员属性变量，且没有强指针引用的block都是StackBlock。<br>StackBlock的生命周期由系统控制的，一旦返回之后，就被系统销毁了。</p>
-</li>
-<li><p>_NSConcreteStackBlock是不持有对象的。</p>
-</li>
-</ul>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">//以下是在MRC下执行的</span></span><br><span class="line">    <span class="built_in">NSObject</span> * obj = [[<span class="built_in">NSObject</span> alloc]init];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;1.Block外 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">void</span> (^myBlock)(<span class="keyword">void</span>) = ^&#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;Block中 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;2.Block外 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">    </span><br><span class="line">    myBlock();</span><br></pre></td></tr></table></figure>
-
-<p>打印结果:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1.Block外 obj &#x3D; 1</span><br><span class="line">2.Block外 obj &#x3D; 1</span><br><span class="line">Block中 obj &#x3D; 1</span><br></pre></td></tr></table></figure>
-
-<p>由于_NSConcreteStackBlock所属的变量域一旦结束，那么该Block就会被销毁。<br>因此,在ARC环境下，编译器会自动的判断，把Block自动的从栈copy到堆。</p>
-<p>下面四种情况下会将block从栈自动copy到堆上:</p>
-<ul>
-<li>1.手动调用copy</li>
-<li>2.Block是函数的返回值</li>
-<li>3.Block被强引用，Block被赋值给__strong或者id类型</li>
-<li>4.调用系统API入参中含有usingBlcok的方法</li>
-</ul>
-<p><code>注意</code>:copy方法可以将block从栈上copy到堆上,dispose方法可以将堆上的block销毁。</p>
-<h5 id="NSConcreteMallocBlock"><a href="#NSConcreteMallocBlock" class="headerlink" title="NSConcreteMallocBlock"></a>NSConcreteMallocBlock</h5><ul>
-<li><p>有强指针引用或copy修饰的成员属性引用的block会被复制一份到堆中成为MallocBlock，没有强指针引用即销毁，生命周期由程序员控制</p>
-</li>
-<li><p>_NSConcreteMallocBlock是持有对象的。</p>
-</li>
-</ul>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">//以下是在MRC下执行的</span></span><br><span class="line"><span class="built_in">NSObject</span> * obj = [[<span class="built_in">NSObject</span> alloc]init];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;1.Block外 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">    </span><br><span class="line"><span class="keyword">void</span> (^myBlock)(<span class="keyword">void</span>) = [^&#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;Block中 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">&#125;<span class="keyword">copy</span>];</span><br><span class="line">    </span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;2.Block外 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">    </span><br><span class="line">myBlock();</span><br><span class="line">    </span><br><span class="line">[myBlock release];</span><br><span class="line">    </span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;3.Block外 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>打印结果:</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="number">1.</span>Block外 obj = <span class="number">1</span></span><br><span class="line"><span class="number">2.</span>Block外 obj = <span class="number">2</span></span><br><span class="line">Block中 obj = <span class="number">2</span></span><br><span class="line"><span class="number">3.</span>Block外 obj = <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<h5 id="NSConcreteGlobalBlock"><a href="#NSConcreteGlobalBlock" class="headerlink" title="NSConcreteGlobalBlock"></a>NSConcreteGlobalBlock</h5><ul>
-<li><p>没有用到外界变量或只用到全局变量、静态变量的block为_NSConcreteGlobalBlock，生命周期从创建到应用程序结束。</p>
-</li>
-<li><p>_NSConcreteGlobalBlock也不持有对象</p>
-</li>
-</ul>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">//以下是在MRC下执行的</span></span><br><span class="line"><span class="keyword">void</span> (^myBlock)(<span class="keyword">void</span>) = ^&#123;</span><br><span class="line">   </span><br><span class="line">   <span class="built_in">NSObject</span> * obj = [[<span class="built_in">NSObject</span> alloc]init];</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;Block中 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">&#125;;</span><br><span class="line">    </span><br><span class="line">myBlock();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>打印结果:</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">Block 中 obj = <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<h5 id="代码演示"><a href="#代码演示" class="headerlink" title="代码演示"></a>代码演示</h5><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">-(<span class="keyword">void</span>)method &#123; </span><br><span class="line"><span class="comment">//在ARC环境下，Block也是存在__NSStackBlock的时候的，平时见到最多的是_NSConcreteMallocBlock，是因为我们会对Block有赋值操作，所以ARC下，block 类型通过=进行传递时，会导致调用objc_retainBlock-&gt;_Block_copy-&gt;_Block_copy_internal方法链。并导致 __NSStackBlock__ 类型的 block 转换为 __NSMallocBlock__ 类型。</span></span><br><span class="line">  <span class="keyword">int</span> a = <span class="number">3</span>;</span><br><span class="line">  <span class="keyword">void</span>(^block)() = ^&#123;</span><br><span class="line">      NSLog(@<span class="string">&quot;调用block%d&quot;</span>,a);<span class="comment">//这里的变量a，和self.string是一样效果</span></span><br><span class="line">  &#125;;</span><br><span class="line">  NSLog(@<span class="string">&quot;%@&quot;</span>,block);</span><br><span class="line"><span class="comment">//打印结果:&lt;__NSMallocBlock__: 0x7fc498746000&gt;</span></span><br><span class="line"><span class="comment">//此时后面的匿名函数赋值给block指针（创建带名字的block），且引用了外部局部变量,block会copy到堆</span></span><br><span class="line"></span><br><span class="line">NSLog(@<span class="string">&quot;%@&quot;</span>,^&#123;NSLog(@<span class="string">&quot;调用block%d&quot;</span>,a);&#125;);</span><br><span class="line"><span class="comment">//打印结果:&lt;__NSStackBlock__: 0x7fff54f0c700&gt;</span></span><br><span class="line"><span class="comment">//匿名函数无赋值操作，只存于栈上，会不定释放</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> b = <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span>(^block)() = ^&#123;</span><br><span class="line">      NSLog(@<span class="string">&quot;调用block%d&quot;</span>,b);<span class="comment">//若不引用任何变量，也是__NSGloBalBlock__</span></span><br><span class="line">&#125;;</span><br><span class="line">  NSLog(@<span class="string">&quot;%@&quot;</span>,block);</span><br><span class="line">  &#125;</span><br><span class="line"><span class="comment">//打印结果:&lt;__NSGloBalBlock__: 0x7fc498746000&gt;</span></span><br><span class="line"><span class="comment">//此时引用了全局变量,block放在全局区</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Block与循环引用"><a href="#Block与循环引用" class="headerlink" title="Block与循环引用"></a>Block与循环引用</h2><p>什么情况下会出现循环引用呢？</p>
-<h3 id="单向引用"><a href="#单向引用" class="headerlink" title="单向引用"></a>单向引用</h3><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">void</span> (^block1)() = ^&#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,<span class="keyword">self</span>.view);</span><br><span class="line">    &#125;;</span><br></pre></td></tr></table></figure>
-<p>很明显这里是不会出现循环引用的。block虽然强引用了self但是self并没有强引用block</p>
-<h3 id="类"><a href="#类" class="headerlink" title="类"></a>类</h3><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">[<span class="built_in">UIView</span> animateWithDuration:<span class="number">1</span> animations:^&#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,<span class="keyword">self</span>.view);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
-
-<p>这样也不会产生循环引用,因为这是一个类方法,self没办法强引用一个类。</p>
-<h3 id="成员变量"><a href="#成员变量" class="headerlink" title="成员变量"></a>成员变量</h3><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">self</span>.testBlock = ^(<span class="built_in">NSString</span> *text) &#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,<span class="keyword">self</span>.view);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>这里是 self强引用了testblock 同时在block中也强引用了self。因此这回导致循环引用。</p>
-<p>类似的还有:</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">self</span>.testBlock = ^(<span class="built_in">NSString</span> *text) &#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,_arr);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>即使没有出现self的字眼,这种情况下依然会发生循环引用。</p>
-<p>正常情况下,如果出现明显的循环引用,编译器是会给我们提示的</p>
-<p><img src="http://og0h689k8.bkt.clouddn.com/18-5-12/59352221.jpg"></p>
-<h3 id="block参数"><a href="#block参数" class="headerlink" title="block参数"></a>block参数</h3><h4 id="纯粹的参数"><a href="#纯粹的参数" class="headerlink" title="纯粹的参数"></a>纯粹的参数</h4><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">[<span class="keyword">self</span> doSomthing1:^&#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;str111:%@&quot;</span>,<span class="keyword">self</span>.str);</span><br><span class="line">&#125;];</span><br><span class="line">    </span><br><span class="line">[<span class="keyword">self</span> doSomthing2:^(<span class="keyword">int</span> a, <span class="keyword">int</span> b) &#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;str111:%@&quot;</span>,<span class="keyword">self</span>.str);</span><br><span class="line">&#125;];</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)doSomthing1:(<span class="keyword">void</span>(^)())block&#123;</span><br><span class="line"><span class="keyword">if</span>(block)&#123;</span><br><span class="line">   block();</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">- (<span class="keyword">void</span>)doSomthing2:(<span class="keyword">void</span> (^)(<span class="keyword">int</span> a, <span class="keyword">int</span> b))block&#123;</span><br><span class="line">    <span class="keyword">if</span>(block)&#123;</span><br><span class="line">        block(<span class="number">3</span>,<span class="number">4</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>对于上面的这两种情况,block其实都是作为参数,虽然block中持有了self但是self并没有持有block。因此这里不会产生循环引用的问题。</p>
-<h4 id="参数被引用"><a href="#参数被引用" class="headerlink" title="参数被引用"></a>参数被引用</h4><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">[<span class="keyword">self</span> doSomthing3:^(<span class="built_in">NSString</span> *text) &#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;str111:%@&quot;</span>,<span class="keyword">self</span>.str);</span><br><span class="line">&#125;];</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)doSomthing3:(Block)block&#123;</span><br><span class="line">    <span class="keyword">if</span>(block)&#123;</span><br><span class="line">        <span class="keyword">self</span>.testBlock = block;</span><br><span class="line">        block(<span class="string">@&quot;111&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在<code>doSomthing3</code>方法中,self对block进行了强引用,这里就会造成循环引用。这种循环引用也称为间接的循环引用,而且这种循环引用编译器是无法提示的。所以,在日常工作中不太容易被发现。</p>
-<h4 id="系统自带的block"><a href="#系统自带的block" class="headerlink" title="系统自带的block"></a>系统自带的block</h4><p>有时候我们会有一种错觉,系统自带的一些block中使用self不会产生循环引用。</p>
-<p>很可惜,这的确是错觉！</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">[[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserverForName:<span class="string">@&quot;testblock&quot;</span> object:<span class="literal">nil</span> queue:<span class="literal">nil</span> usingBlock:^(<span class="built_in">NSNotification</span> * _Nonnull note) &#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,<span class="keyword">self</span>.view);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
-
-<p>编译器不会提示有循环引用,但是的的确确这里会产生循环引用。所以还是老老实实的使用weakself,千万不要有这种错觉！</p>
-<h3 id="AFN中的循环引用"><a href="#AFN中的循环引用" class="headerlink" title="AFN中的循环引用"></a>AFN中的循环引用</h3><p>我们在使用AFN进行网络请求的时候,实际上不需要关注网络回调中可能出现的循环引用,这是因为在AFN的内部做了处理。切断了循环引用链。</p>
-<p>那么 我们是否就可以彻底的相信了AFN的处理而不需要自己做处理了呢？</p>
-<p>看看下面的例子:</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)afnBlock</span><br><span class="line">&#123;</span><br><span class="line">    AFHTTPSessionManager *mgr = [AFHTTPSessionManager manager];</span><br><span class="line">    mgr.responseSerializer = [AFHTTPResponseSerializer serializer];</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">//2.1 创建请求对象</span></span><br><span class="line">    <span class="built_in">NSURLRequest</span> *request = [<span class="built_in">NSURLRequest</span> requestWithURL:[<span class="built_in">NSURL</span> URLWithString:<span class="string">@&quot;https://meishubao-static.oss-cn-hangzhou.aliyuncs.com/logs/2018-05/09/121214/bba24fa9ed53970478cdbf640d69620a.zip&quot;</span>]];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSURLSessionDownloadTask</span> *downloadTask = [mgr downloadTaskWithRequest:request progress:^(<span class="built_in">NSProgress</span> * _Nonnull downloadProgress) &#123;<span class="comment">//进度</span></span><br><span class="line">        </span><br><span class="line">    &#125; destination:^<span class="built_in">NSURL</span> * _Nonnull(<span class="built_in">NSURL</span> * _Nonnull targetPath, <span class="built_in">NSURLResponse</span> * _Nonnull response) &#123;</span><br><span class="line">        <span class="built_in">NSString</span> *caches = [<span class="built_in">NSSearchPathForDirectoriesInDomains</span>(<span class="built_in">NSCachesDirectory</span>, <span class="built_in">NSUserDomainMask</span>, <span class="literal">YES</span>) lastObject];</span><br><span class="line">        <span class="comment">//拼接文件全路径</span></span><br><span class="line">        <span class="built_in">NSString</span> *fullpath = [caches stringByAppendingPathComponent:response.suggestedFilename];</span><br><span class="line">        <span class="built_in">NSURL</span> *filePathUrl = [<span class="built_in">NSURL</span> fileURLWithPath:fullpath];</span><br><span class="line">        sleep(<span class="number">20</span>);</span><br><span class="line">        <span class="keyword">return</span> filePathUrl;</span><br><span class="line">        </span><br><span class="line">    &#125; completionHandler:^(<span class="built_in">NSURLResponse</span> * _Nonnull response, <span class="built_in">NSURL</span> * _Nonnull filePath, <span class="built_in">NSError</span> * _Nonnull error) &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,<span class="keyword">self</span>.str);</span><br><span class="line">  </span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//3.启动任务</span></span><br><span class="line">    [downloadTask resume];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>正常情况下,在网络请求的回调中强引用了self,但是self并没有强引用这个网络请求。因此这里不会形成循环引用。</p>
-<p>如果self强引用了网络请求(request)且request的回调中也强引用了self是否会造成循环引用呢？</p>
-<p>正常情况,这是很明显的循环引用。但是实际上这并不会造成循环引用。因此 AFN肯定在内部做了一些事情。</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@property</span> (<span class="keyword">readwrite</span>, <span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) <span class="built_in">NSMutableDictionary</span> *mutableTaskDelegatesKeyedByTaskIdentifier;</span><br></pre></td></tr></table></figure>
-
-<p>我们关注一下AFN的这个属性,其作用是用来保存当前正在进行的所有请求。</p>
-<p>开始请求的时候:</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">self</span>.mutableTaskDelegatesKeyedByTaskIdentifier[@(task.taskIdentifier)] = delegate;</span><br></pre></td></tr></table></figure>
-<p>将delegate与task进行绑定。</p>
-<p>网络请求结束的时候:</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)removeDelegateForTask:(<span class="built_in">NSURLSessionTask</span> *)task &#123;</span><br><span class="line">    <span class="built_in">NSParameterAssert</span>(task);</span><br><span class="line"></span><br><span class="line">    [<span class="keyword">self</span>.lock lock];</span><br><span class="line">    [<span class="keyword">self</span> removeNotificationObserverForTask:task];</span><br><span class="line">    [<span class="keyword">self</span>.mutableTaskDelegatesKeyedByTaskIdentifier removeObjectForKey:@(task.taskIdentifier)];</span><br><span class="line">    [<span class="keyword">self</span>.lock unlock];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>解除task和delegate的绑定。</p>
-<p>尝试一下把下面这句话注释掉:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[self.mutableTaskDelegatesKeyedByTaskIdentifier removeObjectForKey:@(task.taskIdentifier)];</span><br></pre></td></tr></table></figure>
-
-<p>你会惊奇的发现,<code>这个网络请求导致了当前进行网络请求的控制器无法被释放!!! </code></p>
-<p>所以,AFN中可以大胆使用self而不用考虑循环引用都是因为这一句。在网络请求成功之后 手动的将self与block与self的引用关系切断。</p>
-<p>当然正常情况下,控制器不会持有这个请求。那么是否就表示正常情况下,我们使用AFN的时候完全不用考虑循环应用的情况了呢？</p>
-<p>答案是否定的！</p>
-<p>来看看这段代码:</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">self</span>.task = [mgr downloadTaskWithRequest:<span class="keyword">self</span>.request progress:^(<span class="built_in">NSProgress</span> * _Nonnull downloadProgress) &#123;<span class="comment">//进度</span></span><br><span class="line">        </span><br><span class="line">    &#125; destination:^<span class="built_in">NSURL</span> * _Nonnull(<span class="built_in">NSURL</span> * _Nonnull targetPath, <span class="built_in">NSURLResponse</span> * _Nonnull response) &#123;</span><br><span class="line">        <span class="built_in">NSString</span> *caches = [<span class="built_in">NSSearchPathForDirectoriesInDomains</span>(<span class="built_in">NSCachesDirectory</span>, <span class="built_in">NSUserDomainMask</span>, <span class="literal">YES</span>) lastObject];</span><br><span class="line">        <span class="comment">//拼接文件全路径</span></span><br><span class="line">        <span class="built_in">NSString</span> *fullpath = [caches stringByAppendingPathComponent:response.suggestedFilename];</span><br><span class="line">        <span class="built_in">NSURL</span> *filePathUrl = [<span class="built_in">NSURL</span> fileURLWithPath:fullpath];</span><br><span class="line">        sleep(<span class="number">20</span>);</span><br><span class="line">        <span class="keyword">return</span> filePathUrl;</span><br><span class="line">        </span><br><span class="line">    &#125; completionHandler:^(<span class="built_in">NSURLResponse</span> * _Nonnull response, <span class="built_in">NSURL</span> * _Nonnull filePath, <span class="built_in">NSError</span> * _Nonnull error) &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,<span class="keyword">self</span>.str);</span><br><span class="line">  </span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
-
-<p>其实与上面的网络请求唯一的区别是多了一个:</p>
-<p><code>sleep(20);</code> </p>
-<p>我们用sleep方法模拟一个特别慢的网络请求。当网络请求开始之后，用户在等待一段时间之后发现网络请求还没有成功,于是退出了当前的页面。</p>
-<p>这个时候网络请求没有成功,因此上面我们提到的那个关键的那句话还没有走。这也就导致了这个控制器无法被释放！ 因此AFN的这个处理也不是绝对安全的。</p>
-<p>为了可以让这个控制器完全释放,我们还是老老实实的使用<code>weakself</code>。</p>
-<h3 id="Masonry中的block"><a href="#Masonry中的block" class="headerlink" title="Masonry中的block"></a>Masonry中的block</h3><p>我们先看一下代码</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)masonryBlock</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">self</span>.lab = [[<span class="built_in">UILabel</span> alloc] init];</span><br><span class="line">    <span class="keyword">self</span>.lab.textColor = [<span class="built_in">UIColor</span> redColor];</span><br><span class="line">    <span class="keyword">self</span>.lab.text = <span class="string">@&quot;测试&quot;</span>;</span><br><span class="line">    [<span class="keyword">self</span>.view addSubview:<span class="keyword">self</span>.lab];</span><br><span class="line">    [<span class="keyword">self</span>.lab mas_makeConstraints:^(MASConstraintMaker *make) &#123;</span><br><span class="line">        make.centerX.equalTo(<span class="keyword">self</span>.view.mas_centerX);</span><br><span class="line">        make.centerY.equalTo(<span class="keyword">self</span>.view.mas_centerY);</span><br><span class="line">    &#125;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们都知道循环引用的条件是互相持有,很明显block持有了self那么我们看一下self是否持有block就可以了,我们看一下下面的代码</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="built_in">NSArray</span> *)mas_makeConstraints:(<span class="keyword">void</span>(^)(MASConstraintMaker *))block &#123;</span><br><span class="line">    <span class="keyword">self</span>.translatesAutoresizingMaskIntoConstraints = <span class="literal">NO</span>;</span><br><span class="line">    MASConstraintMaker *constraintMaker = [[MASConstraintMaker alloc] initWithView:<span class="keyword">self</span>];</span><br><span class="line">    block(constraintMaker);</span><br><span class="line">    <span class="keyword">return</span> [constraintMaker install];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这是view的分类,相当于方法调用中的<code>self.lab</code>。上面的代码我们可以看出self并没有持有block。所以这里绝对不会产生循环引用的问题。</p>
-<h3 id="block循环引用-可用之处"><a href="#block循环引用-可用之处" class="headerlink" title="block循环引用 可用之处"></a>block循环引用 可用之处</h3><p>在我们使用block的场景中有这样一种场景,为了避免循环引用,我们需要在block中使用weakself,但是我们又希望我们的block被保证可以执行(如果self被释放block中的内容可能无法执行或者部分被执行)。</p>
-<p>比如你有一个后台的任务，希望任务执行完后，通知另外一个实例。</p>
-<p>我们该怎么做？</p>
-<p>这时候 我们可以构造一个循环引用,然后在手动切断这个循环引用</p>
-<p>这里我们有两种做法：</p>
-<p>第一种: 参考AFN</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">__<span class="keyword">weak</span> __<span class="keyword">typeof</span>(<span class="keyword">self</span>)weakSelf = <span class="keyword">self</span>;</span><br><span class="line">AFNetworkReachabilityStatusBlock callback = ^(AFNetworkReachabilityStatus status) &#123;</span><br><span class="line">    __<span class="keyword">strong</span> __<span class="keyword">typeof</span>(weakSelf)strongSelf = weakSelf;</span><br><span class="line"></span><br><span class="line">    strongSelf.networkReachabilityStatus = status;</span><br><span class="line">    <span class="keyword">if</span> (strongSelf.networkReachabilityStatusBlock) &#123;</span><br><span class="line">        strongSelf.networkReachabilityStatusBlock(status);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>在block内部添加一个对self的强引用,这样就会产生循环应用,这样就可以保证block的内容一定会完整的被执行(如果self被销毁了有可能block被释放了压根不会被执行)。在block执行完成之后 因为strongSelf是一个局部变量在执行完之后会就置为nil,因此循环引用链也会被断开。</p>
-<p>第二种: 参考猿题库</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">//  YTKBaseRequest.m</span></span><br><span class="line">- (<span class="keyword">void</span>)clearCompletionBlock &#123;</span><br><span class="line">    <span class="comment">// nil out to break the retain cycle.</span></span><br><span class="line">    <span class="keyword">self</span>.successCompletionBlock = <span class="literal">nil</span>;</span><br><span class="line">    <span class="keyword">self</span>.failureCompletionBlock = <span class="literal">nil</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>因为block强引用了self,那么如果我们在网络请求结束之后将block置为nil,来破坏到循环引用链那么也可以达到这个效果。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本篇文章总结了在平时工作中常用block相关的基础,后面会在写一篇进阶,主要介绍__block这个关键字。可以在<a href="http://www.leewong.cn/2018/04/25/what-did-block-do/#more">这里</a>看哦！</p>
-<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
-<li>1、<a href="https://bestswifter.com/strong-weak-dance/">对 Strong-Weak Dance 的思考</a></li>
-<li>2、<a href="https://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=562061603&idx=1&sn=bd19562add018ab521a4581b1c2fba2d&scene=19#wechat_redirect">唐巧公众号文章</a></li>
-<li>3、<a href="http://yolynn.com/2016/11/01/block/">block基础到进阶</a></li>
-<li>4、<a href="https://www.jianshu.com/p/fc2f4d207d25">实际开发中-Block导致循环引用的问题</a></li>
-<li>5、<a href="https://blog.csdn.net/DonnyDN/article/details/77750751">iOS中Block使用注意点及常见问题浅析</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>iOS基础</category>
-      </categories>
-      <tags>
-        <tag>Block 循环引用 内存管理 引用计数</tag>
       </tags>
   </entry>
   <entry>
@@ -1706,6 +1558,154 @@ self.tableView.registerClass(NewsCell.self,
       </categories>
       <tags>
         <tag>Fastlane,截图,签名,自动打包</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>block的那些事</title>
+    <url>/2018/02/27/block-something/</url>
+    <content><![CDATA[<p>Blocks是C语言的扩充功能，而Apple 在OS X Snow Leopard 和 iOS 4中引入了这个新功能“Blocks”。从那开始，Block就出现在iOS和Mac系统各个API中，并被大家广泛使用。一句话来形容Blocks，带有自动变量（局部变量）的匿名函数。</p>
+<a id="more"></a>
+
+<h1 id="Block的那些事"><a href="#Block的那些事" class="headerlink" title="Block的那些事"></a>Block的那些事</h1><h2 id="Block-基础"><a href="#Block-基础" class="headerlink" title="Block 基础"></a>Block 基础</h2><h4 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h4><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Block_layout</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span> *isa;  <span class="comment">//指向block的类型</span></span><br><span class="line">    <span class="keyword">int</span> flags;  <span class="comment">//附加信息</span></span><br><span class="line">    <span class="keyword">int</span> reserved;   <span class="comment">//block内部的变量数</span></span><br><span class="line">    <span class="keyword">void</span> (*invoke)(<span class="keyword">void</span> *, ...);    <span class="comment">//函数指针，指向block具体的函数调用地址</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Block_descriptor</span> *<span class="title">descriptor</span>;</span>    <span class="comment">//附加描述信息，比如变量数、大小、copy和dispose辅助操作函数指针</span></span><br><span class="line">    <span class="comment">/* Imported variables. */</span></span><br><span class="line">    <span class="comment">//复制到结构体中的外部局部变量或变量地址</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Block_descriptor</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">int</span> reserved;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">int</span> size;</span><br><span class="line">    <span class="keyword">void</span> (*copy)(<span class="keyword">void</span> *dst, <span class="keyword">void</span> *src);</span><br><span class="line">    <span class="keyword">void</span> (*dispose)(<span class="keyword">void</span> *);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://upload-images.jianshu.io/upload_images/1194012-1739b7e85e46b4db.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/510" alt="结构"></p>
+<p>block中也存在一个isa指针,因此在OC中block也是被当做一个对象来看待的。</p>
+<h4 id="Block的类型"><a href="#Block的类型" class="headerlink" title="Block的类型"></a>Block的类型</h4><h5 id="NSConcreteStackBlock"><a href="#NSConcreteStackBlock" class="headerlink" title="NSConcreteStackBlock"></a>NSConcreteStackBlock</h5><ul>
+<li><p>只用到外部局部变量、成员属性变量，且没有强指针引用的block都是StackBlock。<br>StackBlock的生命周期由系统控制的，一旦返回之后，就被系统销毁了。</p>
+</li>
+<li><p>_NSConcreteStackBlock是不持有对象的。</p>
+</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">//以下是在MRC下执行的</span></span><br><span class="line">    <span class="built_in">NSObject</span> * obj = [[<span class="built_in">NSObject</span> alloc]init];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;1.Block外 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">void</span> (^myBlock)(<span class="keyword">void</span>) = ^&#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;Block中 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;2.Block外 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">    </span><br><span class="line">    myBlock();</span><br></pre></td></tr></table></figure>
+
+<p>打印结果:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1.Block外 obj &#x3D; 1</span><br><span class="line">2.Block外 obj &#x3D; 1</span><br><span class="line">Block中 obj &#x3D; 1</span><br></pre></td></tr></table></figure>
+
+<p>由于_NSConcreteStackBlock所属的变量域一旦结束，那么该Block就会被销毁。<br>因此,在ARC环境下，编译器会自动的判断，把Block自动的从栈copy到堆。</p>
+<p>下面四种情况下会将block从栈自动copy到堆上:</p>
+<ul>
+<li>1.手动调用copy</li>
+<li>2.Block是函数的返回值</li>
+<li>3.Block被强引用，Block被赋值给__strong或者id类型</li>
+<li>4.调用系统API入参中含有usingBlcok的方法</li>
+</ul>
+<p><code>注意</code>:copy方法可以将block从栈上copy到堆上,dispose方法可以将堆上的block销毁。</p>
+<h5 id="NSConcreteMallocBlock"><a href="#NSConcreteMallocBlock" class="headerlink" title="NSConcreteMallocBlock"></a>NSConcreteMallocBlock</h5><ul>
+<li><p>有强指针引用或copy修饰的成员属性引用的block会被复制一份到堆中成为MallocBlock，没有强指针引用即销毁，生命周期由程序员控制</p>
+</li>
+<li><p>_NSConcreteMallocBlock是持有对象的。</p>
+</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">//以下是在MRC下执行的</span></span><br><span class="line"><span class="built_in">NSObject</span> * obj = [[<span class="built_in">NSObject</span> alloc]init];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;1.Block外 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">    </span><br><span class="line"><span class="keyword">void</span> (^myBlock)(<span class="keyword">void</span>) = [^&#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;Block中 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">&#125;<span class="keyword">copy</span>];</span><br><span class="line">    </span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;2.Block外 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">    </span><br><span class="line">myBlock();</span><br><span class="line">    </span><br><span class="line">[myBlock release];</span><br><span class="line">    </span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;3.Block外 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>打印结果:</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="number">1.</span>Block外 obj = <span class="number">1</span></span><br><span class="line"><span class="number">2.</span>Block外 obj = <span class="number">2</span></span><br><span class="line">Block中 obj = <span class="number">2</span></span><br><span class="line"><span class="number">3.</span>Block外 obj = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="NSConcreteGlobalBlock"><a href="#NSConcreteGlobalBlock" class="headerlink" title="NSConcreteGlobalBlock"></a>NSConcreteGlobalBlock</h5><ul>
+<li><p>没有用到外界变量或只用到全局变量、静态变量的block为_NSConcreteGlobalBlock，生命周期从创建到应用程序结束。</p>
+</li>
+<li><p>_NSConcreteGlobalBlock也不持有对象</p>
+</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">//以下是在MRC下执行的</span></span><br><span class="line"><span class="keyword">void</span> (^myBlock)(<span class="keyword">void</span>) = ^&#123;</span><br><span class="line">   </span><br><span class="line">   <span class="built_in">NSObject</span> * obj = [[<span class="built_in">NSObject</span> alloc]init];</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;Block中 obj = %lu&quot;</span>,(<span class="keyword">unsigned</span> <span class="keyword">long</span>)obj.retainCount);</span><br><span class="line">&#125;;</span><br><span class="line">    </span><br><span class="line">myBlock();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>打印结果:</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">Block 中 obj = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="代码演示"><a href="#代码演示" class="headerlink" title="代码演示"></a>代码演示</h5><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">-(<span class="keyword">void</span>)method &#123; </span><br><span class="line"><span class="comment">//在ARC环境下，Block也是存在__NSStackBlock的时候的，平时见到最多的是_NSConcreteMallocBlock，是因为我们会对Block有赋值操作，所以ARC下，block 类型通过=进行传递时，会导致调用objc_retainBlock-&gt;_Block_copy-&gt;_Block_copy_internal方法链。并导致 __NSStackBlock__ 类型的 block 转换为 __NSMallocBlock__ 类型。</span></span><br><span class="line">  <span class="keyword">int</span> a = <span class="number">3</span>;</span><br><span class="line">  <span class="keyword">void</span>(^block)() = ^&#123;</span><br><span class="line">      NSLog(@<span class="string">&quot;调用block%d&quot;</span>,a);<span class="comment">//这里的变量a，和self.string是一样效果</span></span><br><span class="line">  &#125;;</span><br><span class="line">  NSLog(@<span class="string">&quot;%@&quot;</span>,block);</span><br><span class="line"><span class="comment">//打印结果:&lt;__NSMallocBlock__: 0x7fc498746000&gt;</span></span><br><span class="line"><span class="comment">//此时后面的匿名函数赋值给block指针（创建带名字的block），且引用了外部局部变量,block会copy到堆</span></span><br><span class="line"></span><br><span class="line">NSLog(@<span class="string">&quot;%@&quot;</span>,^&#123;NSLog(@<span class="string">&quot;调用block%d&quot;</span>,a);&#125;);</span><br><span class="line"><span class="comment">//打印结果:&lt;__NSStackBlock__: 0x7fff54f0c700&gt;</span></span><br><span class="line"><span class="comment">//匿名函数无赋值操作，只存于栈上，会不定释放</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> b = <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span>(^block)() = ^&#123;</span><br><span class="line">      NSLog(@<span class="string">&quot;调用block%d&quot;</span>,b);<span class="comment">//若不引用任何变量，也是__NSGloBalBlock__</span></span><br><span class="line">&#125;;</span><br><span class="line">  NSLog(@<span class="string">&quot;%@&quot;</span>,block);</span><br><span class="line">  &#125;</span><br><span class="line"><span class="comment">//打印结果:&lt;__NSGloBalBlock__: 0x7fc498746000&gt;</span></span><br><span class="line"><span class="comment">//此时引用了全局变量,block放在全局区</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Block与循环引用"><a href="#Block与循环引用" class="headerlink" title="Block与循环引用"></a>Block与循环引用</h2><p>什么情况下会出现循环引用呢？</p>
+<h3 id="单向引用"><a href="#单向引用" class="headerlink" title="单向引用"></a>单向引用</h3><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">void</span> (^block1)() = ^&#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,<span class="keyword">self</span>.view);</span><br><span class="line">    &#125;;</span><br></pre></td></tr></table></figure>
+<p>很明显这里是不会出现循环引用的。block虽然强引用了self但是self并没有强引用block</p>
+<h3 id="类"><a href="#类" class="headerlink" title="类"></a>类</h3><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">[<span class="built_in">UIView</span> animateWithDuration:<span class="number">1</span> animations:^&#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,<span class="keyword">self</span>.view);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+
+<p>这样也不会产生循环引用,因为这是一个类方法,self没办法强引用一个类。</p>
+<h3 id="成员变量"><a href="#成员变量" class="headerlink" title="成员变量"></a>成员变量</h3><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">self</span>.testBlock = ^(<span class="built_in">NSString</span> *text) &#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,<span class="keyword">self</span>.view);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这里是 self强引用了testblock 同时在block中也强引用了self。因此这回导致循环引用。</p>
+<p>类似的还有:</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">self</span>.testBlock = ^(<span class="built_in">NSString</span> *text) &#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,_arr);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>即使没有出现self的字眼,这种情况下依然会发生循环引用。</p>
+<p>正常情况下,如果出现明显的循环引用,编译器是会给我们提示的</p>
+<p><img src="http://og0h689k8.bkt.clouddn.com/18-5-12/59352221.jpg"></p>
+<h3 id="block参数"><a href="#block参数" class="headerlink" title="block参数"></a>block参数</h3><h4 id="纯粹的参数"><a href="#纯粹的参数" class="headerlink" title="纯粹的参数"></a>纯粹的参数</h4><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">[<span class="keyword">self</span> doSomthing1:^&#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;str111:%@&quot;</span>,<span class="keyword">self</span>.str);</span><br><span class="line">&#125;];</span><br><span class="line">    </span><br><span class="line">[<span class="keyword">self</span> doSomthing2:^(<span class="keyword">int</span> a, <span class="keyword">int</span> b) &#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;str111:%@&quot;</span>,<span class="keyword">self</span>.str);</span><br><span class="line">&#125;];</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)doSomthing1:(<span class="keyword">void</span>(^)())block&#123;</span><br><span class="line"><span class="keyword">if</span>(block)&#123;</span><br><span class="line">   block();</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">- (<span class="keyword">void</span>)doSomthing2:(<span class="keyword">void</span> (^)(<span class="keyword">int</span> a, <span class="keyword">int</span> b))block&#123;</span><br><span class="line">    <span class="keyword">if</span>(block)&#123;</span><br><span class="line">        block(<span class="number">3</span>,<span class="number">4</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于上面的这两种情况,block其实都是作为参数,虽然block中持有了self但是self并没有持有block。因此这里不会产生循环引用的问题。</p>
+<h4 id="参数被引用"><a href="#参数被引用" class="headerlink" title="参数被引用"></a>参数被引用</h4><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">[<span class="keyword">self</span> doSomthing3:^(<span class="built_in">NSString</span> *text) &#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;str111:%@&quot;</span>,<span class="keyword">self</span>.str);</span><br><span class="line">&#125;];</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)doSomthing3:(Block)block&#123;</span><br><span class="line">    <span class="keyword">if</span>(block)&#123;</span><br><span class="line">        <span class="keyword">self</span>.testBlock = block;</span><br><span class="line">        block(<span class="string">@&quot;111&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>doSomthing3</code>方法中,self对block进行了强引用,这里就会造成循环引用。这种循环引用也称为间接的循环引用,而且这种循环引用编译器是无法提示的。所以,在日常工作中不太容易被发现。</p>
+<h4 id="系统自带的block"><a href="#系统自带的block" class="headerlink" title="系统自带的block"></a>系统自带的block</h4><p>有时候我们会有一种错觉,系统自带的一些block中使用self不会产生循环引用。</p>
+<p>很可惜,这的确是错觉！</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">[[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserverForName:<span class="string">@&quot;testblock&quot;</span> object:<span class="literal">nil</span> queue:<span class="literal">nil</span> usingBlock:^(<span class="built_in">NSNotification</span> * _Nonnull note) &#123;</span><br><span class="line">   <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,<span class="keyword">self</span>.view);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+
+<p>编译器不会提示有循环引用,但是的的确确这里会产生循环引用。所以还是老老实实的使用weakself,千万不要有这种错觉！</p>
+<h3 id="AFN中的循环引用"><a href="#AFN中的循环引用" class="headerlink" title="AFN中的循环引用"></a>AFN中的循环引用</h3><p>我们在使用AFN进行网络请求的时候,实际上不需要关注网络回调中可能出现的循环引用,这是因为在AFN的内部做了处理。切断了循环引用链。</p>
+<p>那么 我们是否就可以彻底的相信了AFN的处理而不需要自己做处理了呢？</p>
+<p>看看下面的例子:</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)afnBlock</span><br><span class="line">&#123;</span><br><span class="line">    AFHTTPSessionManager *mgr = [AFHTTPSessionManager manager];</span><br><span class="line">    mgr.responseSerializer = [AFHTTPResponseSerializer serializer];</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">//2.1 创建请求对象</span></span><br><span class="line">    <span class="built_in">NSURLRequest</span> *request = [<span class="built_in">NSURLRequest</span> requestWithURL:[<span class="built_in">NSURL</span> URLWithString:<span class="string">@&quot;https://meishubao-static.oss-cn-hangzhou.aliyuncs.com/logs/2018-05/09/121214/bba24fa9ed53970478cdbf640d69620a.zip&quot;</span>]];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSURLSessionDownloadTask</span> *downloadTask = [mgr downloadTaskWithRequest:request progress:^(<span class="built_in">NSProgress</span> * _Nonnull downloadProgress) &#123;<span class="comment">//进度</span></span><br><span class="line">        </span><br><span class="line">    &#125; destination:^<span class="built_in">NSURL</span> * _Nonnull(<span class="built_in">NSURL</span> * _Nonnull targetPath, <span class="built_in">NSURLResponse</span> * _Nonnull response) &#123;</span><br><span class="line">        <span class="built_in">NSString</span> *caches = [<span class="built_in">NSSearchPathForDirectoriesInDomains</span>(<span class="built_in">NSCachesDirectory</span>, <span class="built_in">NSUserDomainMask</span>, <span class="literal">YES</span>) lastObject];</span><br><span class="line">        <span class="comment">//拼接文件全路径</span></span><br><span class="line">        <span class="built_in">NSString</span> *fullpath = [caches stringByAppendingPathComponent:response.suggestedFilename];</span><br><span class="line">        <span class="built_in">NSURL</span> *filePathUrl = [<span class="built_in">NSURL</span> fileURLWithPath:fullpath];</span><br><span class="line">        sleep(<span class="number">20</span>);</span><br><span class="line">        <span class="keyword">return</span> filePathUrl;</span><br><span class="line">        </span><br><span class="line">    &#125; completionHandler:^(<span class="built_in">NSURLResponse</span> * _Nonnull response, <span class="built_in">NSURL</span> * _Nonnull filePath, <span class="built_in">NSError</span> * _Nonnull error) &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,<span class="keyword">self</span>.str);</span><br><span class="line">  </span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//3.启动任务</span></span><br><span class="line">    [downloadTask resume];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>正常情况下,在网络请求的回调中强引用了self,但是self并没有强引用这个网络请求。因此这里不会形成循环引用。</p>
+<p>如果self强引用了网络请求(request)且request的回调中也强引用了self是否会造成循环引用呢？</p>
+<p>正常情况,这是很明显的循环引用。但是实际上这并不会造成循环引用。因此 AFN肯定在内部做了一些事情。</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@property</span> (<span class="keyword">readwrite</span>, <span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) <span class="built_in">NSMutableDictionary</span> *mutableTaskDelegatesKeyedByTaskIdentifier;</span><br></pre></td></tr></table></figure>
+
+<p>我们关注一下AFN的这个属性,其作用是用来保存当前正在进行的所有请求。</p>
+<p>开始请求的时候:</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">self</span>.mutableTaskDelegatesKeyedByTaskIdentifier[@(task.taskIdentifier)] = delegate;</span><br></pre></td></tr></table></figure>
+<p>将delegate与task进行绑定。</p>
+<p>网络请求结束的时候:</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)removeDelegateForTask:(<span class="built_in">NSURLSessionTask</span> *)task &#123;</span><br><span class="line">    <span class="built_in">NSParameterAssert</span>(task);</span><br><span class="line"></span><br><span class="line">    [<span class="keyword">self</span>.lock lock];</span><br><span class="line">    [<span class="keyword">self</span> removeNotificationObserverForTask:task];</span><br><span class="line">    [<span class="keyword">self</span>.mutableTaskDelegatesKeyedByTaskIdentifier removeObjectForKey:@(task.taskIdentifier)];</span><br><span class="line">    [<span class="keyword">self</span>.lock unlock];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解除task和delegate的绑定。</p>
+<p>尝试一下把下面这句话注释掉:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[self.mutableTaskDelegatesKeyedByTaskIdentifier removeObjectForKey:@(task.taskIdentifier)];</span><br></pre></td></tr></table></figure>
+
+<p>你会惊奇的发现,<code>这个网络请求导致了当前进行网络请求的控制器无法被释放!!! </code></p>
+<p>所以,AFN中可以大胆使用self而不用考虑循环引用都是因为这一句。在网络请求成功之后 手动的将self与block与self的引用关系切断。</p>
+<p>当然正常情况下,控制器不会持有这个请求。那么是否就表示正常情况下,我们使用AFN的时候完全不用考虑循环应用的情况了呢？</p>
+<p>答案是否定的！</p>
+<p>来看看这段代码:</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">self</span>.task = [mgr downloadTaskWithRequest:<span class="keyword">self</span>.request progress:^(<span class="built_in">NSProgress</span> * _Nonnull downloadProgress) &#123;<span class="comment">//进度</span></span><br><span class="line">        </span><br><span class="line">    &#125; destination:^<span class="built_in">NSURL</span> * _Nonnull(<span class="built_in">NSURL</span> * _Nonnull targetPath, <span class="built_in">NSURLResponse</span> * _Nonnull response) &#123;</span><br><span class="line">        <span class="built_in">NSString</span> *caches = [<span class="built_in">NSSearchPathForDirectoriesInDomains</span>(<span class="built_in">NSCachesDirectory</span>, <span class="built_in">NSUserDomainMask</span>, <span class="literal">YES</span>) lastObject];</span><br><span class="line">        <span class="comment">//拼接文件全路径</span></span><br><span class="line">        <span class="built_in">NSString</span> *fullpath = [caches stringByAppendingPathComponent:response.suggestedFilename];</span><br><span class="line">        <span class="built_in">NSURL</span> *filePathUrl = [<span class="built_in">NSURL</span> fileURLWithPath:fullpath];</span><br><span class="line">        sleep(<span class="number">20</span>);</span><br><span class="line">        <span class="keyword">return</span> filePathUrl;</span><br><span class="line">        </span><br><span class="line">    &#125; completionHandler:^(<span class="built_in">NSURLResponse</span> * _Nonnull response, <span class="built_in">NSURL</span> * _Nonnull filePath, <span class="built_in">NSError</span> * _Nonnull error) &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>,<span class="keyword">self</span>.str);</span><br><span class="line">  </span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
+
+<p>其实与上面的网络请求唯一的区别是多了一个:</p>
+<p><code>sleep(20);</code> </p>
+<p>我们用sleep方法模拟一个特别慢的网络请求。当网络请求开始之后，用户在等待一段时间之后发现网络请求还没有成功,于是退出了当前的页面。</p>
+<p>这个时候网络请求没有成功,因此上面我们提到的那个关键的那句话还没有走。这也就导致了这个控制器无法被释放！ 因此AFN的这个处理也不是绝对安全的。</p>
+<p>为了可以让这个控制器完全释放,我们还是老老实实的使用<code>weakself</code>。</p>
+<h3 id="Masonry中的block"><a href="#Masonry中的block" class="headerlink" title="Masonry中的block"></a>Masonry中的block</h3><p>我们先看一下代码</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)masonryBlock</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">self</span>.lab = [[<span class="built_in">UILabel</span> alloc] init];</span><br><span class="line">    <span class="keyword">self</span>.lab.textColor = [<span class="built_in">UIColor</span> redColor];</span><br><span class="line">    <span class="keyword">self</span>.lab.text = <span class="string">@&quot;测试&quot;</span>;</span><br><span class="line">    [<span class="keyword">self</span>.view addSubview:<span class="keyword">self</span>.lab];</span><br><span class="line">    [<span class="keyword">self</span>.lab mas_makeConstraints:^(MASConstraintMaker *make) &#123;</span><br><span class="line">        make.centerX.equalTo(<span class="keyword">self</span>.view.mas_centerX);</span><br><span class="line">        make.centerY.equalTo(<span class="keyword">self</span>.view.mas_centerY);</span><br><span class="line">    &#125;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们都知道循环引用的条件是互相持有,很明显block持有了self那么我们看一下self是否持有block就可以了,我们看一下下面的代码</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="built_in">NSArray</span> *)mas_makeConstraints:(<span class="keyword">void</span>(^)(MASConstraintMaker *))block &#123;</span><br><span class="line">    <span class="keyword">self</span>.translatesAutoresizingMaskIntoConstraints = <span class="literal">NO</span>;</span><br><span class="line">    MASConstraintMaker *constraintMaker = [[MASConstraintMaker alloc] initWithView:<span class="keyword">self</span>];</span><br><span class="line">    block(constraintMaker);</span><br><span class="line">    <span class="keyword">return</span> [constraintMaker install];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是view的分类,相当于方法调用中的<code>self.lab</code>。上面的代码我们可以看出self并没有持有block。所以这里绝对不会产生循环引用的问题。</p>
+<h3 id="block循环引用-可用之处"><a href="#block循环引用-可用之处" class="headerlink" title="block循环引用 可用之处"></a>block循环引用 可用之处</h3><p>在我们使用block的场景中有这样一种场景,为了避免循环引用,我们需要在block中使用weakself,但是我们又希望我们的block被保证可以执行(如果self被释放block中的内容可能无法执行或者部分被执行)。</p>
+<p>比如你有一个后台的任务，希望任务执行完后，通知另外一个实例。</p>
+<p>我们该怎么做？</p>
+<p>这时候 我们可以构造一个循环引用,然后在手动切断这个循环引用</p>
+<p>这里我们有两种做法：</p>
+<p>第一种: 参考AFN</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">__<span class="keyword">weak</span> __<span class="keyword">typeof</span>(<span class="keyword">self</span>)weakSelf = <span class="keyword">self</span>;</span><br><span class="line">AFNetworkReachabilityStatusBlock callback = ^(AFNetworkReachabilityStatus status) &#123;</span><br><span class="line">    __<span class="keyword">strong</span> __<span class="keyword">typeof</span>(weakSelf)strongSelf = weakSelf;</span><br><span class="line"></span><br><span class="line">    strongSelf.networkReachabilityStatus = status;</span><br><span class="line">    <span class="keyword">if</span> (strongSelf.networkReachabilityStatusBlock) &#123;</span><br><span class="line">        strongSelf.networkReachabilityStatusBlock(status);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在block内部添加一个对self的强引用,这样就会产生循环应用,这样就可以保证block的内容一定会完整的被执行(如果self被销毁了有可能block被释放了压根不会被执行)。在block执行完成之后 因为strongSelf是一个局部变量在执行完之后会就置为nil,因此循环引用链也会被断开。</p>
+<p>第二种: 参考猿题库</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">//  YTKBaseRequest.m</span></span><br><span class="line">- (<span class="keyword">void</span>)clearCompletionBlock &#123;</span><br><span class="line">    <span class="comment">// nil out to break the retain cycle.</span></span><br><span class="line">    <span class="keyword">self</span>.successCompletionBlock = <span class="literal">nil</span>;</span><br><span class="line">    <span class="keyword">self</span>.failureCompletionBlock = <span class="literal">nil</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为block强引用了self,那么如果我们在网络请求结束之后将block置为nil,来破坏到循环引用链那么也可以达到这个效果。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本篇文章总结了在平时工作中常用block相关的基础,后面会在写一篇进阶,主要介绍__block这个关键字。可以在<a href="http://www.leewong.cn/2018/04/25/what-did-block-do/#more">这里</a>看哦！</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
+<li>1、<a href="https://bestswifter.com/strong-weak-dance/">对 Strong-Weak Dance 的思考</a></li>
+<li>2、<a href="https://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=562061603&idx=1&sn=bd19562add018ab521a4581b1c2fba2d&scene=19#wechat_redirect">唐巧公众号文章</a></li>
+<li>3、<a href="http://yolynn.com/2016/11/01/block/">block基础到进阶</a></li>
+<li>4、<a href="https://www.jianshu.com/p/fc2f4d207d25">实际开发中-Block导致循环引用的问题</a></li>
+<li>5、<a href="https://blog.csdn.net/DonnyDN/article/details/77750751">iOS中Block使用注意点及常见问题浅析</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>iOS基础</category>
+      </categories>
+      <tags>
+        <tag>Block 循环引用 内存管理 引用计数</tag>
       </tags>
   </entry>
   <entry>
@@ -2951,23 +2951,6 @@ YES
       </tags>
   </entry>
   <entry>
-    <title>NSURLSessionConfiguration配置</title>
-    <url>/2016/03/21/networking-concept/</url>
-    <content><![CDATA[<p>本文主要介绍了NSURLSessionConfiguration配置，只是简单的写了一个 最常用的设置，后续会陆续补充。</p>
-<a id="more"></a>
-
-
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">可以设置全局的网络访问属性-- 对某台服务器所有特殊的设置，统一在config中设置</span><br><span class="line"></span><br><span class="line">最重要的一个属性 应用于身份验证的</span><br><span class="line"></span><br><span class="line">	HTTPAdditionalHeaders“”</span><br><span class="line">		 &#x2F;&#x2F; 设置身份验证的数据 - 一旦设置，全局共享的好处！</span><br><span class="line">		 </span><br><span class="line">    NSString *authStr &#x3D; [self base64Encode:@&quot;admin:</span><br><span class="line">    										123456&quot;];</span><br><span class="line">    										</span><br><span class="line">        authStr &#x3D; [@&quot;BASIC &quot; </span><br><span class="line">        				stringByAppendingString:authStr];</span><br><span class="line">        				</span><br><span class="line">        &#x2F;&#x2F; 设置请求头 身份验证 的字段</span><br><span class="line">        </span><br><span class="line">&#x2F;&#x2F;        [request setValue:authStr forHTTPHeaderField:@&quot;Authorization&quot;];</span><br><span class="line"></span><br><span class="line">        config.HTTPAdditionalHeaders &#x3D; @&#123;@&quot;Authorization&quot;: </span><br><span class="line">        								authStr&#125;;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>iOS基础</category>
-      </categories>
-      <tags>
-        <tag>NSURLSessionConfiguration</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>NSURLRequest 详解</title>
     <url>/2016/03/21/networking/</url>
     <content><![CDATA[<p>本片文章重点介绍了NSURLRequest的配置，作为网络请求的主要载体，NSURLRequest的配置十分重要。本文会对创建请求，发送请求以及这个过程中的参数设置进行详细的解析。</p>
@@ -3031,6 +3014,23 @@ YES
         <tag>NSURLRequest</tag>
         <tag>cachePolicy</tag>
         <tag>timeoutInterval</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NSURLSessionConfiguration配置</title>
+    <url>/2016/03/21/networking-concept/</url>
+    <content><![CDATA[<p>本文主要介绍了NSURLSessionConfiguration配置，只是简单的写了一个 最常用的设置，后续会陆续补充。</p>
+<a id="more"></a>
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">可以设置全局的网络访问属性-- 对某台服务器所有特殊的设置，统一在config中设置</span><br><span class="line"></span><br><span class="line">最重要的一个属性 应用于身份验证的</span><br><span class="line"></span><br><span class="line">	HTTPAdditionalHeaders“”</span><br><span class="line">		 &#x2F;&#x2F; 设置身份验证的数据 - 一旦设置，全局共享的好处！</span><br><span class="line">		 </span><br><span class="line">    NSString *authStr &#x3D; [self base64Encode:@&quot;admin:</span><br><span class="line">    										123456&quot;];</span><br><span class="line">    										</span><br><span class="line">        authStr &#x3D; [@&quot;BASIC &quot; </span><br><span class="line">        				stringByAppendingString:authStr];</span><br><span class="line">        				</span><br><span class="line">        &#x2F;&#x2F; 设置请求头 身份验证 的字段</span><br><span class="line">        </span><br><span class="line">&#x2F;&#x2F;        [request setValue:authStr forHTTPHeaderField:@&quot;Authorization&quot;];</span><br><span class="line"></span><br><span class="line">        config.HTTPAdditionalHeaders &#x3D; @&#123;@&quot;Authorization&quot;: </span><br><span class="line">        								authStr&#125;;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>iOS基础</category>
+      </categories>
+      <tags>
+        <tag>NSURLSessionConfiguration</tag>
       </tags>
   </entry>
   <entry>
