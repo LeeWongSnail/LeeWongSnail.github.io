@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="作为UIScrollView的子类UITableView和UICollectionView是我们平时开发中最常使用的两个列表控件。同时在一些复杂的页面中也经常嵌套使用,同时由于对其有些方法理解的不够深入,很容易导致一些比较诡异的问题。 因此这里单独写一篇文章来介绍这两个常用控件中的几个常用的方法,希望可以加深大家对UITableView和UICollectionView的理解。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="滚动视图的ReloadData和VisibleCells">
+<meta property="og:url" content="https://www.leewong.cn/2019/10/20/reloadDataandvisibleCells/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="作为UIScrollView的子类UITableView和UICollectionView是我们平时开发中最常使用的两个列表控件。同时在一些复杂的页面中也经常嵌套使用,同时由于对其有些方法理解的不够深入,很容易导致一些比较诡异的问题。 因此这里单独写一篇文章来介绍这两个常用控件中的几个常用的方法,希望可以加深大家对UITableView和UICollectionView的理解。">
+<meta property="og:locale">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/006y8mN6ly1g83s1tlrh1j30ak0kjaag.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/006y8mN6ly1g83un68eevj30l4152q4f.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/006y8mN6ly1g83yoeib27j30l4152gn7.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/006y8mN6ly1g83z4a87hlj30l4152td5.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/006y8mN6ly1g83v94813xj314m08waik.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/006y8mN6ly1g83wam8lmbj30cu09ddmm.jpg">
+<meta property="article:published_time" content="2019-10-20T03:19:34.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:14:21.169Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="reloadData visibleCells">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/006y8mN6ly1g83s1tlrh1j30ak0kjaag.jpg">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2019/10/20/reloadDataandvisibleCells/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>滚动视图的ReloadData和VisibleCells | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%B7%E6%96%B0-reloadData"><span class="nav-number">1.</span> <span class="nav-text">数据刷新 reloadData</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#UITableView"><span class="nav-number">1.1.</span> <span class="nav-text">UITableView</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#UICollectionView"><span class="nav-number">1.2.</span> <span class="nav-text">UICollectionView</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#tableView%E4%B8%AD%E5%B5%8C%E5%A5%97collectionView"><span class="nav-number">1.3.</span> <span class="nav-text">tableView中嵌套collectionView</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CollectionView%E4%B8%AD%E5%B5%8C%E5%A5%97tableView"><span class="nav-number">1.4.</span> <span class="nav-text">CollectionView中嵌套tableView</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VisibleCell"><span class="nav-number">2.</span> <span class="nav-text">VisibleCell</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#UITableView-1"><span class="nav-number">2.1.</span> <span class="nav-text">UITableView</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#UICollectionView-1"><span class="nav-number">2.2.</span> <span class="nav-text">UICollectionView</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#UITableView%E4%B8%AD%E5%B5%8C%E5%A5%97UICollectionView"><span class="nav-number">2.3.</span> <span class="nav-text">UITableView中嵌套UICollectionView</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%A1%B5%E9%9D%A2%E5%8A%A0%E8%BD%BD%E5%AE%8C%E6%88%90%E5%90%8E"><span class="nav-number">2.3.1.</span> <span class="nav-text">页面加载完成后</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%A1%B5%E9%9D%A2%E5%8A%A0%E8%BD%BD%E5%AE%8C%E6%88%90%E5%89%8D"><span class="nav-number">2.3.2.</span> <span class="nav-text">页面加载完成前</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%A1%AE%E8%AE%A4VisibleCell%E8%B0%83%E7%94%A8%E8%8E%B7%E5%8F%96%E7%9A%84%E6%95%B0%E5%80%BC"><span class="nav-number">2.3.3.</span> <span class="nav-text">确认VisibleCell调用获取的数值</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#UICollectionView%E4%B8%AD%E5%B5%8C%E5%A5%97UITableView"><span class="nav-number">2.4.</span> <span class="nav-text">UICollectionView中嵌套UITableView</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%A1%B5%E9%9D%A2%E5%8A%A0%E8%BD%BD%E6%97%B6"><span class="nav-number">2.4.1.</span> <span class="nav-text">页面加载时</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%A1%B5%E9%9D%A2%E5%8A%A0%E8%BD%BD%E5%AE%8C%E6%88%90%E5%90%8E-1"><span class="nav-number">2.4.2.</span> <span class="nav-text">页面加载完成后</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%A1%AE%E8%AE%A4VisibleCell%E8%B0%83%E7%94%A8%E8%8E%B7%E5%8F%96%E7%9A%84%E6%95%B0%E5%80%BC-1"><span class="nav-number">2.4.3.</span> <span class="nav-text">确认VisibleCell调用获取的数值</span></a></li></ol></li></ol></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2019/10/20/reloadDataandvisibleCells/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          滚动视图的ReloadData和VisibleCells
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-10-20 11:19:34" itemprop="dateCreated datePublished" datetime="2019-10-20T11:19:34+08:00">2019-10-20</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:14:21" itemprop="dateModified" datetime="2020-07-19T22:14:21+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/iOS%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">iOS基础</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2019/10/20/reloadDataandvisibleCells/" class="post-meta-item leancloud_visitors" data-flag-title="滚动视图的ReloadData和VisibleCells" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>作为<code>UIScrollView</code>的子类<code>UITableView</code>和<code>UICollectionView</code>是我们平时开发中最常使用的两个列表控件。同时在一些复杂的页面中也经常嵌套使用,同时由于对其有些方法理解的不够深入,很容易导致一些比较诡异的问题。</p>
+<p>因此这里单独写一篇文章来介绍这两个常用控件中的几个常用的方法,希望可以加深大家对<code>UITableView</code>和<code>UICollectionView</code>的理解。</p>
+<a id="more"></a>
+
+<h3 id="数据刷新-reloadData"><a href="#数据刷新-reloadData" class="headerlink" title="数据刷新 reloadData"></a>数据刷新 reloadData</h3><p><code>为了更好的理解方法的调用链,我们会添加一个队runloop的监听</code></p>
+<h4 id="UITableView"><a href="#UITableView" class="headerlink" title="UITableView"></a>UITableView</h4><p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g83s1tlrh1j30ak0kjaag.jpg" alt="demo"></p>
+<p>上图是我们demo的样子(只有一个cell)。</p>
+<p>下面我们来看代码:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)reloadTableData &#123;</span><br><span class="line"> </span><br><span class="line">    [<span class="keyword">self</span>.tableView reloadData];</span><br><span class="line"> </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;reloadData 执行完成&quot;</span>);</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>点击Demo中左上角的reloadData会调用reloadTableData方法。</p>
+<p>下面我们来看控制台打印结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">2019-10-08 19:32:21.875441+0800 LayoutIfNeed[3662:223502] RunLoop被唤醒</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.876164+0800 LayoutIfNeed[3662:223502] RunLoop即将处理Timer事件</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.876295+0800 LayoutIfNeed[3662:223502] RunLoop即将处理Source事件</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.877622+0800 LayoutIfNeed[3662:223502] -[ULTableView reloadData]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.880310+0800 LayoutIfNeed[3662:223502] -[ViewController numberOfSectionsInTableView:]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.880779+0800 LayoutIfNeed[3662:223502] -[ULTableView setNeedsLayout]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.881075+0800 LayoutIfNeed[3662:223502] -[ViewController tableView:numberOfRowsInSection:]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.881755+0800 LayoutIfNeed[3662:223502] -[ULTableView setNeedsLayout]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.881921+0800 LayoutIfNeed[3662:223502] -[ULTableView setNeedsLayout]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.882095+0800 LayoutIfNeed[3662:223502] -[ULTableView setNeedsLayout]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.882227+0800 LayoutIfNeed[3662:223502] reloadData 执行完成</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.883112+0800 LayoutIfNeed[3662:223502] RunLoop即将处理Timer事件</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.883582+0800 LayoutIfNeed[3662:223502] RunLoop即将处理Source事件</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.906191+0800 LayoutIfNeed[3662:223502] RunLoop即将休眠</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.907129+0800 LayoutIfNeed[3662:223502] -[ULTableView layoutSubviews]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.907349+0800 LayoutIfNeed[3662:223502] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.908622+0800 LayoutIfNeed[3662:223502] -[ViewController tableView:cellForRowAtIndexPath:] 0 0</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.909076+0800 LayoutIfNeed[3662:223502] -[ViewController tableView:heightForRowAtIndexPath:]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.909236+0800 LayoutIfNeed[3662:223502] -[ULTableView setNeedsLayout]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.909670+0800 LayoutIfNeed[3662:223502] -[ULTableView setNeedsLayout]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:32:21.909991+0800 LayoutIfNeed[3662:223502] -[ULTableView layoutSubviews]</span><br></pre></td></tr></table></figure>
+
+<p>首先看到了我们比较熟悉的方法<code>numberOfSectionsInTableView</code>、<code>dequeueReusableCellWithIdentifier</code>、<code>tableView:heightForRowAtIndexPath:</code>、<code>tableView:cellForRowAtIndexPath:</code></p>
+<p>这些方法都是我们比较熟悉的方法了,这里我就不再赘述。</p>
+<p>其次根据log我们可以比较清晰的的出另外一个结论：<br><code>reloadData是一个异步方法,reloadData在当前的Runloop中只是做了setNeedsLayout(表示当前view在下一个runloop到来时需要被更新),显然当前Runloop结束后才根据之前设置setNeedsLayout的标记执行layoutSubviews方法进而触发页面的更新</code></p>
+<h4 id="UICollectionView"><a href="#UICollectionView" class="headerlink" title="UICollectionView"></a>UICollectionView</h4><p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g83un68eevj30l4152q4f.jpg" alt="demo"></p>
+<p>上图是我们demo的样子(只展示了一个cell)。</p>
+<p>下面我们在来看下代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)reloadCollectionViewData &#123;</span><br><span class="line">    [<span class="keyword">self</span>.collectionView reloadData];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;reloadData 执行完成&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>点击demo的左上角按钮即调用reloadData方法<br>下面看下打印结果</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">2019-10-19 21:50:36.219755+0800 LayoutIfNeed[4002:2375227] RunLoop被唤醒</span><br><span class="line">2019-10-19 21:50:36.220045+0800 LayoutIfNeed[4002:2375227] RunLoop即将处理Timer事件</span><br><span class="line">2019-10-19 21:50:36.220326+0800 LayoutIfNeed[4002:2375227] RunLoop即将处理Source事件</span><br><span class="line">2019-10-19 21:50:36.221302+0800 LayoutIfNeed[4002:2375227] -[ULCollectionView reloadData]</span><br><span class="line">2019-10-19 21:50:36.221610+0800 LayoutIfNeed[4002:2375227] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-19 21:50:36.221826+0800 LayoutIfNeed[4002:2375227] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-19 21:50:36.221993+0800 LayoutIfNeed[4002:2375227] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-19 21:50:36.222109+0800 LayoutIfNeed[4002:2375227] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-19 21:50:36.222532+0800 LayoutIfNeed[4002:2375227] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-19 21:50:36.222939+0800 LayoutIfNeed[4002:2375227] reloadData 执行完成</span><br><span class="line">2019-10-19 21:50:36.223924+0800 LayoutIfNeed[4002:2375227] RunLoop即将处理Timer事件</span><br><span class="line">2019-10-19 21:50:36.224480+0800 LayoutIfNeed[4002:2375227] RunLoop即将处理Source事件</span><br><span class="line">2019-10-19 21:50:36.225190+0800 LayoutIfNeed[4002:2375227] RunLoop即将休眠</span><br><span class="line">2019-10-19 21:50:36.226107+0800 LayoutIfNeed[4002:2375227] -[ULCollectionView layoutSubviews]</span><br><span class="line">2019-10-19 21:50:36.226609+0800 LayoutIfNeed[4002:2375227] -[ULCollectionViewController numberOfSectionsInCollectionView:]</span><br><span class="line">2019-10-19 21:50:36.226864+0800 LayoutIfNeed[4002:2375227] -[ULCollectionViewController collectionView:numberOfItemsInSection:]</span><br><span class="line">2019-10-19 21:50:36.323486+0800 LayoutIfNeed[4002:2375227] -[ULCollectionView dequeueReusableCellWithReuseIdentifier:forIndexPath:]</span><br><span class="line">2019-10-19 21:50:36.324053+0800 LayoutIfNeed[4002:2375227] -[ULCollectionViewController collectionView:cellForItemAtIndexPath:]</span><br></pre></td></tr></table></figure>
+<p>从log中我们看出<code>UICollectionView</code>与<code>UITableView</code>的效果一致。因此其结论与<code>UITableView</code>也是一致。</p>
+<h4 id="tableView中嵌套collectionView"><a href="#tableView中嵌套collectionView" class="headerlink" title="tableView中嵌套collectionView"></a>tableView中嵌套collectionView</h4><p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g83yoeib27j30l4152gn7.jpg" alt="demo"></p>
+<p>demo中tableView含两个cell 第一个cell上add一个collectionView,第二个cell为一个tableViewCell</p>
+<p>点击右上角<code>reloadTableData</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- (void)reloadTableData &#123;</span><br><span class="line">    NSLog(@&quot;%s&quot;,__func__);</span><br><span class="line">    [self.tableView reloadData];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>log:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">2019-10-20 08:45:10.415969+0800 LayoutIfNeed[5741:2466905] UIInnerCollectionView RunLoop即将处理Source事件</span><br><span class="line">2019-10-20 08:45:10.417080+0800 LayoutIfNeed[5741:2466905] -[TableCollectionViewController reloadTableData]</span><br><span class="line">2019-10-20 08:45:10.417207+0800 LayoutIfNeed[5741:2466905] -[ULTableView reloadData]</span><br><span class="line">2019-10-20 08:45:10.417477+0800 LayoutIfNeed[5741:2466905] -[TableCollectionViewController numberOfSectionsInTableView:]</span><br><span class="line">2019-10-20 08:45:10.417632+0800 LayoutIfNeed[5741:2466905] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:45:10.418072+0800 LayoutIfNeed[5741:2466905] -[TableCollectionViewController tableView:numberOfRowsInSection:]</span><br><span class="line">2019-10-20 08:45:10.418353+0800 LayoutIfNeed[5741:2466905] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:45:10.418493+0800 LayoutIfNeed[5741:2466905] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:45:10.418716+0800 LayoutIfNeed[5741:2466905] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:45:10.419573+0800 LayoutIfNeed[5741:2466905] TableCollectionViewController RunLoop即将处理Timer事件</span><br><span class="line">2019-10-20 08:45:10.419701+0800 LayoutIfNeed[5741:2466905] UIInnerCollectionView RunLoop即将处理Timer事件</span><br><span class="line">2019-10-20 08:45:10.419813+0800 LayoutIfNeed[5741:2466905] TableCollectionViewController RunLoop即将处理Source事件</span><br><span class="line">2019-10-20 08:45:10.420023+0800 LayoutIfNeed[5741:2466905] UIInnerCollectionView RunLoop即将处理Source事件</span><br><span class="line">2019-10-20 08:45:10.420644+0800 LayoutIfNeed[5741:2466905] TableCollectionViewController RunLoop即将休眠</span><br><span class="line">2019-10-20 08:45:10.420774+0800 LayoutIfNeed[5741:2466905] UIInnerCollectionView RunLoop即将休眠</span><br><span class="line">2019-10-20 08:45:10.421129+0800 LayoutIfNeed[5741:2466905] -[ULTableView layoutSubviews]</span><br><span class="line">2019-10-20 08:45:10.421393+0800 LayoutIfNeed[5741:2466905] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 08:45:10.421851+0800 LayoutIfNeed[5741:2466905] -[TableCollectionViewController tableView:cellForRowAtIndexPath:] 0 0</span><br><span class="line">2019-10-20 08:45:10.422269+0800 LayoutIfNeed[5741:2466905] -[ULCollectionView reloadData]</span><br><span class="line">2019-10-20 08:45:10.422648+0800 LayoutIfNeed[5741:2466905] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:45:10.423020+0800 LayoutIfNeed[5741:2466905] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:45:10.423360+0800 LayoutIfNeed[5741:2466905] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:45:10.423758+0800 LayoutIfNeed[5741:2466905] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:45:10.424125+0800 LayoutIfNeed[5741:2466905] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:45:10.424765+0800 LayoutIfNeed[5741:2466905] -[TableCollectionViewController tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 08:45:10.424898+0800 LayoutIfNeed[5741:2466905] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:45:10.425206+0800 LayoutIfNeed[5741:2466905] -[ULCollectionView layoutSubviews]</span><br><span class="line">2019-10-20 08:45:10.425470+0800 LayoutIfNeed[5741:2466905] -[UIInnerCollectionView numberOfSectionsInCollectionView:]</span><br><span class="line">2019-10-20 08:45:10.425776+0800 LayoutIfNeed[5741:2466905] -[UIInnerCollectionView collectionView:numberOfItemsInSection:]</span><br><span class="line">2019-10-20 08:45:10.427618+0800 LayoutIfNeed[5741:2466905] -[ULCollectionView dequeueReusableCellWithReuseIdentifier:forIndexPath:]</span><br><span class="line">2019-10-20 08:45:10.427884+0800 LayoutIfNeed[5741:2466905] -[UIInnerCollectionView collectionView:cellForItemAtIndexPath:]</span><br><span class="line">2019-10-20 08:45:10.428257+0800 LayoutIfNeed[5741:2466905] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 08:45:10.428505+0800 LayoutIfNeed[5741:2466905] -[TableCollectionViewController tableView:cellForRowAtIndexPath:] 0 1</span><br><span class="line">2019-10-20 08:45:10.429038+0800 LayoutIfNeed[5741:2466905] -[TableCollectionViewController tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 08:45:10.429178+0800 LayoutIfNeed[5741:2466905] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:45:10.429590+0800 LayoutIfNeed[5741:2466905] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:45:10.429988+0800 LayoutIfNeed[5741:2466905] -[ULTableView layoutSubviews]</span><br></pre></td></tr></table></figure>
+
+<p>根据上面的log我们看到UITableView在执行reloadData之后仍让只是做了标记。在下一个runloop到来之后触发<code>UITableView</code>的<code>layoutSubviews</code>方法进而又触发该Cell中UICollectionView的reloadData操作</p>
+<p>如果我们不主动的调用reloadData呢？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">2019-10-20 09:05:20.372536+0800 LayoutIfNeed[5867:2475442] -[TableCollectionViewController reloadTableData]</span><br><span class="line">2019-10-20 09:05:40.060940+0800 LayoutIfNeed[5867:2475442] -[ULTableView reloadData]</span><br><span class="line">2019-10-20 09:05:40.061223+0800 LayoutIfNeed[5867:2475442] -[TableCollectionViewController numberOfSectionsInTableView:]</span><br><span class="line">2019-10-20 09:05:40.061361+0800 LayoutIfNeed[5867:2475442] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:05:40.061539+0800 LayoutIfNeed[5867:2475442] -[TableCollectionViewController tableView:numberOfRowsInSection:]</span><br><span class="line">2019-10-20 09:05:40.061691+0800 LayoutIfNeed[5867:2475442] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:05:40.061812+0800 LayoutIfNeed[5867:2475442] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:05:40.061950+0800 LayoutIfNeed[5867:2475442] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:05:40.062454+0800 LayoutIfNeed[5867:2475442] -[ULTableView layoutSubviews]</span><br><span class="line">2019-10-20 09:05:40.062653+0800 LayoutIfNeed[5867:2475442] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 09:05:40.062829+0800 LayoutIfNeed[5867:2475442] -[TableCollectionViewController tableView:cellForRowAtIndexPath:] 0 0</span><br><span class="line">2019-10-20 09:06:08.551189+0800 LayoutIfNeed[5867:2475442] -[TableCollectionViewController tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 09:06:08.551448+0800 LayoutIfNeed[5867:2475442] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:06:08.551836+0800 LayoutIfNeed[5867:2475442] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 09:06:08.552087+0800 LayoutIfNeed[5867:2475442] -[TableCollectionViewController tableView:cellForRowAtIndexPath:] 0 1</span><br><span class="line">2019-10-20 09:06:08.552490+0800 LayoutIfNeed[5867:2475442] -[TableCollectionViewController tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 09:06:08.552625+0800 LayoutIfNeed[5867:2475442] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:06:08.552972+0800 LayoutIfNeed[5867:2475442] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:06:08.553263+0800 LayoutIfNeed[5867:2475442] -[ULTableView layoutSubviews]</span><br></pre></td></tr></table></figure>
+
+<p>根据上面的日志我们看到,外部TableView的reloadData甚至是TableView的<code>layoutSubviews</code>操作均不会影响Cell中CollectionView。</p>
+<h4 id="CollectionView中嵌套tableView"><a href="#CollectionView中嵌套tableView" class="headerlink" title="CollectionView中嵌套tableView"></a>CollectionView中嵌套tableView</h4><p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g83z4a87hlj30l4152td5.jpg" alt="demo"></p>
+<p>点击右上角reloadData 执行下面的代码</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)reloadCollectionViewData &#123;</span><br><span class="line">    [<span class="keyword">self</span>.collectionView reloadData];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;reloadData 执行完成&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面我们来看下log</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">2019-10-20 08:48:14.430891+0800 LayoutIfNeed[5782:2468993] -[ULCollectionView reloadData]</span><br><span class="line">2019-10-20 08:48:14.431133+0800 LayoutIfNeed[5782:2468993] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.431393+0800 LayoutIfNeed[5782:2468993] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.431817+0800 LayoutIfNeed[5782:2468993] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.432207+0800 LayoutIfNeed[5782:2468993] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.432420+0800 LayoutIfNeed[5782:2468993] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.432648+0800 LayoutIfNeed[5782:2468993] reloadData 执行完成</span><br><span class="line">2019-10-20 08:48:14.433422+0800 LayoutIfNeed[5782:2468993] CollectionTableViewController RunLoop即将处理Timer事件</span><br><span class="line">2019-10-20 08:48:14.433560+0800 LayoutIfNeed[5782:2468993] UIInnerTableView RunLoop即将处理Timer事件</span><br><span class="line">2019-10-20 08:48:14.433762+0800 LayoutIfNeed[5782:2468993] CollectionTableViewController RunLoop即将处理Source事件</span><br><span class="line">2019-10-20 08:48:14.434047+0800 LayoutIfNeed[5782:2468993] UIInnerTableView RunLoop即将处理Source事件</span><br><span class="line">2019-10-20 08:48:14.434736+0800 LayoutIfNeed[5782:2468993] CollectionTableViewController RunLoop即将休眠</span><br><span class="line">2019-10-20 08:48:14.434865+0800 LayoutIfNeed[5782:2468993] UIInnerTableView RunLoop即将休眠</span><br><span class="line">2019-10-20 08:48:14.435240+0800 LayoutIfNeed[5782:2468993] -[ULCollectionView layoutSubviews]</span><br><span class="line">2019-10-20 08:48:14.435422+0800 LayoutIfNeed[5782:2468993] -[CollectionTableViewController numberOfSectionsInCollectionView:]</span><br><span class="line">2019-10-20 08:48:14.435568+0800 LayoutIfNeed[5782:2468993] -[CollectionTableViewController collectionView:numberOfItemsInSection:]</span><br><span class="line">2019-10-20 08:48:14.437589+0800 LayoutIfNeed[5782:2468993] -[ULCollectionView dequeueReusableCellWithReuseIdentifier:forIndexPath:]</span><br><span class="line">2019-10-20 08:48:14.438094+0800 LayoutIfNeed[5782:2468993] -[CollectionTableViewController collectionView:cellForItemAtIndexPath:]</span><br><span class="line">2019-10-20 08:48:14.438444+0800 LayoutIfNeed[5782:2468993] -[ULTableView reloadData]</span><br><span class="line">2019-10-20 08:48:14.438847+0800 LayoutIfNeed[5782:2468993] -[UIInnerTableView numberOfSectionsInTableView:]</span><br><span class="line">2019-10-20 08:48:14.439129+0800 LayoutIfNeed[5782:2468993] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.439520+0800 LayoutIfNeed[5782:2468993] -[UIInnerTableView tableView:numberOfRowsInSection:]</span><br><span class="line">2019-10-20 08:48:14.439828+0800 LayoutIfNeed[5782:2468993] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.440130+0800 LayoutIfNeed[5782:2468993] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.440494+0800 LayoutIfNeed[5782:2468993] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.441025+0800 LayoutIfNeed[5782:2468993] -[ULTableView layoutSubviews]</span><br><span class="line">2019-10-20 08:48:14.441239+0800 LayoutIfNeed[5782:2468993] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 08:48:14.441523+0800 LayoutIfNeed[5782:2468993] -[UIInnerTableView tableView:cellForRowAtIndexPath:] 0 0</span><br><span class="line">2019-10-20 08:48:14.442092+0800 LayoutIfNeed[5782:2468993] -[UIInnerTableView tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 08:48:14.442281+0800 LayoutIfNeed[5782:2468993] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.442722+0800 LayoutIfNeed[5782:2468993] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 08:48:14.443052+0800 LayoutIfNeed[5782:2468993] -[UIInnerTableView tableView:cellForRowAtIndexPath:] 0 1</span><br><span class="line">2019-10-20 08:48:14.443557+0800 LayoutIfNeed[5782:2468993] -[UIInnerTableView tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 08:48:14.443796+0800 LayoutIfNeed[5782:2468993] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.444251+0800 LayoutIfNeed[5782:2468993] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 08:48:14.444577+0800 LayoutIfNeed[5782:2468993] -[UIInnerTableView tableView:cellForRowAtIndexPath:] 0 2</span><br><span class="line">2019-10-20 08:48:14.445056+0800 LayoutIfNeed[5782:2468993] -[UIInnerTableView tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 08:48:14.445428+0800 LayoutIfNeed[5782:2468993] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.445989+0800 LayoutIfNeed[5782:2468993] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 08:48:14.446264+0800 LayoutIfNeed[5782:2468993] -[UIInnerTableView tableView:cellForRowAtIndexPath:] 0 3</span><br><span class="line">2019-10-20 08:48:14.446693+0800 LayoutIfNeed[5782:2468993] -[UIInnerTableView tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 08:48:14.447040+0800 LayoutIfNeed[5782:2468993] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.447631+0800 LayoutIfNeed[5782:2468993] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 08:48:14.448047+0800 LayoutIfNeed[5782:2468993] -[UIInnerTableView tableView:cellForRowAtIndexPath:] 0 4</span><br><span class="line">2019-10-20 08:48:14.448584+0800 LayoutIfNeed[5782:2468993] -[UIInnerTableView tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 08:48:14.448971+0800 LayoutIfNeed[5782:2468993] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.449616+0800 LayoutIfNeed[5782:2468993] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 08:48:14.450075+0800 LayoutIfNeed[5782:2468993] -[ULTableView layoutSubviews]</span><br></pre></td></tr></table></figure>
+
+<p>上述结果同TableView中嵌套CollectionView相似。被嵌套的控件的</p>
+<p>那么我们同样看下如果我们在TableView的CellForRow方法中不主动调用reloadData时log的结果</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">2019-10-20 08:58:07.783966+0800 LayoutIfNeed[5845:2473209] -[ULCollectionView reloadData]</span><br><span class="line">2019-10-20 08:58:07.784219+0800 LayoutIfNeed[5845:2473209] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:58:07.784382+0800 LayoutIfNeed[5845:2473209] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:58:07.784507+0800 LayoutIfNeed[5845:2473209] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:58:07.784605+0800 LayoutIfNeed[5845:2473209] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:58:07.784705+0800 LayoutIfNeed[5845:2473209] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 08:58:07.784817+0800 LayoutIfNeed[5845:2473209] reloadData 执行完成</span><br><span class="line">2019-10-20 08:58:07.785197+0800 LayoutIfNeed[5845:2473209] CollectionTableViewController RunLoop即将处理Timer事件</span><br><span class="line">2019-10-20 08:58:07.785327+0800 LayoutIfNeed[5845:2473209] UIInnerTableView RunLoop即将处理Timer事件</span><br><span class="line">2019-10-20 08:58:07.785671+0800 LayoutIfNeed[5845:2473209] CollectionTableViewController RunLoop即将处理Source事件</span><br><span class="line">2019-10-20 08:58:07.786006+0800 LayoutIfNeed[5845:2473209] UIInnerTableView RunLoop即将处理Source事件</span><br><span class="line">2019-10-20 08:58:07.786776+0800 LayoutIfNeed[5845:2473209] CollectionTableViewController RunLoop即将休眠</span><br><span class="line">2019-10-20 08:58:07.786927+0800 LayoutIfNeed[5845:2473209] UIInnerTableView RunLoop即将休眠</span><br><span class="line">2019-10-20 08:58:07.787353+0800 LayoutIfNeed[5845:2473209] -[ULCollectionView layoutSubviews]</span><br><span class="line">2019-10-20 08:58:07.787514+0800 LayoutIfNeed[5845:2473209] -[CollectionTableViewController numberOfSectionsInCollectionView:]</span><br><span class="line">2019-10-20 08:58:07.787615+0800 LayoutIfNeed[5845:2473209] -[CollectionTableViewController collectionView:numberOfItemsInSection:]</span><br><span class="line">2019-10-20 08:58:07.789470+0800 LayoutIfNeed[5845:2473209] -[ULCollectionView dequeueReusableCellWithReuseIdentifier:forIndexPath:]</span><br><span class="line">2019-10-20 08:58:07.789994+0800 LayoutIfNeed[5845:2473209] -[CollectionTableViewController collectionView:cellForItemAtIndexPath:]</span><br></pre></td></tr></table></figure>
+<p>根据上面的log我们可以得出一个结论 如果不主动触发,外部的CollectionView调用reloadData并不会影响cell中嵌套的TableView</p>
+<h3 id="VisibleCell"><a href="#VisibleCell" class="headerlink" title="VisibleCell"></a>VisibleCell</h3><h4 id="UITableView-1"><a href="#UITableView-1" class="headerlink" title="UITableView"></a>UITableView</h4><p><code>demo同上</code></p>
+<p>下面我们直接看代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)reloadTableData &#123;</span><br><span class="line"> </span><br><span class="line">    [<span class="keyword">self</span>.tableView reloadData];</span><br><span class="line"> </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;reloadData 执行完成&quot;</span>);</span><br><span class="line"> </span><br><span class="line">    <span class="built_in">NSArray</span> *array = [<span class="keyword">self</span>.tableView visibleCells];</span><br><span class="line"> </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;visibleCells----:%@&quot;</span>,@(array.count));</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    <span class="built_in">dispatch_async</span>(dispatch_get_main_queue(), ^&#123;</span><br><span class="line"> </span><br><span class="line">        <span class="built_in">NSArray</span> *array = [<span class="keyword">self</span>.tableView visibleCells];</span><br><span class="line"> </span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;visibleCells==== :%@&quot;</span>,@(array.count));</span><br><span class="line">    &#125;);</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于在reloadData中我们知道该方法是一个异步的,一次在获取visibleCell的时候我们使用两种方法</p>
+<ul>
+<li>1、直接调用<code>[self.tableView visibleCells]</code></li>
+<li>2、使用GCD在下一个runloop到来时在去获取Runloop</li>
+</ul>
+<p>下面看下上面代码的执行结果:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">2019-10-08 19:40:28.825840+0800 LayoutIfNeed[3696:229565] RunLoop被唤醒</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.826209+0800 LayoutIfNeed[3696:229565] RunLoop即将处理Timer事件</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.826463+0800 LayoutIfNeed[3696:229565] RunLoop即将处理Source事件</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.827665+0800 LayoutIfNeed[3696:229565] -[ULTableView reloadData]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.828167+0800 LayoutIfNeed[3696:229565] -[ViewController numberOfSectionsInTableView:]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.830161+0800 LayoutIfNeed[3696:229565] -[ULTableView setNeedsLayout]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.830560+0800 LayoutIfNeed[3696:229565] -[ViewController tableView:numberOfRowsInSection:]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.830946+0800 LayoutIfNeed[3696:229565] -[ULTableView setNeedsLayout]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.831849+0800 LayoutIfNeed[3696:229565] -[ULTableView setNeedsLayout]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.832015+0800 LayoutIfNeed[3696:229565] -[ULTableView setNeedsLayout]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.832149+0800 LayoutIfNeed[3696:229565] reloadData 执行完成</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.832346+0800 LayoutIfNeed[3696:229565] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.832904+0800 LayoutIfNeed[3696:229565] -[ViewController tableView:cellForRowAtIndexPath:] 0 0</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.833739+0800 LayoutIfNeed[3696:229565] -[ViewController tableView:heightForRowAtIndexPath:]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.833904+0800 LayoutIfNeed[3696:229565] -[ULTableView setNeedsLayout]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.834391+0800 LayoutIfNeed[3696:229565] -[ULTableView setNeedsLayout]</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.834894+0800 LayoutIfNeed[3696:229565] visibleCells----:1</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.835912+0800 LayoutIfNeed[3696:229565] visibleCells&#x3D;&#x3D;&#x3D;&#x3D; :1</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.836664+0800 LayoutIfNeed[3696:229565] RunLoop即将处理Timer事件</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.837310+0800 LayoutIfNeed[3696:229565] RunLoop即将处理Source事件</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.838118+0800 LayoutIfNeed[3696:229565] RunLoop即将休眠</span><br><span class="line"> </span><br><span class="line">2019-10-08 19:40:28.839862+0800 LayoutIfNeed[3696:229565] -[ULTableView layoutSubviews]</span><br></pre></td></tr></table></figure>
+
+<p>通过log我们可以看到</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">两次&#96;visibleCells&#96;方法都返回了正确的cells数据是一致的且均是正确的</span><br></pre></td></tr></table></figure>
+<p>疑问一：</p>
+<p><code>reloadData</code>是异步的,它是会调用<code>setNeedLayout</code>方法标记当前view在下一次Runloop到来时刷新页面,为什么获取<code>visibleCell</code>会是正确的？</p>
+<p>疑问二：</p>
+<p>为什么<code>cellforRow</code>的方法调用不是在reloadData的下一次Runloop到来时才被调用而是在当前的Runloop中就被调用？</p>
+<p>下面我们通过在<code>cellForRow</code>方法中添加断点的方式确认下在<code>visibleCell</code>被调用的时候都做了什么。</p>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g83v94813xj314m08waik.jpg" alt="调用堆栈"></p>
+<p>根据这个断点的截图我们发现在调用visibleCell(截图右侧)的时候会触发<code>createPreparedCell</code>的调用,这个方法又间接的调用了<code>cellForRow</code>的代理方法。因此我们在当前runloop中使用visibleCell就可以获取到正确的值。</p>
+<h4 id="UICollectionView-1"><a href="#UICollectionView-1" class="headerlink" title="UICollectionView"></a>UICollectionView</h4><p><code>Demo同上</code></p>
+<p>下面我们来直接看代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)reloadCollectionViewData &#123;</span><br><span class="line"> </span><br><span class="line">    [<span class="keyword">self</span>.collectionView reloadData];</span><br><span class="line"> </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;reloadData 执行完成&quot;</span>);</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    <span class="built_in">NSArray</span> *array = [<span class="keyword">self</span>.collectionView visibleCells];</span><br><span class="line"> </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;visibleCells----:%@&quot;</span>,@(array.count));</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    <span class="built_in">dispatch_async</span>(dispatch_get_main_queue(), ^&#123;</span><br><span class="line"> </span><br><span class="line">        <span class="built_in">NSArray</span> *array = [<span class="keyword">self</span>.collectionView visibleCells];</span><br><span class="line"> </span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;visibleCells==== :%@&quot;</span>,@(array.count));</span><br><span class="line"> </span><br><span class="line">    &#125;);</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>—————–我是分割线——————</p>
+<p>大家可以思考下结果,然后在接着往下看…..</p>
+<p>—————–我是分割线——————</p>
+<p>下面我们直接看下log</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">2019-10-09 15:09:32.564096+0800 LayoutIfNeed[5995:609901] RunLoop被唤醒</span><br><span class="line">2019-10-09 15:09:32.564291+0800 LayoutIfNeed[5995:609901] RunLoop即将处理Timer事件</span><br><span class="line">2019-10-09 15:09:32.564403+0800 LayoutIfNeed[5995:609901] RunLoop即将处理Source事件</span><br><span class="line">2019-10-09 15:09:32.565137+0800 LayoutIfNeed[5995:609901] -[ULCollectionView reloadData]</span><br><span class="line">2019-10-09 15:09:32.565606+0800 LayoutIfNeed[5995:609901] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-09 15:09:32.565806+0800 LayoutIfNeed[5995:609901] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-09 15:09:32.566099+0800 LayoutIfNeed[5995:609901] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-09 15:09:32.566650+0800 LayoutIfNeed[5995:609901] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-09 15:09:32.567124+0800 LayoutIfNeed[5995:609901] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-09 15:09:32.567806+0800 LayoutIfNeed[5995:609901] reloadData 执行完成</span><br><span class="line">2019-10-09 15:09:32.568103+0800 LayoutIfNeed[5995:609901] visibleCells----:0</span><br><span class="line">2019-10-09 15:09:32.569715+0800 LayoutIfNeed[5995:609901] visibleCells&#x3D;&#x3D;&#x3D;&#x3D; :0</span><br><span class="line">2019-10-09 15:09:32.570232+0800 LayoutIfNeed[5995:609901] RunLoop即将处理Timer事件</span><br><span class="line">2019-10-09 15:09:32.570603+0800 LayoutIfNeed[5995:609901] RunLoop即将处理Source事件</span><br><span class="line">2019-10-09 15:09:32.571044+0800 LayoutIfNeed[5995:609901] RunLoop即将处理Timer事件</span><br><span class="line">2019-10-09 15:09:32.571513+0800 LayoutIfNeed[5995:609901] RunLoop即将处理Source事件</span><br><span class="line">2019-10-09 15:09:32.572296+0800 LayoutIfNeed[5995:609901] RunLoop即将休眠</span><br><span class="line">2019-10-09 15:09:32.572800+0800 LayoutIfNeed[5995:609901] -[ULCollectionView layoutSubviews]</span><br><span class="line">2019-10-09 15:09:32.572981+0800 LayoutIfNeed[5995:609901] -[ULCollectionViewController numberOfSectionsInCollectionView:]</span><br><span class="line">2019-10-09 15:09:32.573112+0800 LayoutIfNeed[5995:609901] -[ULCollectionViewController collectionView:numberOfItemsInSection:]</span><br><span class="line">2019-10-09 15:09:32.575343+0800 LayoutIfNeed[5995:609901] -[ULCollectionView dequeueReusableCellWithReuseIdentifier:forIndexPath:]</span><br><span class="line">2019-10-09 15:09:32.575858+0800 LayoutIfNeed[5995:609901] -[ULCollectionViewController collectionView:cellForItemAtIndexPath:]</span><br><span class="line">2019-10-09 15:09:32.576419+0800 LayoutIfNeed[5995:609901] -[ULCollectionView layoutSubviews] visibleCell 1</span><br></pre></td></tr></table></figure>
+
+<p>额！！！！！！！！！！！！！！！！</p>
+<p>通过log我们发现：</p>
+<p>我们两次获取visibleCell的数据均不正确,但是我们发现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2019-10-09 15:09:32.576419+0800 LayoutIfNeed[5995:609901] -[ULCollectionView layoutSubviews] visibleCell 1</span><br></pre></td></tr></table></figure>
+<p>在collectionView执行完<code>layoutSubviews</code>后获取的visibleCell是正确的。</p>
+<p>同时我们注意到调用visibleCell时并没有像UITableView一样触发cellForRow被提前调用。</p>
+<p>下面我们在观察下cellForRow被调用的时候的调用栈</p>
+<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g83wam8lmbj30cu09ddmm.jpg" alt="调用栈"></p>
+<p>我们看到对于UICollectionView在调用了layoutSubviews之后才会触发下面方法的调用<br><code>-[UICollectionView _createPreparedCellForItemAtIndexPath:withLayoutAttributes:applyAttributes:isFocused:notify:] </code></p>
+<p>这个位置是跟UITableView是一致的！</p>
+<h4 id="UITableView中嵌套UICollectionView"><a href="#UITableView中嵌套UICollectionView" class="headerlink" title="UITableView中嵌套UICollectionView"></a>UITableView中嵌套UICollectionView</h4><p>首先我们来确认下 如果在UITableView中调用了visibleCell是否会影响到内部的CollectionView</p>
+<h5 id="页面加载完成后"><a href="#页面加载完成后" class="headerlink" title="页面加载完成后"></a>页面加载完成后</h5><p>下面我们直接看log</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2019-10-20 09:42:36.408243+0800 LayoutIfNeed[6044:2489041] -[TableCollectionViewController reloadTableData]</span><br><span class="line">2019-10-20 09:42:36.408414+0800 LayoutIfNeed[6044:2489041] visibleCells----:2</span><br></pre></td></tr></table></figure>
+
+<p>log 显示页面加载完成后 我们在调用visibleCell时不会影响内部的CollectionView</p>
+<h5 id="页面加载完成前"><a href="#页面加载完成前" class="headerlink" title="页面加载完成前"></a>页面加载完成前</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[self.view addSubview:self.tableView];</span><br><span class="line">NSArray *array &#x3D; [self.tableView visibleCells];</span><br><span class="line">  NSLog(@&quot;visibleCells----:%@&quot;,@(array.count));</span><br></pre></td></tr></table></figure>
+
+<p>这里为了验证效果 我们暂时不主动调用reloadData </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">2019-10-20 09:48:53.813778+0800 LayoutIfNeed[6081:2491415] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.814644+0800 LayoutIfNeed[6081:2491415] visibleCells----:0</span><br><span class="line">2019-10-20 09:48:53.816761+0800 LayoutIfNeed[6081:2491415] -[TableCollectionViewController numberOfSectionsInTableView:]</span><br><span class="line">2019-10-20 09:48:53.816960+0800 LayoutIfNeed[6081:2491415] -[TableCollectionViewController tableView:numberOfRowsInSection:]</span><br><span class="line">2019-10-20 09:48:53.817162+0800 LayoutIfNeed[6081:2491415] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.817733+0800 LayoutIfNeed[6081:2491415] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.828370+0800 LayoutIfNeed[6081:2491415] -[ULTableView layoutSubviews]</span><br><span class="line">2019-10-20 09:48:53.828573+0800 LayoutIfNeed[6081:2491415] -[ULTableView reloadData]</span><br><span class="line">2019-10-20 09:48:53.828713+0800 LayoutIfNeed[6081:2491415] -[TableCollectionViewController numberOfSectionsInTableView:]</span><br><span class="line">2019-10-20 09:48:53.828853+0800 LayoutIfNeed[6081:2491415] -[TableCollectionViewController tableView:numberOfRowsInSection:]</span><br><span class="line">2019-10-20 09:48:53.828974+0800 LayoutIfNeed[6081:2491415] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.829170+0800 LayoutIfNeed[6081:2491415] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 09:48:53.829604+0800 LayoutIfNeed[6081:2491415] -[TableCollectionViewController tableView:cellForRowAtIndexPath:] 0 0</span><br><span class="line">2019-10-20 09:48:53.830285+0800 LayoutIfNeed[6081:2491415] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.830449+0800 LayoutIfNeed[6081:2491415] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.830576+0800 LayoutIfNeed[6081:2491415] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.830811+0800 LayoutIfNeed[6081:2491415] -[ULCollectionView reloadData]</span><br><span class="line">2019-10-20 09:48:53.830948+0800 LayoutIfNeed[6081:2491415] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.831085+0800 LayoutIfNeed[6081:2491415] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.831213+0800 LayoutIfNeed[6081:2491415] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.831308+0800 LayoutIfNeed[6081:2491415] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.831640+0800 LayoutIfNeed[6081:2491415] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.832722+0800 LayoutIfNeed[6081:2491415] -[TableCollectionViewController tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 09:48:53.832866+0800 LayoutIfNeed[6081:2491415] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.833304+0800 LayoutIfNeed[6081:2491415] -[ULCollectionView layoutSubviews]</span><br><span class="line">2019-10-20 09:48:53.833478+0800 LayoutIfNeed[6081:2491415] -[UIInnerCollectionView numberOfSectionsInCollectionView:]</span><br><span class="line">2019-10-20 09:48:53.833595+0800 LayoutIfNeed[6081:2491415] -[UIInnerCollectionView collectionView:numberOfItemsInSection:]</span><br><span class="line">2019-10-20 09:48:53.835002+0800 LayoutIfNeed[6081:2491415] -[ULCollectionView dequeueReusableCellWithReuseIdentifier:forIndexPath:]</span><br><span class="line">2019-10-20 09:48:53.835350+0800 LayoutIfNeed[6081:2491415] -[UIInnerCollectionView collectionView:cellForItemAtIndexPath:]</span><br><span class="line">2019-10-20 09:48:53.835618+0800 LayoutIfNeed[6081:2491415] -[ULCollectionView layoutSubviews] visibleCell 1</span><br><span class="line">2019-10-20 09:48:53.835801+0800 LayoutIfNeed[6081:2491415] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 09:48:53.836383+0800 LayoutIfNeed[6081:2491415] -[TableCollectionViewController tableView:cellForRowAtIndexPath:] 0 1</span><br><span class="line">2019-10-20 09:48:53.837371+0800 LayoutIfNeed[6081:2491415] -[TableCollectionViewController tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 09:48:53.837523+0800 LayoutIfNeed[6081:2491415] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.838066+0800 LayoutIfNeed[6081:2491415] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 09:48:53.838735+0800 LayoutIfNeed[6081:2491415] -[ULTableView layoutSubviews]</span><br></pre></td></tr></table></figure>
+<p>根据上面的log 我们看到即使在页面加载的时候我们不主动调用reloadData页面也可以正常加载,是因为<code>addsubview/init</code>操作会触发<code>layoutSubviews</code>方法。这样即使没有reloadData页面也可以正常加载。</p>
+<h5 id="确认VisibleCell调用获取的数值"><a href="#确认VisibleCell调用获取的数值" class="headerlink" title="确认VisibleCell调用获取的数值"></a>确认VisibleCell调用获取的数值</h5><p>先确认下代码</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)reloadVisibleCell &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;%s&quot;</span>,__func__);</span><br><span class="line">    [<span class="keyword">self</span>.tableView reloadData];</span><br><span class="line">    <span class="built_in">NSArray</span> *tableViewVisibleCells = [<span class="keyword">self</span>.tableView visibleCells];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;UITableView visibleCount%@&quot;</span>,@(tableViewVisibleCells.count));</span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">UITableViewCell</span> *cell <span class="keyword">in</span> tableViewVisibleCells) &#123;</span><br><span class="line">    <span class="comment">// cell 上加载内容的视图，对应可能是CollectionView</span></span><br><span class="line">        [cell.contentView.subviews enumerateObjectsUsingBlock:^(__kindof <span class="built_in">UIView</span> * _Nonnull obj, <span class="built_in">NSUInteger</span> idx, <span class="built_in">BOOL</span> * _Nonnull stop) &#123;</span><br><span class="line">            <span class="keyword">if</span> ([obj isKindOfClass:[<span class="built_in">UIInnerCollectionView</span> <span class="keyword">class</span>]]) &#123;</span><br><span class="line">                <span class="built_in">UIInnerCollectionView</span> *collectionView = (<span class="built_in">UIInnerCollectionView</span> *)obj;</span><br><span class="line">                <span class="built_in">NSArray</span> *array = [collectionView visibleCell];</span><br><span class="line">                <span class="built_in">NSLog</span>(<span class="string">@&quot;UIInnerCollectionView visibleCount%@&quot;</span>,@(array.count));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>log:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">2019-10-20 10:57:19.462632+0800 LayoutIfNeed[6313:2513531] -[TableCollectionViewController reloadVisibleCell]</span><br><span class="line">2019-10-20 10:57:19.462805+0800 LayoutIfNeed[6313:2513531] -[ULTableView reloadData]</span><br><span class="line">2019-10-20 10:57:19.463147+0800 LayoutIfNeed[6313:2513531] -[TableCollectionViewController numberOfSectionsInTableView:]</span><br><span class="line">2019-10-20 10:57:19.463397+0800 LayoutIfNeed[6313:2513531] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 10:57:19.463800+0800 LayoutIfNeed[6313:2513531] -[TableCollectionViewController tableView:numberOfRowsInSection:]</span><br><span class="line">2019-10-20 10:57:19.464301+0800 LayoutIfNeed[6313:2513531] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 10:57:19.464657+0800 LayoutIfNeed[6313:2513531] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 10:57:19.464797+0800 LayoutIfNeed[6313:2513531] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 10:57:19.465240+0800 LayoutIfNeed[6313:2513531] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 10:57:19.465619+0800 LayoutIfNeed[6313:2513531] -[TableCollectionViewController tableView:cellForRowAtIndexPath:] 0 0</span><br><span class="line">2019-10-20 10:57:19.466193+0800 LayoutIfNeed[6313:2513531] -[TableCollectionViewController tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 10:57:19.466357+0800 LayoutIfNeed[6313:2513531] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 10:57:19.466656+0800 LayoutIfNeed[6313:2513531] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 10:57:19.466921+0800 LayoutIfNeed[6313:2513531] -[TableCollectionViewController tableView:cellForRowAtIndexPath:] 0 1</span><br><span class="line">2019-10-20 10:57:19.467452+0800 LayoutIfNeed[6313:2513531] -[TableCollectionViewController tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 10:57:19.467690+0800 LayoutIfNeed[6313:2513531] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 10:57:19.468489+0800 LayoutIfNeed[6313:2513531] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 10:57:19.468747+0800 LayoutIfNeed[6313:2513531] UITableView visibleCount2</span><br><span class="line">2019-10-20 10:57:19.468898+0800 LayoutIfNeed[6313:2513531] UIInnerCollectionView visibleCount1</span><br></pre></td></tr></table></figure>
+
+<p>从上面的log我们可以看到,我们在reloadData后获取到的visibleCell都是正确的！</p>
+<h4 id="UICollectionView中嵌套UITableView"><a href="#UICollectionView中嵌套UITableView" class="headerlink" title="UICollectionView中嵌套UITableView"></a>UICollectionView中嵌套UITableView</h4><h5 id="页面加载时"><a href="#页面加载时" class="headerlink" title="页面加载时"></a>页面加载时</h5><p>代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[<span class="keyword">self</span>.view addSubview:<span class="keyword">self</span>.collectionView];</span><br><span class="line"><span class="built_in">NSArray</span> *collectionViewVisibleCell = [<span class="keyword">self</span>.collectionView visibleCells];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;UICollectionView visibleCount%@&quot;</span>,@(collectionViewVisibleCell.count));</span><br></pre></td></tr></table></figure>
+
+<p>log:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">2019-10-20 11:12:00.989745+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.989925+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.990034+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.990269+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView reloadData]</span><br><span class="line">2019-10-20 11:12:00.990395+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.990533+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.990894+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.991304+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.991690+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.992034+0800 LayoutIfNeed[6388:2521314] UICollectionView visibleCount0</span><br><span class="line">2019-10-20 11:12:00.994969+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.995134+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.995228+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.995342+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.995465+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.995567+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.995673+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.995772+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:00.995894+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:01.009260+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView layoutSubviews]</span><br><span class="line">2019-10-20 11:12:01.009536+0800 LayoutIfNeed[6388:2521314] -[CollectionTableViewController numberOfSectionsInCollectionView:]</span><br><span class="line">2019-10-20 11:12:01.009651+0800 LayoutIfNeed[6388:2521314] -[CollectionTableViewController collectionView:numberOfItemsInSection:]</span><br><span class="line">2019-10-20 11:12:01.010533+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView dequeueReusableCellWithReuseIdentifier:forIndexPath:]</span><br><span class="line">2019-10-20 11:12:01.010844+0800 LayoutIfNeed[6388:2521314] -[CollectionTableViewController collectionView:cellForItemAtIndexPath:]</span><br><span class="line">2019-10-20 11:12:01.011126+0800 LayoutIfNeed[6388:2521314] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:01.012000+0800 LayoutIfNeed[6388:2521314] -[ULTableView reloadData]</span><br><span class="line">2019-10-20 11:12:01.012172+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView numberOfSectionsInTableView:]</span><br><span class="line">2019-10-20 11:12:01.012511+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:numberOfRowsInSection:]</span><br><span class="line">2019-10-20 11:12:01.013372+0800 LayoutIfNeed[6388:2521314] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:01.015872+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView numberOfSectionsInTableView:]</span><br><span class="line">2019-10-20 11:12:01.016756+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:numberOfRowsInSection:]</span><br><span class="line">2019-10-20 11:12:01.017156+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView numberOfSectionsInTableView:]</span><br><span class="line">2019-10-20 11:12:01.017900+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:numberOfRowsInSection:]</span><br><span class="line">2019-10-20 11:12:01.018193+0800 LayoutIfNeed[6388:2521314] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:01.020487+0800 LayoutIfNeed[6388:2521314] -[ULCollectionView layoutSubviews] visibleCell 1</span><br><span class="line">2019-10-20 11:12:01.021245+0800 LayoutIfNeed[6388:2521314] -[ULTableView layoutSubviews]</span><br><span class="line">2019-10-20 11:12:01.021410+0800 LayoutIfNeed[6388:2521314] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 11:12:01.021747+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:cellForRowAtIndexPath:] 0 0</span><br><span class="line">2019-10-20 11:12:01.024221+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 11:12:01.024501+0800 LayoutIfNeed[6388:2521314] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:01.024982+0800 LayoutIfNeed[6388:2521314] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 11:12:01.025291+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:cellForRowAtIndexPath:] 0 1</span><br><span class="line">2019-10-20 11:12:01.025908+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 11:12:01.026027+0800 LayoutIfNeed[6388:2521314] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:01.026418+0800 LayoutIfNeed[6388:2521314] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 11:12:01.026711+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:cellForRowAtIndexPath:] 0 2</span><br><span class="line">2019-10-20 11:12:01.027502+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 11:12:01.027624+0800 LayoutIfNeed[6388:2521314] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:01.028011+0800 LayoutIfNeed[6388:2521314] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 11:12:01.028316+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:cellForRowAtIndexPath:] 0 3</span><br><span class="line">2019-10-20 11:12:01.029025+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 11:12:01.029192+0800 LayoutIfNeed[6388:2521314] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:01.029692+0800 LayoutIfNeed[6388:2521314] -[ULTableView dequeueReusableCellWithIdentifier:]</span><br><span class="line">2019-10-20 11:12:01.030077+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:cellForRowAtIndexPath:] 0 4</span><br><span class="line">2019-10-20 11:12:01.030814+0800 LayoutIfNeed[6388:2521314] -[UIInnerTableView tableView:heightForRowAtIndexPath:]</span><br><span class="line">2019-10-20 11:12:01.030965+0800 LayoutIfNeed[6388:2521314] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:01.031518+0800 LayoutIfNeed[6388:2521314] -[ULTableView setNeedsLayout]</span><br><span class="line">2019-10-20 11:12:01.032057+0800 LayoutIfNeed[6388:2521314] -[ULTableView layoutSubviews]</span><br></pre></td></tr></table></figure>
+
+<h5 id="页面加载完成后-1"><a href="#页面加载完成后-1" class="headerlink" title="页面加载完成后"></a>页面加载完成后</h5><p>代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)reloadVisibleCell &#123;</span><br><span class="line">    [<span class="keyword">self</span>.collectionView reloadData];</span><br><span class="line">     <span class="built_in">NSArray</span> *collectionViewVisibleCell = [<span class="keyword">self</span>.collectionView visibleCells];</span><br><span class="line">     <span class="built_in">NSLog</span>(<span class="string">@&quot;UICollectionView visibleCount%@&quot;</span>,@(collectionViewVisibleCell.count));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>log:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">2019-10-20 11:15:40.370300+0800 LayoutIfNeed[6412:2522955] -[ULCollectionView reloadData]</span><br><span class="line">2019-10-20 11:15:40.370570+0800 LayoutIfNeed[6412:2522955] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:15:40.370746+0800 LayoutIfNeed[6412:2522955] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:15:40.370893+0800 LayoutIfNeed[6412:2522955] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:15:40.371005+0800 LayoutIfNeed[6412:2522955] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:15:40.371120+0800 LayoutIfNeed[6412:2522955] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:15:40.371309+0800 LayoutIfNeed[6412:2522955] UICollectionView visibleCount0</span><br><span class="line">2019-10-20 11:15:44.145073+0800 LayoutIfNeed[6412:2522955] -[ULCollectionView layoutSubviews]</span><br><span class="line">2019-10-20 11:15:44.145280+0800 LayoutIfNeed[6412:2522955] -[CollectionTableViewController numberOfSectionsInCollectionView:]</span><br><span class="line">2019-10-20 11:15:44.145406+0800 LayoutIfNeed[6412:2522955] -[CollectionTableViewController collectionView:numberOfItemsInSection:]</span><br><span class="line">2019-10-20 11:15:44.146433+0800 LayoutIfNeed[6412:2522955] -[ULCollectionView dequeueReusableCellWithReuseIdentifier:forIndexPath:]</span><br><span class="line">2019-10-20 11:15:44.146820+0800 LayoutIfNeed[6412:2522955] -[CollectionTableViewController collectionView:cellForItemAtIndexPath:]</span><br></pre></td></tr></table></figure>
+
+<h5 id="确认VisibleCell调用获取的数值-1"><a href="#确认VisibleCell调用获取的数值-1" class="headerlink" title="确认VisibleCell调用获取的数值"></a>确认VisibleCell调用获取的数值</h5><p>我们先看下代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)reloadVisibleCell &#123;</span><br><span class="line">    [<span class="keyword">self</span>.collectionView reloadData];</span><br><span class="line">     <span class="built_in">NSArray</span> *collectionViewVisibleCell = [<span class="keyword">self</span>.collectionView visibleCells];</span><br><span class="line">     <span class="built_in">NSLog</span>(<span class="string">@&quot;UICollectionView visibleCount%@&quot;</span>,@(collectionViewVisibleCell.count));</span><br><span class="line">     <span class="keyword">for</span> (<span class="built_in">UICollectionViewCell</span> *cell <span class="keyword">in</span> collectionViewVisibleCell) &#123;</span><br><span class="line">     <span class="comment">// cell 上加载内容的视图，对应可能是CollectionView</span></span><br><span class="line">         [cell.contentView.subviews enumerateObjectsUsingBlock:^(__kindof <span class="built_in">UIView</span> * _Nonnull obj, <span class="built_in">NSUInteger</span> idx, <span class="built_in">BOOL</span> * _Nonnull stop) &#123;</span><br><span class="line">             <span class="keyword">if</span> ([obj isKindOfClass:[<span class="built_in">UIInnerTableView</span> <span class="keyword">class</span>]]) &#123;</span><br><span class="line">                 <span class="built_in">UIInnerTableView</span> *tableView = (<span class="built_in">UIInnerTableView</span> *)obj;</span><br><span class="line">                 <span class="built_in">NSArray</span> *array = [tableView visibleCell];</span><br><span class="line">                 <span class="built_in">NSLog</span>(<span class="string">@&quot;UIInnerTableView visibleCount%@&quot;</span>,@(array.count));</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;];</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后我们在看下log</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">2019-10-20 11:08:33.397037+0800 LayoutIfNeed[6370:2519870] -[ULCollectionView reloadData]</span><br><span class="line">2019-10-20 11:08:33.397305+0800 LayoutIfNeed[6370:2519870] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:08:33.397527+0800 LayoutIfNeed[6370:2519870] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:08:33.397721+0800 LayoutIfNeed[6370:2519870] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:08:33.397823+0800 LayoutIfNeed[6370:2519870] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:08:33.397913+0800 LayoutIfNeed[6370:2519870] -[ULCollectionView setNeedsLayout]</span><br><span class="line">2019-10-20 11:08:33.398032+0800 LayoutIfNeed[6370:2519870] UICollectionView visibleCount0</span><br><span class="line">2019-10-20 11:08:38.437912+0800 LayoutIfNeed[6370:2519870] -[ULCollectionView layoutSubviews]</span><br><span class="line">2019-10-20 11:08:38.438140+0800 LayoutIfNeed[6370:2519870] -[CollectionTableViewController numberOfSectionsInCollectionView:]</span><br><span class="line">2019-10-20 11:08:38.438250+0800 LayoutIfNeed[6370:2519870] -[CollectionTableViewController collectionView:numberOfItemsInSection:]</span><br><span class="line">2019-10-20 11:08:38.489045+0800 LayoutIfNeed[6370:2519870] -[ULCollectionView dequeueReusableCellWithReuseIdentifier:forIndexPath:]</span><br><span class="line">2019-10-20 11:08:38.489259+0800 LayoutIfNeed[6370:2519870] -[CollectionTableViewController collectionView:cellForItemAtIndexPath:]</span><br></pre></td></tr></table></figure>
+<p>从上面的log我们可以看出,reloadData之后 因为collectionView并没有调用<code>layoutIfNeed</code>所以在这之后无法获取到<code>visibleCell</code>,所以肯定不会影响到内部的TableView所以获取TableView的<code>visibleCell</code>肯定也是无效的。</p>
+<p>未完待续…</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/reloadData-visibleCells/" rel="tag"># reloadData visibleCells</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/07/14/Git%E4%BD%BF%E7%94%A8%E7%AC%94%E8%AE%B0%E4%B9%8B%E5%86%B2%E7%AA%81%E8%A7%A3%E5%86%B3/" rel="prev" title="Git使用笔记之冲突解决">
+                  <i class="fa fa-chevron-left"></i> Git使用笔记之冲突解决
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/12/20/recyclescrollview/" rel="next" title="无线循环的滚动视图方案">
+                  无线循环的滚动视图方案 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : 'ff2c4dc1ae6017a3f9bfaef4165f1241',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

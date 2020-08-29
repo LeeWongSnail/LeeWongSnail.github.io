@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="每个线程（包括主线程），都维护了一个管理 NSAutoreleasePool 的栈。当创先新的 Pool 时，他们会被添加到栈顶。当 Pool 被销毁时，他们会被从栈中移除。autorelease 的对象会被添加到当前线程的栈顶的 Pool 中。当 Pool 被销毁，其中的对象也会被释放。当线程结束时，所有的 Pool 被销毁释放。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS内存管理之AutoreleasePool">
+<meta property="og:url" content="https://www.leewong.cn/2018/03/20/iOS%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E4%B9%8BAutoreleasePool/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="每个线程（包括主线程），都维护了一个管理 NSAutoreleasePool 的栈。当创先新的 Pool 时，他们会被添加到栈顶。当 Pool 被销毁时，他们会被从栈中移除。autorelease 的对象会被添加到当前线程的栈顶的 Pool 中。当 Pool 被销毁，其中的对象也会被释放。当线程结束时，所有的 Pool 被销毁释放。">
+<meta property="og:locale">
+<meta property="og:image" content="http://blog.leichunfeng.com/images/watchpoint1.jpg">
+<meta property="og:image" content="http://blog.leichunfeng.com/images/watchpoint2.jpg">
+<meta property="og:image" content="http://blog.leichunfeng.com/images/AutoreleasePoolPage.png">
+<meta property="og:image" content="http://blog.leichunfeng.com/images/AutoreleasePoolPage1.png">
+<meta property="og:image" content="http://blog.leichunfeng.com/images/AutoreleasePoolPage2.png">
+<meta property="article:published_time" content="2018-03-20T03:15:42.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:10:28.541Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="ARC RetainCount AutoreleasePool AutoreleasePoolPage">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.leichunfeng.com/images/watchpoint1.jpg">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2018/03/20/iOS%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E4%B9%8BAutoreleasePool/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>iOS内存管理之AutoreleasePool | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#AutoreleasePool"><span class="nav-number">1.</span> <span class="nav-text">AutoreleasePool</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%88%E7%9C%8B%E4%BB%A3%E7%A0%81%EF%BC%9A"><span class="nav-number">1.0.1.</span> <span class="nav-text">先看代码：</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%AD%94%E6%A1%88%EF%BC%9A"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">答案：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E6%9E%90%EF%BC%9A"><span class="nav-number">1.0.1.2.</span> <span class="nav-text">分析：</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF-1%EF%BC%9A"><span class="nav-number">1.0.1.2.1.</span> <span class="nav-text">场景 1：</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF-2%EF%BC%9A"><span class="nav-number">1.0.1.2.2.</span> <span class="nav-text">场景 2：</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF-3%EF%BC%9A"><span class="nav-number">1.0.1.2.3.</span> <span class="nav-text">场景 3：</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AutoreleasePoolPage"><span class="nav-number">2.</span> <span class="nav-text">AutoreleasePoolPage</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Autorelease-Pool-Blocks"><span class="nav-number">2.1.</span> <span class="nav-text">Autorelease Pool Blocks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#push-%E6%93%8D%E4%BD%9C"><span class="nav-number">2.2.</span> <span class="nav-text">push 操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#autorelease-%E6%93%8D%E4%BD%9C"><span class="nav-number">2.3.</span> <span class="nav-text">autorelease 操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pop-%E6%93%8D%E4%BD%9C"><span class="nav-number">2.4.</span> <span class="nav-text">pop 操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AutoreleasePoolPage-%E7%B1%BB%E7%9A%84%E7%BB%93%E6%9E%84"><span class="nav-number">2.5.</span> <span class="nav-text">AutoreleasePoolPage 类的结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B"><span class="nav-number">2.6.</span> <span class="nav-text">实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Autorelease%E5%AF%B9%E8%B1%A1%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E9%87%8A%E6%94%BE%EF%BC%9F"><span class="nav-number">2.7.</span> <span class="nav-text">Autorelease对象什么时候释放？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B5%8C%E5%A5%97%E7%9A%84AutoreleasePool"><span class="nav-number">2.8.</span> <span class="nav-text">嵌套的AutoreleasePool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96Autorelease%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="nav-number">2.9.</span> <span class="nav-text">其他Autorelease相关知识点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">3.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2018/03/20/iOS%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E4%B9%8BAutoreleasePool/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS内存管理之AutoreleasePool
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-03-20 11:15:42" itemprop="dateCreated datePublished" datetime="2018-03-20T11:15:42+08:00">2018-03-20</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:10:28" itemprop="dateModified" datetime="2020-07-19T22:10:28+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/iOS%E4%BC%98%E5%8C%96/" itemprop="url" rel="index"><span itemprop="name">iOS优化</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2018/03/20/iOS%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E4%B9%8BAutoreleasePool/" class="post-meta-item leancloud_visitors" data-flag-title="iOS内存管理之AutoreleasePool" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>每个线程（包括主线程），都维护了一个管理 NSAutoreleasePool 的栈。当创先新的 Pool 时，他们会被添加到栈顶。当 Pool 被销毁时，他们会被从栈中移除。<br>autorelease 的对象会被添加到当前线程的栈顶的 Pool 中。当 Pool 被销毁，其中的对象也会被释放。当线程结束时，所有的 Pool 被销毁释放。</p>
+<a id="more"></a>
+
+<h2 id="AutoreleasePool"><a href="#AutoreleasePool" class="headerlink" title="AutoreleasePool"></a>AutoreleasePool</h2><p>autorelease 本质上就是延迟调用 release ，那 autoreleased 对象究竟会在什么时候释放呢？为了弄清楚这个问题，我们先来做一个小实验。</p>
+<h4 id="先看代码："><a href="#先看代码：" class="headerlink" title="先看代码："></a>先看代码：</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">__<span class="keyword">weak</span> <span class="built_in">NSString</span> *string_weak_ = <span class="literal">nil</span>;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 场景 1</span></span><br><span class="line">    <span class="built_in">NSString</span> *string = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;leichunfeng&quot;</span>];</span><br><span class="line">    string_weak_ = string;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 场景 2</span></span><br><span class="line"><span class="comment">//    @autoreleasepool &#123;</span></span><br><span class="line"><span class="comment">//        NSString *string = [NSString stringWithFormat:@&quot;leichunfeng&quot;];</span></span><br><span class="line"><span class="comment">//        string_weak_ = string;</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 场景 3</span></span><br><span class="line"><span class="comment">//    NSString *string = nil;</span></span><br><span class="line"><span class="comment">//    @autoreleasepool &#123;</span></span><br><span class="line"><span class="comment">//        string = [NSString stringWithFormat:@&quot;leichunfeng&quot;];</span></span><br><span class="line"><span class="comment">//        string_weak_ = string;</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;string: %@&quot;</span>, string_weak_);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)viewWillAppear:(<span class="built_in">BOOL</span>)animated &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewWillAppear:animated];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;string: %@&quot;</span>, string_weak_);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)viewDidAppear:(<span class="built_in">BOOL</span>)animated &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidAppear:animated];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;string: %@&quot;</span>, string_weak_);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>思考一下 输出结果</p>
+<p>———————————–这是分割线———————————</p>
+<h5 id="答案："><a href="#答案：" class="headerlink" title="答案："></a>答案：</h5><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 场景 1</span></span><br><span class="line"><span class="number">2015</span><span class="number">-05</span><span class="number">-30</span> <span class="number">10</span>:<span class="number">32</span>:<span class="number">20.837</span> AutoreleasePool[<span class="number">33876</span>:<span class="number">1448343</span>] string: leichunfeng</span><br><span class="line"><span class="number">2015</span><span class="number">-05</span><span class="number">-30</span> <span class="number">10</span>:<span class="number">32</span>:<span class="number">20.838</span> AutoreleasePool[<span class="number">33876</span>:<span class="number">1448343</span>] string: leichunfeng</span><br><span class="line"><span class="number">2015</span><span class="number">-05</span><span class="number">-30</span> <span class="number">10</span>:<span class="number">32</span>:<span class="number">20.845</span> AutoreleasePool[<span class="number">33876</span>:<span class="number">1448343</span>] string: (null)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 场景 2</span></span><br><span class="line"><span class="number">2015</span><span class="number">-05</span><span class="number">-30</span> <span class="number">10</span>:<span class="number">32</span>:<span class="number">50.548</span> AutoreleasePool[<span class="number">33915</span>:<span class="number">1448912</span>] string: (null)</span><br><span class="line"><span class="number">2015</span><span class="number">-05</span><span class="number">-30</span> <span class="number">10</span>:<span class="number">32</span>:<span class="number">50.549</span> AutoreleasePool[<span class="number">33915</span>:<span class="number">1448912</span>] string: (null)</span><br><span class="line"><span class="number">2015</span><span class="number">-05</span><span class="number">-30</span> <span class="number">10</span>:<span class="number">32</span>:<span class="number">50.555</span> AutoreleasePool[<span class="number">33915</span>:<span class="number">1448912</span>] string: (null)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 场景 3</span></span><br><span class="line"><span class="number">2015</span><span class="number">-05</span><span class="number">-30</span> <span class="number">10</span>:<span class="number">33</span>:<span class="number">07.075</span> AutoreleasePool[<span class="number">33984</span>:<span class="number">1449418</span>] string: leichunfeng</span><br><span class="line"><span class="number">2015</span><span class="number">-05</span><span class="number">-30</span> <span class="number">10</span>:<span class="number">33</span>:<span class="number">07.075</span> AutoreleasePool[<span class="number">33984</span>:<span class="number">1449418</span>] string: (null)</span><br><span class="line"><span class="number">2015</span><span class="number">-05</span><span class="number">-30</span> <span class="number">10</span>:<span class="number">33</span>:<span class="number">07.094</span> AutoreleasePool[<span class="number">33984</span>:<span class="number">1449418</span>] string: (null)</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="分析："><a href="#分析：" class="headerlink" title="分析："></a>分析：</h5><p>3 种场景下，我们都通过 <code>[NSString stringWithFormat:@&quot;leichunfeng&quot;]</code> 创建了一个 <code>autoreleased</code> 对象，这是我们实验的前提。并且，为了能够在 <code>viewWillAppear</code> 和 <code>viewDidAppear</code> 中继续访问这个对象，我们使用了一个全局的 <code>__weak </code>变量 <code>string_weak_</code> 来指向它。因为 <code>__weak</code> 变量有一个特性就是它不会影响所指向对象的生命周期，这里我们正是利用了这个特性。</p>
+<h6 id="场景-1："><a href="#场景-1：" class="headerlink" title="场景 1："></a>场景 1：</h6><p>当使用 <code>[NSString stringWithFormat:@&quot;leichunfeng&quot;]</code> 创建一个对象时，这个对象的引用计数为 1 ，并且这个对象被系统自动添加到了当前的 autoreleasepool 中。当使用局部变量 string 指向这个对象时，这个对象的引用计数 +1 ，变成了 <code>2 </code>(这里后面会在看一下)。因为在 ARC 下 <code>NSString *string</code> 本质上就是 <code>__strong NSString *string</code> 。所以在 <code>viewDidLoad</code> 方法返回前，这个对象是一直存在的，且引用计数为 2 。而当 <code>viewDidLoad</code> 方法返回时，局部变量 string 被回收，指向了 nil 。因此，其所指向对象的引用计数 -1 ，变成了 1 。</p>
+<p>而在 <code>viewWillAppear</code> 方法中，我们仍然可以打印出这个对象的值，说明这个对象并没有被释放。咦，这不科学吧？不是一直都说当函数返回的时候，函数内部产生的对象就会被释放的吗？前面我们提到了，这个对象是一个 <code>autoreleased</code> 对象，<code>autoreleased</code> 对象是被添加到了当前最近的 <code>autoreleasepool </code>中的，只有当这个 <code>autoreleasepool</code> 自身 <code>drain</code> 的时候，<code>autoreleasepool </code>中的 <code>autoreleased</code> 对象才会被 <code>release </code></p>
+<p>另外，我们注意到当在<code>viewDidAppear</code> 中再打印这个对象的时候，对象的值变成了 nil ，说明此时对象已经被释放了。因此，我们可以大胆地猜测一下，这个对象一定是在 viewWillAppear 和 viewDidAppear 方法之间的某个时候被释放了，并且是由于它所在的 autoreleasepool 被 drain 的时候释放的。</p>
+<p>####### 下面我们要证明这个问题</p>
+<p>在开始前，我先简单地说明一下原理，我们可以通过使用 <code>lldb</code> 的 <code>watchpoint</code> 命令来设置观察点，观察全局变量 <code>string_weak_</code> 的值的变化，<code>string_weak_ </code>变量保存的就是我们创建的 <code>autoreleased</code> 对象的地址。在这里，我们再次利用了 <code>__weak</code> 变量的另外一个特性，就是当它所指向的对象被释放时，<code>__weak</code> 变量的值会被置为 nil 。了解了基本原理后，我们开始验证上面的猜测。</p>
+<p>我们先在第 35 行打一个断点，当程序运行到这个断点时，我们通过 lldb 命令<code> watchpoint set v string_weak_</code> 设置观察点，观察 <code>string_weak_</code> 变量的值的变化。如下图所示，我们将在 console 中看到类似的输出，说明我们已经成功地设置了一个观察点：<br><img src="http://blog.leichunfeng.com/images/watchpoint1.jpg" alt="设置一个观察点"></p>
+<p>点击继续执行</p>
+<p><img src="http://blog.leichunfeng.com/images/watchpoint2.jpg" alt="继续执行"></p>
+<p>我们先看 console 中的输出，注意到 string_weak_ 变量的值由 <code>0x00007f9b886567d0</code> 变成了 <code>0x0000000000000000</code> ，也就是 nil.</p>
+<p>说明此时它所指向的对象被释放了。另外，我们也可以注意到一个细节，那就是 console 中打印了两次对象的值，说明此时 <code>viewWillAppear</code> 也已经被调用了，而 <code>viewDidAppear</code> 还没有被调用。</p>
+<p>接着，我们来看看左侧的线程堆栈。我们看到了一个非常敏感的方法调用 <code>-[NSAutoreleasePool release] </code>，这个方法最终通过调用 <code>AutoreleasePoolPage::pop(void *)</code> 函数来负责对 autoreleasepool 中的 autoreleased 对象执行 release 操作。</p>
+<p>结合前面的分析，我们知道在 viewDidLoad 中创建的 autoreleased 对象在方法返回后引用计数为 1 ，所以经过这里的 release 操作后，这个对象的引用计数 -1 ，变成了 0 ，该 autoreleased 对象最终被释放，猜测得证。</p>
+<p>另外，我们在代码中并没有手动添加 autoreleasepool ，那这个 autoreleasepool 究竟是哪里来的呢？看完后面的章节你就明白了。</p>
+<h6 id="场景-2："><a href="#场景-2：" class="headerlink" title="场景 2："></a>场景 2：</h6><p>当通过 <code>[NSString stringWithFormat:@&quot;leichunfeng&quot;] </code>创建一个对象时，这个对象的引用计数为 1 。而当使用局部变量 string 指向这个对象时，这个对象的引用计数 +1 ，变成了 2 。而出了当前作用域时，局部变量 string 变成了 nil ，所以其所指向对象的引用计数变成 1 。</p>
+<p>另外，我们知道当出了 <code>@autoreleasepool &#123;&#125; </code>的作用域时，当前 autoreleasepool 被 <code>drain</code> ，其中的 autoreleased 对象被 release 。所以这个对象的引用计数变成了 0 ，对象最终被释放。</p>
+<h6 id="场景-3："><a href="#场景-3：" class="headerlink" title="场景 3："></a>场景 3：</h6><p>当出了 <code>@autoreleasepool &#123;&#125;</code> 的作用域时，其中的 autoreleased 对象被 release ，对象的引用计数变成 1 。当出了局部变量 string 的作用域，即 viewDidLoad 方法返回时，string 指向了 nil ，其所指向对象的引用计数变成 0 ，对象最终被释放。</p>
+<p>理解在这 3 种场景下，autoreleased 对象什么时候释放对我们理解 Objective-C 的内存管理机制非常有帮助。其中，场景 1 出现得最多，就是不需要我们手动添加 <code>@autoreleasepool &#123;&#125;</code> 的情况，直接使用系统维护的 autoreleasepool ；场景 2 就是需要我们手动添加 <code>@autoreleasepool &#123;&#125; </code>的情况，手动干预 autoreleased 对象的释放时机；场景 3 是为了区别场景 2 而引入的，在这种场景下并不能达到出了 <code>@autoreleasepool &#123;&#125;</code> 的作用域时 autoreleased 对象被释放的目的。</p>
+<h2 id="AutoreleasePoolPage"><a href="#AutoreleasePoolPage" class="headerlink" title="AutoreleasePoolPage"></a>AutoreleasePoolPage</h2><p>细心的读者应该已经有所察觉，我们在上面已经提到了 <code>-[NSAutoreleasePool release]</code> 方法最终是通过调用 <code>AutoreleasePoolPage::pop(void *)</code> 函数来负责对 autoreleasepool 中的 autoreleased 对象执行 release 操作的</p>
+<p>那这里的 AutoreleasePoolPage 是什么东西呢？其实，autoreleasepool 是没有单独的内存结构的，它是通过以 <code>AutoreleasePoolPage </code>为结点的<code>双向链表</code>来实现的(分别对应结构中的parent指针和child指针)。我们打开 runtime 的源码工程，在 NSObject.mm 文件的第 438-932 行可以找到 autoreleasepool 的实现源码。通过阅读源码，我们可以知道</p>
+<ul>
+<li>1、每一个线程的 autoreleasepool 其实就是一个指针的堆栈；</li>
+<li>2、每一个指针代表一个需要 release 的对象或者 POOL_SENTINEL（哨兵对象，代表一个 autoreleasepool 的边界）</li>
+<li>3、一个 pool token 就是这个 pool 所对应的 <code>POOL_SENTINEL</code> 的内存地址。当这个 pool 被 pop 的时候，所有内存地址在 <code>pool token</code> 之后的对象都会被 release </li>
+<li>4、这个堆栈被划分成了一个以 page 为结点的双向链表。pages 会在必要的时候动态地增加或删除</li>
+<li>5、<code>Thread-local storage</code>（线程局部存储）指向 <code>hot page</code> ，即最新添加的 autoreleased 对象所在的那个 page</li>
+<li>6、AutoreleasePool是按线程一一对应的（结构中的thread指针指向当前线程</li>
+<li>7、AutoreleasePoolPage每个对象会开辟<code>4096</code>字节内存（也就是虚拟内存一页的大小），除了上面的实例变量所占空间，剩下的空间全部用来储存autorelease对象的地</li>
+<li>8、上面的id *next指针作为游标指向栈顶最新add进来的autorelease对象的下一个位置</li>
+</ul>
+<p>一个空的 AutoreleasePoolPage 的内存结构如下图所示：</p>
+<p><img src="http://blog.leichunfeng.com/images/AutoreleasePoolPage.png" alt="AutoreleasePoolPage内存结构"></p>
+<p>字段释义：</p>
+<blockquote>
+<p><code>magic</code> 用来校验 AutoreleasePoolPage 的结构是否完整；<br><code>next</code> 指向最新添加的 autoreleased 对象的下一个位置，初始化时指向 begin()<br><code>thread</code> 指向当前线程<br><code>parent</code> 指向父结点，第一个结点的 parent 值为 nil<br><code>child</code> 指向子结点，最后一个结点的 child 值为 nil<br><code>depth</code> 代表深度，从 0 开始，往后递增 1<br><code>hiwat</code> 代表 high water mark 。</p>
+</blockquote>
+<p><code>注意</code>:当 <code>next == begin()</code> 时，表示 AutoreleasePoolPage 为<code>空</code>；当 <code>next == end() </code>时，表示 AutoreleasePoolPage <code>已满</code></p>
+<h3 id="Autorelease-Pool-Blocks"><a href="#Autorelease-Pool-Blocks" class="headerlink" title="Autorelease Pool Blocks"></a>Autorelease Pool Blocks</h3><p>我们使用 <code>clang -rewrite-objc</code> 命令将下面的 Objective-C 代码重写成 C++ 代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@autoreleasepool</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将会得到以下输出结果（只保留了相关代码）：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> __declspec(dllimport) <span class="keyword">void</span> * objc_autoreleasePoolPush(<span class="keyword">void</span>);</span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> __declspec(dllimport) <span class="keyword">void</span> objc_autoreleasePoolPop(<span class="keyword">void</span> *);</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> __AtAutoreleasePool &#123;</span><br><span class="line">  __AtAutoreleasePool() &#123;atautoreleasepoolobj = objc_autoreleasePoolPush();&#125;</span><br><span class="line">  ~__AtAutoreleasePool() &#123;objc_autoreleasePoolPop(atautoreleasepoolobj);&#125;</span><br><span class="line">  <span class="keyword">void</span> * atautoreleasepoolobj;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* @autoreleasepool */</span> &#123; __AtAutoreleasePool __autoreleasepool;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>不得不说，苹果对 <code>@autoreleasepool &#123;&#125;</code> 的实现真的是非常巧妙，真正可以称得上是代码的艺术。苹果通过声明一个 <code>__AtAutoreleasePool</code> 类型的局部变量 <code>__autoreleasepool</code> 来实现 <code>@autoreleasepool &#123;&#125;</code> 。当声明 <code>__autoreleasepool</code> 变量时，构造函数 <code>__AtAutoreleasePool()</code> 被调用，即执行 <code>atautoreleasepoolobj = objc_autoreleasePoolPush();</code> ；当出了当前作用域时，析构函数 <code>~__AtAutoreleasePool() </code>被调用，即执行 <code>objc_autoreleasePoolPop(atautoreleasepoolobj);</code> 。也就是说 <code>@autoreleasepool &#123;&#125; </code>的实现代码可以进一步简化如下</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* @autoreleasepool */</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> *atautoreleasepoolobj = objc_autoreleasePoolPush();</span><br><span class="line">    <span class="comment">// 用户代码，所有接收到 autorelease 消息的对象会被添加到这个 autoreleasepool 中</span></span><br><span class="line">    objc_autoreleasePoolPop(atautoreleasepoolobj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="push-操作"><a href="#push-操作" class="headerlink" title="push 操作"></a>push 操作</h3><p>上面提到的 <code>objc_autoreleasePoolPush()</code> 函数本质上就是调用的 AutoreleasePoolPage 的 push 函数</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">objc_autoreleasePoolPush(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (UseGC) <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    <span class="keyword">return</span> AutoreleasePoolPage::push();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因此，我们接下来看看 AutoreleasePoolPage 的 push 函数的作用和执行过程。一个 push 操作其实就是<code>创建</code>一个新的 autoreleasepool ，对应 AutoreleasePoolPage 的具体实现就是往 AutoreleasePoolPage 中的 <code>next</code> 位置插入一个 <code>POOL_SENTINEL</code> ，并且返回插入的 <code>POOL_SENTINEL</code> 的内存地址。这个地址也就是我们前面提到的 <code>pool token</code> ，在执行 pop 操作的时候作为函数的入参</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> *push()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">id</span> *dest = autoreleaseFast(POOL_SENTINEL);</span><br><span class="line">    assert(*dest == POOL_SENTINEL);</span><br><span class="line">    <span class="keyword">return</span> dest;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>push 函数通过调用 <code>autoreleaseFast</code> 函数来执行具体的插入操作。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">id</span> *autoreleaseFast(<span class="keyword">id</span> obj)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//创建的时候插入一个POOL_SENTINEL表示一个新的自动pool的创建</span></span><br><span class="line">    AutoreleasePoolPage *page = hotPage();</span><br><span class="line">    <span class="comment">//下面是将新建的这个pool插入page中</span></span><br><span class="line">    <span class="keyword">if</span> (page &amp;&amp; !page-&gt;full()) &#123;</span><br><span class="line">        <span class="keyword">return</span> page-&gt;add(obj);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (page) &#123;</span><br><span class="line">        <span class="keyword">return</span> autoreleaseFullPage(obj, page);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> autoreleaseNoPage(obj);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>autoreleaseFast 函数在执行一个具体的插入操作时，分别对三种情况进行了不同的处理：</p>
+<ul>
+<li>1、当前 page 存在且没有满时，直接将对象添加到当前 page 中，即 next 指向的位置；</li>
+<li>2、当前 page 存在且已满时，创建一个新的 page ，并将对象添加到新创建的 page 中；</li>
+<li>3、当前 page 不存在时，即还没有 page 时，创建第一个 page ，并将对象添加到新创建的 page 中。</li>
+</ul>
+<p>每调用一次 push 操作就会创建一个新的 autoreleasepool ，即往 <code>AutoreleasePoolPage </code>中插入一个 <code>POOL_SENTINEL</code> ，并且返回插入的 <code>POOL_SENTINEL</code> 的内存地址。</p>
+<h3 id="autorelease-操作"><a href="#autorelease-操作" class="headerlink" title="autorelease 操作"></a>autorelease 操作</h3><p>通过 <code>NSObject.mm</code> 源文件，我们可以找到 <code>-autorelease</code> 方法的实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">id</span>)autorelease &#123;</span><br><span class="line">    <span class="keyword">return</span> ((<span class="keyword">id</span>)<span class="keyword">self</span>)-&gt;rootAutorelease();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过查看 <code>((id)self)-&gt;rootAutorelease()</code> 的方法调用，我们发现最终调用的就是 AutoreleasePoolPage 的 autorelease 函数。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">__attribute__((noinline,used))</span><br><span class="line"><span class="keyword">id</span></span><br><span class="line">objc_object::rootAutorelease2()</span><br><span class="line">&#123;</span><br><span class="line">    assert(!isTaggedPointer());</span><br><span class="line">    <span class="keyword">return</span> AutoreleasePoolPage::autorelease((<span class="keyword">id</span>)<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>AutoreleasePoolPage</code> 的 autorelease 函数的实现对我们来说就比较容量理解了，它跟 push 操作的实现非常相似。只不过 push 操作插入的是一个 <code>POOL_SENTINEL </code>，而 autorelease 操作插入的是一个具体的 autoreleased 对象。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">id</span> autorelease(<span class="keyword">id</span> obj)</span><br><span class="line">&#123;</span><br><span class="line">    assert(obj);</span><br><span class="line">    assert(!obj-&gt;isTaggedPointer());</span><br><span class="line">    <span class="keyword">id</span> *dest __unused = autoreleaseFast(obj);</span><br><span class="line">    assert(!dest  ||  *dest == obj);</span><br><span class="line">    <span class="keyword">return</span> obj;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="pop-操作"><a href="#pop-操作" class="headerlink" title="pop 操作"></a>pop 操作</h3><p>同理，前面提到的 <code>objc_autoreleasePoolPop(void *)</code> 函数本质上也是调用的 AutoreleasePoolPage 的 pop 函数。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span></span><br><span class="line">objc_autoreleasePoolPop(<span class="keyword">void</span> *ctxt)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (UseGC) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// fixme rdar://9167170</span></span><br><span class="line">    <span class="keyword">if</span> (!ctxt) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    AutoreleasePoolPage::pop(ctxt);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>pop 函数的入参就是 push 函数的返回值，也就是 <code>POOL_SENTINEL</code> 的内存地址，即 <code>pool token</code> 。当执行 pop 操作时，内存地址在<code> pool token</code> 之后的所有 autoreleased 对象都会被 release 。直到<code> pool token</code> 所在 page 的<code> next</code> 指向 <code>pool token</code> 为止。</p>
+<p>根绝上面的内容我们可以大致猜测 AutoreleasePoolPage类的结构 如下：</p>
+<h3 id="AutoreleasePoolPage-类的结构"><a href="#AutoreleasePoolPage-类的结构" class="headerlink" title="AutoreleasePoolPage 类的结构"></a>AutoreleasePoolPage 类的结构</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">objc4/<span class="built_in">NSObject</span>.mm AutoreleasePoolPage</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> AutoreleasePoolPage </span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> *push() </span><br><span class="line">    &#123;</span><br><span class="line">        生成或者持有 <span class="built_in">NSAutoreleasePool</span> 类对象</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> pop(<span class="keyword">void</span> *token) </span><br><span class="line">    &#123;</span><br><span class="line">        废弃 <span class="built_in">NSAutoreleasePool</span> 类对象</span><br><span class="line">        releaseAll();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">id</span> autorelease(<span class="keyword">id</span> obj)</span><br><span class="line">    &#123;</span><br><span class="line">        相当于 <span class="built_in">NSAutoreleasePool</span> 类的 addObject 类方法</span><br><span class="line">        AutoreleasePoolPage *page = 取得正在使用的 AutoreleasePoolPage 实例;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">id</span> *add(<span class="keyword">id</span> obj)</span><br><span class="line">    &#123;</span><br><span class="line">        将对象追加到内部数组</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">void</span> releaseAll() </span><br><span class="line">    &#123;</span><br><span class="line">        调用内部数组中对象的 release 方法</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> *</span><br><span class="line">objc_autoreleasePoolPush(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (UseGC) <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    <span class="keyword">return</span> AutoreleasePoolPage::push();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span></span><br><span class="line">objc_autoreleasePoolPop(<span class="keyword">void</span> *ctxt)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (UseGC) <span class="keyword">return</span>;</span><br><span class="line">    AutoreleasePoolPage::pop(ctxt);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>下面是某个线程的 autoreleasepool 堆栈的内存结构图，在这个 autoreleasepool 堆栈中总共有两个 POOL_SENTINEL ，即有两个 autoreleasepool 。该堆栈由三个 AutoreleasePoolPage 结点组成，第一个 AutoreleasePoolPage 结点为 coldPage() ，最后一个 AutoreleasePoolPage 结点为 hotPage() 。其中，前两个结点已经满了，最后一个结点中保存了最新添加的 autoreleased 对象 objr3 的内存地址。</p>
+<p><img src="http://blog.leichunfeng.com/images/AutoreleasePoolPage1.png" alt="内存结构图"></p>
+<p>此时，如果执行 <code>pop(token1)</code> 操作，那么该 autoreleasepool 堆栈的内存结构将会变成如下图所示</p>
+<p><img src="http://blog.leichunfeng.com/images/AutoreleasePoolPage2.png" alt="内存结构图"></p>
+<h3 id="Autorelease对象什么时候释放？"><a href="#Autorelease对象什么时候释放？" class="headerlink" title="Autorelease对象什么时候释放？"></a>Autorelease对象什么时候释放？</h3><p>这个问题拿来做面试题，问过很多人，没有几个能答对的。很多答案都是“当前作用域大括号结束时释放”，显然木有正确理解Autorelease机制。<br>在没有手加Autorelease Pool的情况下，Autorelease对象是在当前的runloop迭代结束时释放的，而它能够释放的原因是系统在每个runloop迭代中都加入了自动释放池Push和Pop</p>
+<h3 id="嵌套的AutoreleasePool"><a href="#嵌套的AutoreleasePool" class="headerlink" title="嵌套的AutoreleasePool"></a>嵌套的AutoreleasePool</h3><p>知道了上面的原理，嵌套的AutoreleasePool就非常简单了，pop的时候总会释放到上次push的位置为止，多层的pool就是多个哨兵对象而已，就像剥洋葱一样，每次一层，互不影响。</p>
+<h3 id="其他Autorelease相关知识点"><a href="#其他Autorelease相关知识点" class="headerlink" title="其他Autorelease相关知识点"></a>其他Autorelease相关知识点</h3><p>使用容器的block版本的枚举器时，内部会自动添加一个AutoreleasePool：</p>
+<p>[array enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {<br>    // 这里被一个局部@autoreleasepool包围着<br>}];<br>当然，在普通for循环和for in循环中没有，所以，还是新版的block版本枚举器更加方便。for循环中遍历产生大量autorelease变量时，就需要手加局部AutoreleasePool咯。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="http://blog.sunnyxx.com/2014/10/15/behind-autorelease/">黑幕背后的Autorelease</a><br><a target="_blank" rel="noopener" href="http://blog.leichunfeng.com/blog/2015/05/31/objective-c-autorelease-pool-implementation-principle/#jtss-tsina">Objective-C Autorelease Pool 的实现原理</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ARC-RetainCount-AutoreleasePool-AutoreleasePoolPage/" rel="tag"># ARC RetainCount AutoreleasePool AutoreleasePoolPage</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/03/02/runtime-common-method/" rel="prev" title="RunTime的那些事儿">
+                  <i class="fa fa-chevron-left"></i> RunTime的那些事儿
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/03/22/iOS%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%9F%BA%E7%A1%80%E7%AF%87/" rel="next" title="iOS内存管理基础篇">
+                  iOS内存管理基础篇 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : 'cc60f75bb5e0b0e96f676753c7c21605',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="APP中我们常用的第三方支付主要是：微信支付和支付宝支付，去年公司的项目中加入了两种支付方式，特地总结如下：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 第三方支付">
+<meta property="og:url" content="https://www.leewong.cn/2016/03/07/ios-third-payment/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="APP中我们常用的第三方支付主要是：微信支付和支付宝支付，去年公司的项目中加入了两种支付方式，特地总结如下：">
+<meta property="og:locale">
+<meta property="og:image" content="https://pay.weixin.qq.com/wiki/doc/api/img/chapter8_3_1.png">
+<meta property="og:image" content="http://i.niupic.com/images/2016/03/08/6m4jJv.png">
+<meta property="og:image" content="http://i.niupic.com/images/2016/03/08/bBUVlA.png">
+<meta property="og:image" content="http://i.niupic.com/images/2016/03/08/4a26sD.png">
+<meta property="og:image" content="http://i.niupic.com/images/2016/03/08/NKqM4k.png">
+<meta property="og:image" content="http://i.niupic.com/images/2016/03/08/rPZfFA.png">
+<meta property="article:published_time" content="2016-03-07T04:18:10.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:28:42.291Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="支付">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pay.weixin.qq.com/wiki/doc/api/img/chapter8_3_1.png">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2016/03/07/ios-third-payment/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>iOS 第三方支付 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%AF%E4%BB%98%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">支付流程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E6%94%AF%E4%BB%98%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="nav-number">1.1.</span> <span class="nav-text">1、支付流程图</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81%E6%B7%BB%E5%8A%A0URL"><span class="nav-number">1.2.</span> <span class="nav-text">2、添加URL</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%E3%80%81%E5%AF%BC%E5%85%A5SDK"><span class="nav-number">1.3.</span> <span class="nav-text">3、导入SDK</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%E3%80%81%E6%B3%A8%E5%86%8C%E8%87%AA%E5%B7%B1%E7%9A%84%E5%BE%AE%E4%BF%A1ID"><span class="nav-number">1.4.</span> <span class="nav-text">4、注册自己的微信ID</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%E3%80%81%E5%85%B7%E4%BD%93%E6%B5%81%E7%A8%8B"><span class="nav-number">1.5.</span> <span class="nav-text">5、具体流程</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#1%E3%80%81%E7%82%B9%E5%87%BB%E6%94%AF%E4%BB%98"><span class="nav-number">1.5.1.</span> <span class="nav-text">1、点击支付</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#2%E3%80%81%E8%8E%B7%E5%8F%96%E8%AE%A2%E5%8D%95%E4%BF%A1%E6%81%AF%EF%BC%88%E6%9C%8D%E5%8A%A1%E7%AB%AF%E4%BA%A4%E4%BA%92%EF%BC%89"><span class="nav-number">1.5.2.</span> <span class="nav-text">2、获取订单信息（服务端交互）</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#3%E3%80%81%E8%8E%B7%E5%8F%96%E8%AE%A2%E5%8D%95%E4%BF%A1%E6%81%AF"><span class="nav-number">1.5.3.</span> <span class="nav-text">3、获取订单信息</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%E3%80%81%E8%B0%83%E7%94%A8%E5%BE%AE%E4%BF%A1API%E7%AD%89%E5%BE%85%E8%BF%94%E5%9B%9E"><span class="nav-number">1.6.</span> <span class="nav-text">4、调用微信API等待返回</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#5%E3%80%81-%E7%94%A8%E6%88%B7%E8%BF%9B%E8%A1%8C%E6%94%AF%E4%BB%98%E6%93%8D%E4%BD%9C"><span class="nav-number">1.6.1.</span> <span class="nav-text">5、 用户进行支付操作</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#6%E3%80%81-%E6%94%AF%E4%BB%98%E7%BB%93%E6%9E%9C%E5%9B%9E%E8%B0%83"><span class="nav-number">1.6.2.</span> <span class="nav-text">6、 支付结果回调</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%E3%80%81%E5%BE%AE%E4%BF%A1%E3%80%81%E6%94%AF%E4%BB%98%E5%AE%9D%E6%94%AF%E4%BB%98%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.7.</span> <span class="nav-text">6、微信、支付宝支付中常见的问题</span></a></li></ol></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2016/03/07/ios-third-payment/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS 第三方支付
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2016-03-07 12:18:10" itemprop="dateCreated datePublished" datetime="2016-03-07T12:18:10+08:00">2016-03-07</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:28:42" itemprop="dateModified" datetime="2020-07-19T22:28:42+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%94%AF%E4%BB%98/" itemprop="url" rel="index"><span itemprop="name">支付</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2016/03/07/ios-third-payment/" class="post-meta-item leancloud_visitors" data-flag-title="iOS 第三方支付" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>APP中我们常用的第三方支付主要是：微信支付和支付宝支付，去年公司的项目<br>中加入了两种支付方式，特地总结如下：</p>
+<a id="more"></a>
+
+<h4 id="支付流程"><a href="#支付流程" class="headerlink" title="支付流程"></a>支付流程</h4><h5 id="1、支付流程图"><a href="#1、支付流程图" class="headerlink" title="1、支付流程图"></a>1、支付流程图</h5><p><img src="https://pay.weixin.qq.com/wiki/doc/api/img/chapter8_3_1.png" alt="支付流程图"></p>
+<h5 id="2、添加URL"><a href="#2、添加URL" class="headerlink" title="2、添加URL"></a>2、添加URL</h5><p><img src="http://i.niupic.com/images/2016/03/08/6m4jJv.png" alt="icon"></p>
+<h5 id="3、导入SDK"><a href="#3、导入SDK" class="headerlink" title="3、导入SDK"></a>3、导入SDK</h5><p><img src="http://i.niupic.com/images/2016/03/08/bBUVlA.png" alt="SDK"></p>
+<h5 id="4、注册自己的微信ID"><a href="#4、注册自己的微信ID" class="headerlink" title="4、注册自己的微信ID"></a>4、注册自己的微信ID</h5><p><img src="http://i.niupic.com/images/2016/03/08/4a26sD.png" alt="icon"></p>
+<h5 id="5、具体流程"><a href="#5、具体流程" class="headerlink" title="5、具体流程"></a>5、具体流程</h5><h6 id="1、点击支付"><a href="#1、点击支付" class="headerlink" title="1、点击支付"></a>1、点击支付</h6><p>需要判断是保证金支付还是订单支付，下面的方法以微信支付为例</p>
+<h6 id="2、获取订单信息（服务端交互）"><a href="#2、获取订单信息（服务端交互）" class="headerlink" title="2、获取订单信息（服务端交互）"></a>2、获取订单信息（服务端交互）</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;保证金支付</span><br><span class="line">- (RACSignal *)wechatPayDepositWithOrder:(ArtOrder *)order</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;订单支付</span><br><span class="line">- (RACSignal *)wechatPayWithOrder:(ArtOrder *)order</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里订单支付和保证金支付有点不同：</p>
+<p>保证金支付是与这个订单无关的，所以在与服务端交互的时候不需要传递具体上项目或者商品的相关信息，只是传递一个保证金的金额即可，而在订单支付的过程中，我们需要将这次付款行为的商品相关信息传递给服务端。然后服务端与微信提供的接口进行交互获取订单信息</p>
+<h6 id="3、获取订单信息"><a href="#3、获取订单信息" class="headerlink" title="3、获取订单信息"></a>3、获取订单信息</h6><p>与服务端交互完成后会返回一个PayReq的对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*! @brief 第三方向微信终端发起支付的消息结构体</span><br><span class="line"> *</span><br><span class="line"> *  第三方向微信终端发起支付的消息结构体，微信终端处理后会向第三方返回处理结果</span><br><span class="line"> * @see PayResp</span><br><span class="line"> *&#x2F;</span><br><span class="line">@interface PayReq : BaseReq</span><br><span class="line"></span><br><span class="line">&#x2F;** 商家向财付通申请的商家id *&#x2F;</span><br><span class="line">@property (nonatomic, retain) NSString *partnerId;</span><br><span class="line">&#x2F;** 预支付订单 *&#x2F;</span><br><span class="line">@property (nonatomic, retain) NSString *prepayId;</span><br><span class="line">&#x2F;** 随机串，防重发 *&#x2F;</span><br><span class="line">@property (nonatomic, retain) NSString *nonceStr;</span><br><span class="line">&#x2F;** 时间戳，防重发 *&#x2F;</span><br><span class="line">@property (nonatomic, assign) UInt32 timeStamp;</span><br><span class="line">&#x2F;** 商家根据财付通文档填写的数据和签名 *&#x2F;</span><br><span class="line">@property (nonatomic, retain) NSString *package;</span><br><span class="line">&#x2F;** 商家根据微信开放平台文档对数据做的签名 *&#x2F;</span><br><span class="line">@property (nonatomic, retain) NSString *sign;</span><br><span class="line"></span><br><span class="line">@end</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/362fcbbf107c">参数详细介绍</a></p>
+<h5 id="4、调用微信API等待返回"><a href="#4、调用微信API等待返回" class="headerlink" title="4、调用微信API等待返回"></a>4、调用微信API等待返回</h5><p>从服务端获取到了订单的信息之后，需要调用微信的API提供的这个接口，传递数据，跳转到微信客户端 用户进行支付，自己的应用等待用户操作之后的回调</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*! @brief 发送请求到微信，等待微信返回onResp</span><br><span class="line"> *</span><br><span class="line"> * 函数调用后，会切换到微信的界面。第三方应用程序等待微信返回onResp。微信在异步处理完成后一定会调用onResp。支持以下类型</span><br><span class="line"> * SendAuthReq、SendMessageToWXReq、PayReq等。</span><br><span class="line"> * @param req 具体的发送请求，在调用函数后，请自己释放。</span><br><span class="line"> * @return 成功返回YES，失败返回NO。</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line">+(BOOL) sendReq:(BaseReq*)req;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h6 id="5、-用户进行支付操作"><a href="#5、-用户进行支付操作" class="headerlink" title="5、 用户进行支付操作"></a>5、 用户进行支付操作</h6><p><img src="http://i.niupic.com/images/2016/03/08/NKqM4k.png" alt="pay1"></p>
+<h6 id="6、-支付结果回调"><a href="#6、-支付结果回调" class="headerlink" title="6、 支付结果回调"></a>6、 支付结果回调</h6><p><img src="http://i.niupic.com/images/2016/03/08/rPZfFA.png" alt="pay2"></p>
+<p>支付动作结束之后，微信会调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*! @brief 发送一个sendReq后，收到微信的回应</span><br><span class="line"> *</span><br><span class="line"> * 收到一个来自微信的处理结果。调用一次sendReq后会收到onResp。</span><br><span class="line"> * 可能收到的处理结果有SendMessageToWXResp、SendAuthResp等。</span><br><span class="line"> * @param resp具体的回应内容，是自动释放的</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line">-(void) onResp:(BaseResp*)resp;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这里根据返回的状态码做出对应的操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">switch (resp.errCode) &#123;</span><br><span class="line">            case WXSuccess:&#123;</span><br><span class="line">                NSLog(@&quot;支付成功－PaySuccess，retcode &#x3D; %d&quot;, </span><br><span class="line">                							resp.errCode);</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">            case WXErrCodeCommon:&#123;</span><br><span class="line">                errorMessage &#x3D; @&quot;支付失败&quot;;</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">            case WXErrCodeUserCancel:&#123;</span><br><span class="line">                errorMessage &#x3D; @&quot;用户中途取消&quot;;</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">            default:&#123;</span><br><span class="line">                NSLog(@&quot;错误，retcode &#x3D; %d, retstr &#x3D; %@&quot;, </span><br><span class="line">                		resp.errCode,resp.errStr);</span><br><span class="line">                errorMessage &#x3D; @&quot;支付失败&quot;;</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这样，本次支付就结束了。可以进行下面的操作啦………………</p>
+<h5 id="6、微信、支付宝支付中常见的问题"><a href="#6、微信、支付宝支付中常见的问题" class="headerlink" title="6、微信、支付宝支付中常见的问题"></a>6、微信、支付宝支付中常见的问题</h5><ul>
+<li><p>1、一定要添加下面的回调</p>
+<p>  [[AlipaySDK defaultService] </p>
+<pre><code>                  processOrderWithPaymentResult:url
+                   standbyCallback:^(NSDictionary
+                                        *resultDic) &#123;</code></pre>
+<p>  }];<br>  否则可能收不到支付结果的回调</p>
+</li>
+</ul>
+<p> <code>未完…………………………</code></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%94%AF%E4%BB%98/" rel="tag"># 支付</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2016/03/04/ios-memory-management/" rel="prev" title="iOS 内存管理">
+                  <i class="fa fa-chevron-left"></i> iOS 内存管理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2016/03/07/ios-multiVc-manager/" rel="next" title="iOS 多控制器管理">
+                  iOS 多控制器管理 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : '9c671a49cd45f9f03fe7678496c1532d',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

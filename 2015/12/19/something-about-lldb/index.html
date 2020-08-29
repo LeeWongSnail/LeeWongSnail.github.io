@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="今天在微博上看到小笨狼分享的一片文章，其中比较详细的介绍了LLDB的使用，顿时感觉原来LLDB控制体可以做那么多事情，下面是我挑选的几个，开发中比较常用的命令">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS LLDB 打印技巧">
+<meta property="og:url" content="https://www.leewong.cn/2015/12/19/something-about-lldb/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="今天在微博上看到小笨狼分享的一片文章，其中比较详细的介绍了LLDB的使用，顿时感觉原来LLDB控制体可以做那么多事情，下面是我挑选的几个，开发中比较常用的命令">
+<meta property="og:locale">
+<meta property="article:published_time" content="2015-12-18T22:19:41.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:31:46.686Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="lldb">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2015/12/19/something-about-lldb/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>iOS LLDB 打印技巧 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">1、基本语法</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2015/12/19/something-about-lldb/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS LLDB 打印技巧
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2015-12-19 06:19:41" itemprop="dateCreated datePublished" datetime="2015-12-19T06:19:41+08:00">2015-12-19</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:31:46" itemprop="dateModified" datetime="2020-07-19T22:31:46+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/iOS%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index"><span itemprop="name">iOS进阶</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2015/12/19/something-about-lldb/" class="post-meta-item leancloud_visitors" data-flag-title="iOS LLDB 打印技巧" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>今天在微博上看到<a target="_blank" rel="noopener" href="http://www.jianshu.com/users/1f93e3b1f3da/latest_articles">小笨狼</a>分享的一片文章，其中比较详细的介绍了LLDB的使用，顿时感觉原来LLDB控制体可以做那么多事情，下面是我挑选的几个，开发中比较常用的命令</p>
+<a id="more"></a>
+
+<h4 id="1、基本语法"><a href="#1、基本语法" class="headerlink" title="1、基本语法"></a>1、基本语法</h4><p>首先还是先看一下最近本的语法，这会让我们会更容易的去理解和记住下面的命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;command&gt; [&lt;subcommand&gt; [&lt;subcommand&gt;...]] </span><br><span class="line">&lt;action&gt; [-options [option-value]] </span><br><span class="line">[argument [argument...]]</span><br><span class="line"></span><br><span class="line">&#96;&#96;&#96;	</span><br><span class="line">参数解析：</span><br><span class="line">1、&#96;&lt;command&gt;&#96;和&lt;subcommand&gt;:是LLDB调试命令的名称，命令和子命令是按照层级结构排列的</span><br><span class="line">一个命令对象为跟随他的子对象创建一个上下文，子命令又为子命令创建一个上下文</span><br><span class="line"></span><br><span class="line">2、&#96;&lt;action&gt;&#96;:执行命令的操作</span><br><span class="line"></span><br><span class="line">3、&#96;&lt;option&gt;&#96;：命令选项</span><br><span class="line"></span><br><span class="line">4、&#96;&lt;argument&gt;&#96;:命令参数</span><br><span class="line"></span><br><span class="line">5、&#96;[]&#96;:表示命令是可选的，可有可无</span><br><span class="line"></span><br><span class="line">exmp:</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>breakpoint set - n main</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">1、&#96;command&#96;:breakpoint 表示断点命令</span><br><span class="line"></span><br><span class="line">2、&#96;断点命令&#96;:set 表示设置断点</span><br><span class="line"></span><br><span class="line">3、&#96;-n&#96;:表示根据方法name设置断点</span><br><span class="line"></span><br><span class="line">4、&#96;argument&#96;: main 表示方法名为main</span><br><span class="line"></span><br><span class="line">#### 2、唯一匹配原则</span><br><span class="line"></span><br><span class="line">LLDB的命令遵循唯一匹配原则：假如根据前n个字母已经能唯一匹配到某个命令，则只写前n个字母等效于写下完整的命令。</span><br><span class="line">e.g:</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>breakpoint set -n main<br>br s -n main</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">下面一行的命令可以唯一匹配到上一行的命令，所以二者是等效的</span><br><span class="line"></span><br><span class="line">&#96;~&#x2F;.lldbinit&#96;</span><br><span class="line"></span><br><span class="line">LLDB有了一个启动时加载的文件~&#x2F;.lldbinit，每次启动都会加载。所以一些初始化的事儿，我们可以写入~&#x2F;.lldbinit中，比如给命令定义别名等。但是由于这时候程序还没有真正运行，也有部分操作无法在里面玩，比如设置断点。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#### 3、LLDB常用命令</span><br><span class="line"></span><br><span class="line">##### 1、expression</span><br><span class="line">语法格式</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>expression <cmd-options> – <expr></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">作用：执行一个表达式，并将表达式的返回值输出</span><br><span class="line"></span><br><span class="line">e.g 1：执行一个表达式</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p> expression – self.view.backgroundColor = [UIColor redColor]</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">e.g 2:输出返回值</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p> (lldb) expression – self.view<br>    (UIView *) $1 = 0x00007fe322c18a10</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#96;expression 可以简写做e&#96;</span><br><span class="line"></span><br><span class="line">##### 2、p &amp; print &amp; call</span><br><span class="line">其实这三个方法都可以看做是expression的别名，只是不再向expression那样可以设置命令选项（一般情况下，我们是不需要去设置命令选项的）</span><br><span class="line"></span><br><span class="line">print:打印出某个东西，可以是变量或者是表达式</span><br><span class="line"></span><br><span class="line">p:可以看做是print的缩写</span><br><span class="line"></span><br><span class="line">call:调用某个方法</span><br><span class="line"></span><br><span class="line">e.g:</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>(lldb) expression – self.view<br>(UIView *) $5 = 0x00007fb2a40344a0<br>(lldb) p self.view<br>(UIView *) $6 = 0x00007fb2a40344a0<br>(lldb) print self.view<br>(UIView *) $7 = 0x00007fb2a40344a0<br>(lldb) call self.view<br>(UIView *) $8 = 0x00007fb2a40344a0<br>(lldb) e self.view<br>(UIView *) $9 = 0x00007fb2a40344a0</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">##### 3、PO</span><br><span class="line">通常我们在控制台打印的时候，一般都是变量值或者是对象</span><br><span class="line">如果我们直接</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>expression – self.view<br>(UIView *) $13 = 0x00007fb2a40344a0</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">显然结果并不是我们想要的，所以，我们需要添加命令选项：</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>(lldb) expression -O – self.view</p>
+<p>&lt;UIView: 0x7fb2a40344a0; frame = (0 0; 375 667); autoresize = W+H; layer = &lt;CALayer: 0x7fb2a4018c80&gt;&gt;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">这里 为了方便使用，LLDB为expression定义了一个别名 po,因此：</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>(lldb) po self.view</p>
+<p>&lt;UIView: 0x7fb2a40344a0; frame = (0 0; 375 667); autoresize = W+H; layer = &lt;CALayer: 0x7fb2a4018c80&gt;&gt;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">也能达到上面一样的效果</span><br><span class="line"></span><br><span class="line">##### 4、thread backtrace &amp; bt</span><br><span class="line">作用：打印线程的堆栈</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>thread backtrace [-c <count>] [-s <frame-index>] [-e <boolean>]</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">thread backtrace 后面的都是命令选项</span><br><span class="line"></span><br><span class="line">&#96;-c&#96;: 设置打印堆栈帧的帧数（frame）</span><br><span class="line">&#96;-s&#96;: 设置从哪一帧开始打印</span><br><span class="line">&#96;-e&#96;: 是否显示额外的回溯</span><br><span class="line"></span><br><span class="line">&#96;实际上，我们在平时的使用中一般都不会添加这些命令选项&#96;</span><br><span class="line"></span><br><span class="line">e.g: crash happens</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>(lldb) thread backtrace</p>
+<ul>
+<li>thread #1: tid = 0xdd42, 0x000000010afb380b libobjc.A.dylib<code>objc_msgSend + 11, queue = &#39;com.apple.main-thread&#39;, stop reason = EXC_BAD_ACCESS (code=EXC_I386_GPFLT)   frame #0: 0x000000010afb380b libobjc.A.dylib</code>objc_msgSend + 11<ul>
+<li>frame #1: 0x000000010aa9f75e TLLDB<code>-[ViewController viewDidLoad](self=0x00007fa270e1f440, _cmd=&quot;viewDidLoad&quot;) + 174 at ViewController.m:23 frame #2: 0x000000010ba67f98 UIKit</code>-[UIViewController loadViewIfRequired] + 1198<br>frame #3: 0x000000010ba682e7 UIKit<code>-[UIViewController view] + 27 frame #4: 0x000000010b93eab0 UIKit</code>-[UIWindow addRootViewControllerViewIfPossible] + 61<br>frame #5: 0x000000010b93f199 UIKit<code>-[UIWindow _setHidden:forced:] + 282 frame #6: 0x000000010b950c2e UIKit</code>-[UIWindow makeKeyAndVisible] + 42</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">这里，我们可以比较清晰的看到 crash 触发的位置，就可以有针对性的进行检查</span><br><span class="line"></span><br><span class="line">&#96;backtrace &#x3D; bt&#96; 可以使用简单的bt来代替backtrace</span><br><span class="line"></span><br><span class="line">##### 5、thread return</span><br><span class="line">作用： return 返回，表示不再执行断点下面的代码，直接返回，&#96;可以自己定义要返回的值&#96;</span><br><span class="line"></span><br><span class="line">e.g: </span><br><span class="line">![icon](http:&#x2F;&#x2F;upload-images.jianshu.io&#x2F;upload_images&#x2F;1122433-cf22e45902233a0c.png?imageMogr2&#x2F;auto-orient&#x2F;strip%7CimageView2&#x2F;2&#x2F;w&#x2F;1240)</span><br><span class="line"></span><br><span class="line">如果我们不想执行断点后面的代码，同时还想让这个方法的返回值为NO</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>(lldb) thread return NO</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">##### 6、c &amp; n &amp; s &amp; finish</span><br><span class="line"></span><br><span class="line">![icon](http:&#x2F;&#x2F;upload-images.jianshu.io&#x2F;upload_images&#x2F;1122433-17ba978ac411af3d.png?imageMogr2&#x2F;auto-orient&#x2F;strip%7CimageView2&#x2F;2&#x2F;w&#x2F;1240)</span><br><span class="line"></span><br><span class="line">其实这四个按钮都可以用下面的命令来代替：</span><br><span class="line"></span><br><span class="line">1、&#96;c&#96;&#x2F;&#96;continue&#96;&#x2F;&#96;thread continue&#96;: 这三个命令的效果等同于图片中的第一个按钮，表示继续运行</span><br><span class="line"></span><br><span class="line">2、&#96;n&#96;&#x2F;&#96;next&#96;&#x2F;&#96;thread step-over&#96;:等同于第二个按钮，表示单步执行</span><br><span class="line"></span><br><span class="line">3、&#96;s&#96;&#x2F;&#96;step&#96;&#x2F;&#96;thread step-in&#96;:等同于第三个按钮，表示进入方法内部</span><br><span class="line"></span><br><span class="line">4、&#96;finish&#96;&#x2F;&#96;step-out&#96;:等同于第四个按钮，表示直接走完当前方法，返回到上一层</span><br><span class="line"></span><br><span class="line">###### 7、breakpoint </span><br><span class="line">1、breakpoint set 设置断点</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这个方法的功能比较强大，可以根据方法名设置断点，可以给指定文件中的指定方法设置断点(方法不存在，无法设置断点)，给指定文件的某一行设置断点、设置条件断点、设置单次执行断点。由于这些在实际的开发中用的比较少，所以在这里不再详细说明（需要看的可以在本文最后查看引用的文章）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">2、breakpoint command add 给断点添加命令</span><br><span class="line"></span><br><span class="line">3、breakpoint command list 查看某个断点已有的命令</span><br><span class="line"></span><br><span class="line">4、breakpoint command delete 删除断点</span><br><span class="line"></span><br><span class="line">5、breakpoint list 查看一ing设置断点的位置</span><br><span class="line"></span><br><span class="line">6、breakpoint enable&#x2F;disable 断点暂时失效&#x2F;生效</span><br><span class="line"></span><br><span class="line">7、breakpoint delete 彻底删除所有断点（也可以删除指定行）</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">###### 8、watchpoint </span><br><span class="line">&#96;breakpoint&#96;有一个孪生兄弟&#96;watchpoint&#96;。如果说&#96;breakpoint&#96;是对方法生效的断点，&#96;watchpoint&#96;就是对地址生效的断点</span><br><span class="line"></span><br><span class="line">基本用法和breakpoint 类似，这里不再详细说明</span><br><span class="line"></span><br><span class="line">###### 9、target</span><br><span class="line"></span><br><span class="line">对于target这个命令，我们用得最多的可能就是target modules lookup。由于LLDB给target modules取了个别名image，所以这个命令我们又可以写成image lookup</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">1、image lookup --address 查找这个地址具体对应的文件位置（具体到行）</span><br><span class="line">当我们遇到崩溃（不是停留在main函数中的崩溃）我们可以通过这个方法获取到这个控制器的哪一行出现问题</span><br><span class="line">e.g : crash happens</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>2015-12-17 14:51:06.301 TLLDB[25086:246169] <strong>* Terminating app due to uncaught exception ‘NSRangeException’, reason: ‘*</strong> -[__NSArray0 objectAtIndex:]: index 1 beyond bounds for empty NSArray’<br>*** First throw call stack:<br>(<br>    0   CoreFoundation                      0x000000010accde65 __exceptionPreprocess + 165<br>    1   libobjc.A.dylib                     0x000000010a746deb objc_exception_throw + 48<br>    2   CoreFoundation                      0x000000010ac7c395 -[__NSArray0 objectAtIndex:] + 101<br>    3   TLLDB                               0x000000010a1c3e36 -[ViewController viewDidLoad] + 86<br>    4   UIKit                               0x000000010b210f98 -[UIViewController loadViewIfRequired] + 1198<br>    5   UIKit                               0x000000010b2112e7 -[UIViewController view] + 27</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+<p>(lldb) image lookup -a 0x000000010a1c3e36<br>      Address: TLLDB[0x0000000100000e36] (TLLDB.__TEXT.__text + 246)<br>      Summary: TLLDB`-[ViewController viewDidLoad] + 86 at ViewController.m:32</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">准确定位，崩溃出现的方法名，及在文件中的行号</span><br><span class="line"></span><br><span class="line">2、image lookup --name </span><br><span class="line"></span><br><span class="line">e.g : </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>某个第三方SDK用了一个我们项目里原有的第三方库，库里面对NSDictionary添加了category。也就是有2个class对NSDictionary添加了名字相同的category，项目中调用自己的category的地方实际走到了第三方SDK里面去了。最大的问题是，这2个同名category方法行为并不一致，导致出现bug<br>现在问题来了，怎么寻找到底是哪个第三方SDK？方法完全包在.a里面</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>(lldb) image lookup -n dictionaryWithXMLString:<br>2 matches found in /Users/jiangliancheng/Library/Developer/Xcode/DerivedData/VideoIphone-aivsnqmlwjhxapdlvmdmrubbdxpq/Build/Products/Debug-iphoneos/BaiduIphoneVideo.app/BaiduIphoneVideo:<br>        Address: BaiduIphoneVideo[0x00533a7c] (BaiduIphoneVideo.__TEXT.__text + 5414908)<br>        Summary: BaiduIphoneVideo<code>+[NSDictionary(SAPIXmlDictionary) dictionaryWithXMLString:] at XmlDictionary.m          Module: file = &quot;/Users/jiangliancheng/Library/Developer/Xcode/DerivedData/VideoIphone-aivsnqmlwjhxapdlvmdmrubbdxpq/Build/Products/Debug-iphoneos/BaiduIphoneVideo.app/BaiduIphoneVideo&quot;, arch = &quot;armv7&quot;     CompileUnit: id = &#123;0x00000000&#125;, file = &quot;/Users/jiangliancheng/Development/Work/iOS_ShareLib/SharedLib/Srvcs/BDPassport4iOS/BDPassport4iOS/SAPI/Extensive/ThirdParty/XMLDictionary/XmlDictionary.m&quot;, language = &quot;Objective-C&quot;        Function: id = &#123;0x23500000756&#125;, name = &quot;+[NSDictionary(SAPIXmlDictionary) dictionaryWithXMLString:]&quot;, range = [0x005a6a7c-0x005a6b02)        FuncType: id = &#123;0x23500000756&#125;, decl = XmlDictionary.m:189, clang_type = &quot;NSDictionary *(NSString *)&quot;          Blocks: id = &#123;0x23500000756&#125;, range = [0x005a6a7c-0x005a6b02)       LineEntry: [0x005a6a7c-0x005a6a98): /Users/jiangliancheng/Development/Work/iOS_ShareLib/SharedLib/Srvcs/BDPassport4iOS/BDPassport4iOS/SAPI/Extensive/ThirdParty/XMLDictionary/XmlDictionary.m          Symbol: id = &#123;0x0000f2d5&#125;, range = [0x005a6a7c-0x005a6b04), name=&quot;+[NSDictionary(SAPIXmlDictionary) dictionaryWithXMLString:]&quot;        Variable: id = &#123;0x23500000771&#125;, name = &quot;self&quot;, type = &quot;Class&quot;, location =  [sp+32], decl =         Variable: id = &#123;0x2350000077e&#125;, name = &quot;_cmd&quot;, type = &quot;SEL&quot;, location =  [sp+28], decl =         Variable: id = &#123;0x2350000078b&#125;, name = &quot;string&quot;, type = &quot;NSString *&quot;, location =  [sp+24], decl = XmlDictionary.m:189        Variable: id = &#123;0x23500000799&#125;, name = &quot;data&quot;, type = &quot;NSData *&quot;, location =  [sp+20], decl = XmlDictionary.m:192         Address: BaiduIphoneVideo[0x012ee160] (BaiduIphoneVideo.__TEXT.__text + 19810016)         Summary: BaiduIphoneVideo</code>+[NSDictionary(XMLDictionary) dictionaryWithXMLString:] at XMLDictionary.m<br>         Module: file = “/Users/jiangliancheng/Library/Developer/Xcode/DerivedData/VideoIphone-aivsnqmlwjhxapdlvmdmrubbdxpq/Build/Products/Debug-iphoneos/BaiduIphoneVideo.app/BaiduIphoneVideo”, arch = “armv7”<br>    CompileUnit: id = {0x00000000}, file = “/Users/wingle/Workspace/qqlive4iphone/iphone_4.0_fabu_20150601/Common_Proj/mobileTAD/VIDEO/Library/Third Party/XMLDictionary/XMLDictionary.m”, language = “Objective-C”<br>       Function: id = {0x79900000b02}, name = “+[NSDictionary(XMLDictionary) dictionaryWithXMLString:]”, range = [0x01361160-0x0136119a)<br>       FuncType: id = {0x79900000b02}, decl = XMLDictionary.m:325, clang_type = “NSDictionary *(NSString *)”<br>         Blocks: id = {0x79900000b02}, range = [0x01361160-0x0136119a)<br>      LineEntry: [0x01361160-0x01361164): /Users/wingle/Workspace/qqlive4iphone/iphone_4.0_fabu_20150601/Common_Proj/mobileTAD/VIDEO/Library/Third Party/XMLDictionary/XMLDictionary.m<br>         Symbol: id = {0x0003a1e9}, range = [0x01361160-0x0136119c), name=”+[NSDictionary(XMLDictionary) dictionaryWithXMLString:]”<br>       Variable: id = {0x79900000b1e}, name = “self”, type = “Class”, location =  r0, decl =<br>       Variable: id = {0x79900000b2c}, name = “_cmd”, type = “SEL”, location =  r1, decl =<br>       Variable: id = {0x79900000b3a}, name = “string”, type = “NSString *”, location =  r2, decl = XMLDictionary.m:325<br>       Variable: id = {0x79900000b4a}, name = “data”, type = “NSData *”, location =  r2, decl = XMLDictionary.m:327</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">找到file:</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>CompileUnit: id = {0x00000000}, file = “/Users/jiangliancheng/Development/Work/iOS_ShareLib/SharedLib/Srvcs/BDPassport4iOS/BDPassport4iOS/SAPI/Extensive/ThirdParty/XMLDictionary/XmlDictionary.m”, language = “Objective-C”<br>CompileUnit: id = {0x00000000}, file = “/Users/wingle/Workspace/qqlive4iphone/iphone_4.0_fabu_20150601/Common_Proj/mobileTAD/VIDEO/Library/Third Party/XMLDictionary/XMLDictionary.m”, language = “Objective-C”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">这样就可以找到了……</span><br><span class="line"></span><br><span class="line">3、imag lookup --type  查看类型可以打印类的属性和成员变量</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>(lldb) image lookup -t Model<br>Best match found in /Users/jiangliancheng/Library/Developer/Xcode/DerivedData/TLLDB-beqoowskwzbttrejseahdoaivpgq/Build/Products/Debug-iphonesimulator/TLLDB.app/TLLDB:<br>id = {0x30000002f}, name = “Model”, byte-size = 32, decl = Modek.h:11, clang_type = “@interface Model : NSObject{<br>    NSString * _bb;<br>    NSString * _cc;<br>    NSString * _name;<br>}<br>@property ( getter = name,setter = setName:,readwrite,nonatomic ) NSString * name;<br>@end<br>“</p>
+<pre><code>
+4、其他不常用的方法，这里不再多说
+
+### tips:
+
+help &amp; apropos
+LLDB的命令其实还有很多，很多命令我也没玩过。就算玩过的命令，我们也非常容易忘记，下次可能就不记得是怎么用的了。还好LLDB给我们提供了2个查找命令的命令:help &amp; apropos
+
+参考文章：
+[小笨狼与LLDB的故事](http://www.jianshu.com/p/e89af3e9a8d7)
+
+</code></pre>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/lldb/" rel="tag"># lldb</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/12/05/jump-to-setting/" rel="prev" title="iOS 跳转到设置界面">
+                  <i class="fa fa-chevron-left"></i> iOS 跳转到设置界面
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2016/01/26/SDWebImage-1/" rel="next" title="SDWebImage解析">
+                  SDWebImage解析 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : '1b526960775fde44ca7d50c4de1c8b04',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

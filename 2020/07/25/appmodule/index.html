@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="随着多个功能需要在多个业务线短时间内实现功能同步，我们需要将新增功能模块和已有的功能模块逐步组件化，以达到多个业务线间可快速同步的效果">
+<meta property="og:type" content="article">
+<meta property="og:title" content="组件化设计方案">
+<meta property="og:url" content="https://www.leewong.cn/2020/07/25/appmodule/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="随着多个功能需要在多个业务线短时间内实现功能同步，我们需要将新增功能模块和已有的功能模块逐步组件化，以达到多个业务线间可快速同步的效果">
+<meta property="og:locale">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggo04wwswaj30lf0dc3zp.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggo47497wdj30xb08dacc.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggo51fpm4bj30jr06iaao.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggo9p64slcj30hn03kglt.jpg">
+<meta property="article:published_time" content="2020-07-25T02:27:37.000Z">
+<meta property="article:modified_time" content="2020-07-25T02:52:36.716Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="组件化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggo04wwswaj30lf0dc3zp.jpg">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2020/07/25/appmodule/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>组件化设计方案 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%95%E4%B8%BA%E7%BB%84%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">何为组件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E7%BB%84%E4%BB%B6"><span class="nav-number"></span> <span class="nav-text">基础组件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8B%AC%E7%AB%8B%E5%8A%9F%E8%83%BD%E7%BB%84%E4%BB%B6"><span class="nav-number"></span> <span class="nav-text">独立功能组件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8B%AC%E7%AB%8B%E4%B8%9A%E5%8A%A1%E7%BB%84%E4%BB%B6"><span class="nav-number"></span> <span class="nav-text">独立业务组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E4%BB%A3%E7%A0%81%E6%A8%A1%E5%9D%97%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">组件代码模块化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E4%BB%A3%E7%A0%81%E5%BD%92%E7%BA%B3%E9%9B%86%E4%B8%AD"><span class="nav-number">1.1.</span> <span class="nav-text">组件代码归纳集中</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%89%E7%85%A7%E7%BB%84%E4%BB%B6%E7%BB%93%E6%9E%84%E6%A8%A1%E5%9D%97%E5%8C%96"><span class="nav-number">1.2.</span> <span class="nav-text">按照组件结构模块化</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%BD%E5%8F%96%E7%BB%84%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%90%84%E7%B1%BB%E5%B8%B8%E9%87%8F"><span class="nav-number">2.</span> <span class="nav-text">抽取组件中的各类常量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E5%86%85%E5%BC%95%E7%94%A8%E5%A4%96%E9%83%A8%E8%A7%A3%E8%80%A6"><span class="nav-number">3.</span> <span class="nav-text">组件内引用外部解耦</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E5%A4%96%E5%BC%95%E7%94%A8%E7%BB%84%E4%BB%B6%E5%86%85%E6%96%B9%E6%B3%95%E8%A7%A3%E8%80%A6"><span class="nav-number">4.</span> <span class="nav-text">组件外引用组件内方法解耦</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E8%B5%84%E6%BA%90%E6%95%B4%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">组件资源整理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E9%97%B4%E7%9A%84%E8%B7%B3%E8%BD%AC"><span class="nav-number"></span> <span class="nav-text">组件间的跳转</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number"></span> <span class="nav-text">总结</span></a></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/07/25/appmodule/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          组件化设计方案
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2020-07-25 10:27:37 / Modified: 10:52:36" itemprop="dateCreated datePublished" datetime="2020-07-25T10:27:37+08:00">2020-07-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BB%84%E4%BB%B6%E5%8C%96/" itemprop="url" rel="index"><span itemprop="name">组件化</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2020/07/25/appmodule/" class="post-meta-item leancloud_visitors" data-flag-title="组件化设计方案" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>随着多个功能需要在多个业务线短时间内实现功能同步，我们需要将新增功能模块和已有的功能模块逐步组件化，以达到多个业务线间可快速同步的效果</p>
+<a id="more"></a>
+
+<h3 id="何为组件"><a href="#何为组件" class="headerlink" title="何为组件"></a>何为组件</h3><p>既然要实现组件化 那么什么样的叫做组件呢?<br>组件我们可以根据功能性和颗粒度的不同分为</p>
+<ul>
+<li>基础组件</li>
+<li>独立功能组件</li>
+<li>独立业务组件</li>
+</ul>
+<p>我们先看下对于整个APP架构，我们的层次划分</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggo04wwswaj30lf0dc3zp.jpg"></p>
+<p>对于不同的业务组件我们的拆分方法和颗粒度是不同的下面我们来分别介绍一下这三种组件的设计方案</p>
+<h2 id="基础组件"><a href="#基础组件" class="headerlink" title="基础组件"></a>基础组件</h2><p>基础组件是我们实现上层业务的基础，因此我们需要颗粒度较细的去拆分，根据上面的架构图我们可以看到这里所说基础组件就是APP架构中的最底层。</p>
+<p>对于放到基础组件中的代码，我们务必需要遵守下面几个条件:</p>
+<ul>
+<li>基础组件中的代码必须无任何依赖(可依赖三方)</li>
+<li>基础组件中的代码不涉及任何业务</li>
+<li>基础组件中的代码为上层组件服务，尽可能精简，功能也尽可能通用</li>
+<li>基础组件中不应包含任何资源文件</li>
+</ul>
+<h2 id="独立功能组件"><a href="#独立功能组件" class="headerlink" title="独立功能组件"></a>独立功能组件</h2><p>独立功能组件，实际上是对上层常用功能的封装，比如基类、数据库、网络、图片下载和展示等。拆分的颗粒度同样要求较细，相似的功能应尽可能的拆分。</p>
+<p>独立功能组件在层次结构上位于基础组件的上层，可依赖基础组件的代码。</p>
+<p>对于放到独立功能组件中的代码，我们务必遵守下面几个条件:</p>
+<ul>
+<li>功能独立，每个组件代码要求遵守单一功能原则，不可合并类似功能的组件为一个大组件</li>
+<li>明确每个组件所属类别，例如：UI控件、网络模块</li>
+<li>每个功能模块如果依赖上层的配置 需要提供明确的接口供上层设置</li>
+<li>功能设计不涉及业务开关，如果需要那么提供配置来进行功能区分</li>
+<li>如果独立的功能有资源文件，那么资源文件考虑由外部配置，或者提供支持多条业务线的资源文件包</li>
+<li>多个独立功能组件间尽量减少依赖关系，尤其不可互相依赖</li>
+<li>独立功能组件必须是多个模块共用的，不可将只有某个模块使用的组件放入</li>
+<li>独立功能组件不可依赖上层组件</li>
+</ul>
+<h2 id="独立业务组件"><a href="#独立业务组件" class="headerlink" title="独立业务组件"></a>独立业务组件</h2><p>独立业务组件，顾名思义一个独立的业务功能模块，是某个业务的多个功能模块的集合。往往也是我们组件化过程中最复杂和最难的部分，当然也是我们这篇文章中重点介绍的部分。</p>
+<p>下面我们来详细的介绍下，业务组件化的主要流程：</p>
+<ul>
+<li>组件代码模块化</li>
+<li>组件内引用外部解耦</li>
+<li>组件外引用组件内方法解耦</li>
+<li>组件资源整理</li>
+<li>组件间的跳转</li>
+<li>组件多业务兼容</li>
+</ul>
+<p>下面我们来详细的描述这几个流程</p>
+<h3 id="组件代码模块化"><a href="#组件代码模块化" class="headerlink" title="组件代码模块化"></a>组件代码模块化</h3><p>模块化，实际上是组件化过程中的一个中间形态，对于不是太复杂的工程中实际上做到模块化就可以了，但是对于较为复杂的工程组件化才是其终极形态。</p>
+<h4 id="组件代码归纳集中"><a href="#组件代码归纳集中" class="headerlink" title="组件代码归纳集中"></a>组件代码归纳集中</h4><p>这一步我们主要的工作是:将同属于该业务的分散在各个位置的功能页面集中到一个文件夹中。如果之前的项目就是根据业务模块按照MVC或者MVVM的实体文件夹结构来划分的，那么恭喜你，这一步的工作量可以大大减少。</p>
+<p>而对于将要移动到业务组件中的业务代码，我们需要确认该功能模块是否隶属于该业务模块。实际上这是对整个项目的业务模块划分，这样我们才能比较清楚的了解每个业务模块应该包含哪些内容。</p>
+<p><code>注意</code>:代码集中时务必要使用实体文件夹进行管理</p>
+<h4 id="按照组件结构模块化"><a href="#按照组件结构模块化" class="headerlink" title="按照组件结构模块化"></a>按照组件结构模块化</h4><p>再将业务模块代码集中到独立文件夹后，我们可以根据组件化的模块结构对业务组件代码重新进行文件结构划分。</p>
+<p>下面我们先看下组件化结构中文件夹结构划分，以及每个文件夹下代码的功能</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggo47497wdj30xb08dacc.jpg"></p>
+<p>当然在这个过程中，我们可以再次检查是否有遗漏的未移动的代码，同时要将外部涉及该业务模块的代码删除，统一移动到组件模块中进行统一的管理</p>
+<h3 id="抽取组件中的各类常量"><a href="#抽取组件中的各类常量" class="headerlink" title="抽取组件中的各类常量"></a>抽取组件中的各类常量</h3><p>在将业务组件的代码都归纳整理之后，我们需要抽取该业务模块中的一些常量。</p>
+<p>下面我们罗列了其中的集中类型的常量，如图所示：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggo51fpm4bj30jr06iaao.jpg"></p>
+<p>我们需要将之前写死在代码中的常量提取到这几个文件中，实现统一管理。</p>
+<h3 id="组件内引用外部解耦"><a href="#组件内引用外部解耦" class="headerlink" title="组件内引用外部解耦"></a>组件内引用外部解耦</h3><p>组件化过程中，其实最复杂的就是解耦。首先我们需要知道组件内引用了多少外部业务组件的类，然后分别进行解耦。</p>
+<p>这一步的操作流程：</p>
+<ul>
+<li><p>通过查看组件中的每一个类，确认头文件和实现文件中对外部类的引用，然后通过文档进行记录。</p>
+</li>
+<li><p>将项目中的其他业务删除只保留当前组件化的业务模块，保证可以编译通过，进而找到之前隐藏未发现的依赖并记录。</p>
+</li>
+<li><p>确认记录的每一个类该如何解决，解决方法大抵分为下面几种方法</p>
+<p>  1、将依赖外部的类复制一份放到组件中<br>  2、将依赖的方法抽取放到组件中<br>  3、将依赖的类解耦后放到独立功能组件中<br>  4、如果只是跳转依赖，那么记录后 在后续考虑如何解耦</p>
+</li>
+</ul>
+<p>这一步操作完成后，我们实现了组件对外部依赖的耦合，且当前项目在只保留基础组件、独立项目组件和该业务组件时可以编译通过。</p>
+<h3 id="组件外引用组件内方法解耦"><a href="#组件外引用组件内方法解耦" class="headerlink" title="组件外引用组件内方法解耦"></a>组件外引用组件内方法解耦</h3><p>完成组件内对外部的引用解耦之后，我们下一步要做的就是组件外部内内部的引用。</p>
+<p>这一步的操作流程:</p>
+<ul>
+<li><p>将该模块从项目中移除通过编译报错的方式确认外部对改模块的依赖并记录成wiki</p>
+</li>
+<li><p>对于这部分发现的依赖主要有下面几种解决方法</p>
+<p>  1、如果是外部跳转到该组件，那么需要改为调用该组件提供的跳转方法，进行跳转同时进行解耦</p>
+<p>  2、如果外部依赖了组件内的某些类或者方法那么可以采取类似解决内因外耦合的方式通过复制类，复制方法或者通过非显示调用的方式进行解耦。</p>
+</li>
+</ul>
+<p>这一步操作完成后，我们基本上已经实现了代码层面的解耦！</p>
+<h3 id="组件资源整理"><a href="#组件资源整理" class="headerlink" title="组件资源整理"></a>组件资源整理</h3><p>组件的资源包括下面几个：</p>
+<ul>
+<li>国际化资源(不同语言文字转换)</li>
+<li>图片资源(尤其是图片上有中文，或者图片与APP的icon有关)</li>
+<li>文件资源(lottie资源、plist配置文件)</li>
+</ul>
+<p>我们首先需要将该组件用到的说有图片资源，放到一起，然后根据上面这三种类型对资源进行分类。其次我们需要将差异化的资源(例如图片上有中文的图片),根据不同业务线(业务线A、业务线B、业务线C)分别建立一个资源文件夹。</p>
+<p>经过上述的整理最终的资源文件夹结构应该是</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggo9p64slcj30hn03kglt.jpg"></p>
+<p>在不同的业务线即不同的APP中，我们使用图中的Public Resource和对应业务线的Resource。</p>
+<p>在这一步操作完成后，我们基本上实现了不同业务线在该组件的资源整理和使用。</p>
+<h2 id="组件间的跳转"><a href="#组件间的跳转" class="headerlink" title="组件间的跳转"></a>组件间的跳转</h2><p>组件间的跳转，实际上是组件化中最重要的一部，因为经过上面的这些操作，我们将组件的代码从主工程中剥离，且可以独立编译通过。但是这个模块目前并没有与主工程链接起来。</p>
+<p>所以组件间跳转实际上就是在主工程中将所有的组件链接起来。</p>
+<p>组件化时，组件间的跳转大体有两种思路：</p>
+<ul>
+<li>1、基于 URL Router、ModuleManager的跳转(目前博客已删除活设置为私有)</li>
+<li>2、基于Target-Action的组件间跳转</li>
+<li>3、iOS 组件化方案探索</li>
+</ul>
+<p>第三篇博客(Bang神)实际上比较了方案1和方案2两种做法，下面是从文章中摘抄出的总结：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">上面论述下方案1(Target-Action)确实比方案2+方案3(Router)简单明了，没有 注册表常驻内存&#x2F;参数传</span><br><span class="line">递限制&#x2F;调用分散 这些缺点，方案1多做的一步是需要对所有组件方法进行一层 wrapper，但若想要明确提供</span><br><span class="line">组件的方法和参数类型，解耦统一处理，方案2和方案3同样需要多加这层。</span><br></pre></td></tr></table></figure>
+<p>但是，对于目前项目来说，盲目的迁移到Router或者Mediator实现组件间的跳转显然不太实际，而且维护的成本较高。</p>
+<p>因此，我们采取的方法是在之前跳转的基础上稍加改动，并结合使用ProtocolKit进行解耦。</p>
+<p>项目中之前就存在一个JumpUtil类这个类管理了项目中页面间的跳转，不过仍然可能会存在某些直接创建对应目标控制器并通过PUSH或Present方式跳转到对应页面。</p>
+<p>因此 我们要做的第一件事为：将所有跳转到当前组件内页面的跳转方法统一改到JumpUtil中实现。每个模块我们通过创建JumpUtil对应分类的方式进行跳转的管理。通过这种方式，外部类在往组件中页面跳转时只需要引用JumpUtil对应的分类即可，不需要引用对应的控制器。</p>
+<p>对于组件内部需要跳转到组件外的场景，我们使用ProtocolKit的方式进行解耦。</p>
+<p><code>ProtocolKit 实际上是为对应的某个协议写一个默认实现。即我们声明了某个协议之后，不需要设置代理，直接调用协议中的方法。即可调用到我们写的默认实现中。</code></p>
+<p>下面我们贴出ProtoclKit的核心源码:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// For a magic reserved keyword color, use @defs(your_protocol_name)</span></span><br><span class="line"><span class="comment">//defs 只是 _pk_extension 的别名，为了提供一个更加合适的名字作为接口 使用的时候用@defs()</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> defs _pk_extension</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 我们使用的时候用@defs(Protocol)实际上是调用_pk_extension_imp方法</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _pk_extension($protocol) _pk_extension_imp($protocol, _pk_get_container_class($protocol))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 这个宏实际上是创建了一个隐藏类(container_class) 这个类遵守protocol这个协议</span></span><br><span class="line"><span class="comment">// 然后在load方法中调用内部实现的load(load方法也是在main函数执行之前执行的)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _pk_extension_imp($protocol, $container_class) \</span></span><br><span class="line">    protocol $protocol; \</span><br><span class="line">    <span class="class"><span class="keyword">@interface</span> $<span class="title">container_class</span> : <span class="title">NSObject</span> &lt;$<span class="title">protocol</span>&gt; @<span class="title">end</span> \</span></span><br><span class="line">    <span class="class"><span class="keyword">@implementation</span> $<span class="title">container_class</span> \</span></span><br><span class="line">    + (<span class="keyword">void</span>)load &#123; \</span><br><span class="line">        _pk_extension_load(<span class="class"><span class="keyword">@protocol</span>($<span class="title">protocol</span>), $<span class="title">container_class</span>.<span class="title">class</span>); \</span></span><br><span class="line">    &#125; \</span><br><span class="line"></span><br><span class="line"><span class="comment">// _pk_get_container_class 实际上就是生成一个类名</span></span><br><span class="line"><span class="comment">// 可以看到这个类名实际上是由类名+协议名+count(一个计数器每次调用会自动加一)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _pk_get_container_class($protocol) _pk_get_container_class_imp($protocol, __COUNTER__)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _pk_get_container_class_imp($protocol, $counter) _pk_get_container_class_imp_concat(__PKContainer_, $protocol, $counter)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _pk_get_container_class_imp_concat($a, $b, $c) $a ## $b ## _ ## $c</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> _pk_extension_load(Protocol *protocol, Class containerClass);</span><br></pre></td></tr></table></figure>
+
+<p>因此当A组件中的某个事件响应要跳转到B组件中的某个页面时</p>
+<p>之前的写法：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">&quot;BViewController.h&quot;</span></span></span><br><span class="line">- (<span class="keyword">void</span>)moduleAJumpToModuleB &#123;</span><br><span class="line">    BViewController *bVc = [[BViewController alloc] init];</span><br><span class="line">    [<span class="keyword">self</span>.navigationController pushViewController:bVc animated:<span class="literal">YES</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>修改之后的写法：</p>
+<p>新建protocol</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@protocol</span> <span class="title">ULModuleBJumpDelegate</span> &lt;<span class="title">NSObject</span>&gt;</span></span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)moduleAJumpToModuleB;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+
+<p>首先当前类应遵守这个协议 <code>ULModuleBJumpDelegate</code></p>
+<p>跳转方法改为直接调用协议中的方法</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)moduleAJumpToModuleBMediator &#123;</span><br><span class="line">    [<span class="keyword">self</span> ul_moduleAJumpToModuleB];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后，在组件外新建一个解耦类ULModuleBMediator并实现对应方法</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">&quot;BViewController.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@defs</span>(ULModuleBJumpDelegate)</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)ul_moduleAJumpToModuleB &#123;</span><br><span class="line">    BViewController *bVc = [[BViewController alloc] init];</span><br><span class="line">    [<span class="keyword">self</span>.navigationController pushViewController:bVc animated:<span class="literal">YES</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样我们就解除了，在A模块要跳转到B模块时必须导入B模块的相关类的问题，上面声明的协议放在A组件内，组件的实现放到外部主工程中。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于一个成熟的项目，尤其是创建时间比较久的项目，组件化是一个任重而道远的过程，组件化过程中，我们要本着小步快走的方式，逐步进行组件化。同时也避免因为组件化而影响业务需求的进度。但组件化后，对于各个业务模块的维护有比较明显的提升同时组件在不同业务线之间进行复用也能更加的方便和快速。所以，组件化是项目的终极目标。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BB%84%E4%BB%B6%E5%8C%96/" rel="tag"># 组件化</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/07/02/responsechainevent/" rel="prev" title="基于响应者链条的事件传递方式">
+                  <i class="fa fa-chevron-left"></i> 基于响应者链条的事件传递方式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/07/25/howtousexcodebreakpoint/" rel="next" title="Xcode之断点调试">
+                  Xcode之断点调试 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : '9fe3290933bf6afa8f85bdd6784e203f',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

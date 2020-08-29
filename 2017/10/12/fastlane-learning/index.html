@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="因为公司目前的项目需要一个项目打多个包,打包实际上是一个纯体力活,所以为了提升效率,之前同事写了一个利用Fastlane自动打包的脚本,最近项目不忙,所以看看文档总结一下！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fastlane iOS">
+<meta property="og:url" content="https://www.leewong.cn/2017/10/12/fastlane-learning/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="因为公司目前的项目需要一个项目打多个包,打包实际上是一个纯体力活,所以为了提升效率,之前同事写了一个利用Fastlane自动打包的脚本,最近项目不忙,所以看看文档总结一下！">
+<meta property="og:locale">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/17-10-12/29284112.jpg">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/17-10-12/59536373.jpg">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/17-10-12/67960903.jpg">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/17-10-12/73492697.jpg">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/17-10-12/31492902.jpg">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/17-10-12/84919492.jpg">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/594219-109d427d7a9e4cb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/17-10-12/54904384.jpg">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/17-10-12/90575579.jpg">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/17-10-12/99858121.jpg">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/17-10-12/85295801.jpg">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/17-10-13/46969300.jpg">
+<meta property="article:published_time" content="2017-10-12T03:23:22.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:06:50.396Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="Fastlane,截图,签名,自动打包">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://og0h689k8.bkt.clouddn.com/17-10-12/29284112.jpg">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2017/10/12/fastlane-learning/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Fastlane iOS | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">1.</span> <span class="nav-text">安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AE%E4%BF%9D%E5%AE%89%E8%A3%85%E4%BA%86%E6%9C%80%E6%96%B0%E7%9A%84-Xcode-command-line-tools"><span class="nav-number">1.1.</span> <span class="nav-text">确保安装了最新的 Xcode command line tools</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85Fastlane"><span class="nav-number">1.2.</span> <span class="nav-text">安装Fastlane</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96Fastlane"><span class="nav-number">2.</span> <span class="nav-text">初始化Fastlane</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%AA%E5%9B%BE"><span class="nav-number">3.</span> <span class="nav-text">截图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%BC%E5%85%A5%E6%96%87%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">导入文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%BC%E5%85%A5%E5%A4%B4%E6%96%87%E4%BB%B6"><span class="nav-number">3.3.</span> <span class="nav-text">导入头文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BD%95%E5%88%B6"><span class="nav-number">3.4.</span> <span class="nav-text">录制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E6%88%AA%E5%9B%BE%E4%BB%A3%E7%A0%81"><span class="nav-number">3.5.</span> <span class="nav-text">添加截图代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9Snapfile%E6%96%87%E4%BB%B6"><span class="nav-number">3.6.</span> <span class="nav-text">修改Snapfile文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E6%88%AA%E5%9B%BE"><span class="nav-number">3.7.</span> <span class="nav-text">生成截图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E8%BE%B9%E6%A1%86"><span class="nav-number">4.</span> <span class="nav-text">添加边框</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85ImageMagick"><span class="nav-number">4.1.</span> <span class="nav-text">安装ImageMagick</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E5%B8%A6%E8%BE%B9%E6%A1%86%E7%9A%84%E6%88%AA%E5%9B%BE"><span class="nav-number">4.2.</span> <span class="nav-text">生成带边框的截图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pem-%E7%94%9F%E6%88%90%E6%8E%A8%E9%80%81%E8%AF%81%E4%B9%A6"><span class="nav-number">5.</span> <span class="nav-text">pem 生成推送证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AD%BE%E5%90%8D"><span class="nav-number">6.</span> <span class="nav-text">签名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E6%89%93%E5%8C%85"><span class="nav-number">7.</span> <span class="nav-text">自动打包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-number">8.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2017/10/12/fastlane-learning/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Fastlane iOS
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2017-10-12 11:23:22" itemprop="dateCreated datePublished" datetime="2017-10-12T11:23:22+08:00">2017-10-12</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:06:50" itemprop="dateModified" datetime="2020-07-19T22:06:50+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%87%AA%E5%8A%A8%E6%89%93%E5%8C%85/" itemprop="url" rel="index"><span itemprop="name">自动打包</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2017/10/12/fastlane-learning/" class="post-meta-item leancloud_visitors" data-flag-title="Fastlane iOS" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>因为公司目前的项目需要一个项目打多个包,打包实际上是一个纯体力活,所以为了提升效率,之前同事写了一个利用Fastlane自动打包的脚本,最近项目不忙,所以看看文档总结一下！</p>
+<a id="more"></a>
+
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><h3 id="确保安装了最新的-Xcode-command-line-tools"><a href="#确保安装了最新的-Xcode-command-line-tools" class="headerlink" title="确保安装了最新的 Xcode command line tools"></a>确保安装了最新的 Xcode command line tools</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">xcode-select --install</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="安装Fastlane"><a href="#安装Fastlane" class="headerlink" title="安装Fastlane"></a>安装Fastlane</h3><p><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/29284112.jpg" alt="安装Fastlane"></p>
+<p>只需要这两步,安装过程就大功告成,下面开始把玩fastlane</p>
+<h2 id="初始化Fastlane"><a href="#初始化Fastlane" class="headerlink" title="初始化Fastlane"></a>初始化Fastlane</h2><p>进入到你的项目的根目录(与xcodeproj文件同级目录下)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane init</span><br></pre></td></tr></table></figure>
+
+<p>期间会让你输入 Apple ID 和密码<br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/59536373.jpg" alt="输入密码"></p>
+<p>确认信息<br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/67960903.jpg" alt="确认信息"></p>
+<p>会自动下载现存的截图<br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/73492697.jpg" alt="下载现存的截图"></p>
+<p>初始化完成后的目录结构<br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/31492902.jpg" alt="目录结构"></p>
+<p>至此 fastlane就初始化完成了,再接再厉！！！</p>
+<h2 id="截图"><a href="#截图" class="headerlink" title="截图"></a>截图</h2><p>每次发布新版本的时候截图是一件比较恶心的事情(虽然16年更新之后我们只需要上传最大尺寸的机型就可以适配),fastlane也可以为我们解决这件事！</p>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane snapshot init</span><br></pre></td></tr></table></figure>
+<p>初始化成功之后 我们可以得到<br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/84919492.jpg"></p>
+<h3 id="导入文件"><a href="#导入文件" class="headerlink" title="导入文件"></a>导入文件</h3><p>导入上一步生成的SnapshotHelper.swift文件到你的UITest目录下<br><code>注意:</code>如果你是OC的项目这里要设置一下桥接</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/594219-109d427d7a9e4cb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="桥接"></p>
+<p>注意 对于 SnapshotHelper.swift<br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/54904384.jpg"></p>
+<h3 id="导入头文件"><a href="#导入头文件" class="headerlink" title="导入头文件"></a>导入头文件</h3><p>这个头文件是系统默认生成的，不用我们手动创建，我们在拖入Siwft文件之后，直接引用就可以。 没有智能提示，所以不必惊慌，保证#import’target名称-Swift.h’正确就可以了。</p>
+<h3 id="录制"><a href="#录制" class="headerlink" title="录制"></a>录制</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(void)setUp: 方法在XCTestCase的测试方法调用之前调用，可以在测试之前创建在test case方法中需要用到的一些对象等</span><br><span class="line">(void)tearDown: 当测试全部结束之后调用tearDown方法，法则在全部的test case执行结束之后清理测试现场，释放资源删除不用的对象等</span><br><span class="line">(void)testExample: 测试代码执行性能</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="添加截图代码"><a href="#添加截图代码" class="headerlink" title="添加截图代码"></a>添加截图代码</h3><p>在setUp方法中添加</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">XCUIApplication *app &#x3D; [[XCUIApplication alloc] init];</span><br><span class="line">[Snapshot setupSnapshot:app];</span><br><span class="line">[app launch];</span><br></pre></td></tr></table></figure>
+
+<p>在在录制步骤产生的步骤代码中加入（testExample中）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Snapshot snapshot:@&quot;01LoginScreen&quot; waitForLoadingIndicator:YES];</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/90575579.jpg"></p>
+<h3 id="修改Snapfile文件"><a href="#修改Snapfile文件" class="headerlink" title="修改Snapfile文件"></a>修改Snapfile文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">要截图的设备 默认所有的设备</span><br><span class="line"># A list of devices you want to take the screenshots from</span><br><span class="line"> devices([</span><br><span class="line">   &quot;iPhone 7&quot;,</span><br><span class="line">   &quot;iPhone 7 Plus&quot;,</span><br><span class="line">   &quot;iPhone 6&quot;</span><br><span class="line"> ])</span><br><span class="line"></span><br><span class="line">支持的语言,对于支持多语言的应用比较有利</span><br><span class="line">languages([</span><br><span class="line">  &quot;en-US&quot;,</span><br><span class="line">  #&quot;de-DE&quot;,</span><br><span class="line">  #&quot;it-IT&quot;,</span><br><span class="line">  #[&quot;pt&quot;, &quot;pt_BR&quot;] # Portuguese with Brazilian locale</span><br><span class="line">])</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="生成截图"><a href="#生成截图" class="headerlink" title="生成截图"></a>生成截图</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane snapshot</span><br></pre></td></tr></table></figure>
+<p><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/99858121.jpg"><br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/85295801.jpg"></p>
+<h2 id="添加边框"><a href="#添加边框" class="headerlink" title="添加边框"></a>添加边框</h2><h3 id="安装ImageMagick"><a href="#安装ImageMagick" class="headerlink" title="安装ImageMagick"></a>安装ImageMagick</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">brew install libpng jpeg imagemagick</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>下载最新的边框</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastlane frameit setup</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="生成带边框的截图"><a href="#生成带边框的截图" class="headerlink" title="生成带边框的截图"></a>生成带边框的截图</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastlane frameit</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="http://og0h689k8.bkt.clouddn.com/17-10-13/46969300.jpg" alt="结果"></p>
+<h2 id="pem-生成推送证书"><a href="#pem-生成推送证书" class="headerlink" title="pem 生成推送证书"></a>pem 生成推送证书</h2><p>命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>1、创建新的签名请求(signing request)</li>
+<li>2、创建新的推送证书( push certification)</li>
+<li>3、下载这个证书(certificate)</li>
+<li>4、在当前工作目录创建新的 .pem 文件,你可以上传到你的服务器</li>
+</ul>
+<p><code>pem不会revoke已经存在的证书,也不会下载已经存在的证书,因为私钥仅在创建的机器上可用</code></p>
+<p>实用命令</p>
+<p>如果你已经有一个可用的推送证书(certificate),而且有效期至少还有30天以上，pem就不会创建新的证书。如果你想要创建新的，使用force：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem --force</span><br></pre></td></tr></table></figure>
+
+<p>还可传参数,如:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem -a com.krausefx.app -u username</span><br></pre></td></tr></table></figure>
+
+<p>生成开发证书:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem --development</span><br></pre></td></tr></table></figure>
+
+<p>给p12文件设置密码:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem -p &quot;MyPass&quot;</span><br></pre></td></tr></table></figure>
+
+<p>可以指定输出名字:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem -o my.pem</span><br></pre></td></tr></table></figure>
+
+<p>列出可用命令选项:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem --help</span><br></pre></td></tr></table></figure>
+
+
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>–development</td>
+<td>[VALUE] Renew the development push certificate instead of the production one (PEM_DEVELOPMENT)</td>
+</tr>
+<tr>
+<td>–generate_p12</td>
+<td>[VALUE] Generate a p12 file additionally to a PEM file (PEM_GENERATE_P12_FILE)</td>
+</tr>
+<tr>
+<td>–active_days_limit</td>
+<td>STRING If the current certificate is active for less than this number of days, generate a new one. Default value is 30 days (PEM_ACTIVE_DAYS_LIMIT)</td>
+</tr>
+<tr>
+<td>–force</td>
+<td>[VALUE]      Create a new push certificate, even if the current one is active for 30 (or PEM_ACTIVE_DAYS_LIMIT) more days (PEM_FORCE)</td>
+</tr>
+<tr>
+<td>-s, –save_private_key</td>
+<td>[VALUE] Set to save the private RSA key (PEM_SAVE_PRIVATEKEY)</td>
+</tr>
+<tr>
+<td>-a, –app_identifier</td>
+<td>STRING The bundle identifier of your app (PEM_APP_IDENTIFIER)</td>
+</tr>
+<tr>
+<td>-u, –username</td>
+<td>STRING Your Apple ID Username (PEM_USERNAME)</td>
+</tr>
+<tr>
+<td>-b, –team_id</td>
+<td>STRING The ID of your Developer Portal team if you’re in multiple teams (PEM_TEAM_ID)</td>
+</tr>
+<tr>
+<td>-l, –team_name</td>
+<td>STRING The name of your Developer Portal team if you’re in multiple teams (PEM_TEAM_NAME)</td>
+</tr>
+<tr>
+<td>-p, –p12_password</td>
+<td>STRING The password that is used for your p12 file (PEM_P12_PASSWORD)</td>
+</tr>
+</tbody></table>
+<h2 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h2><p>sign可以创建，更新，下载和修复 provisioning profiles（使用一个命令）。<br>它支持App Store，Ad Hoc，开发和企业配置文件，并支持好的特性，如自动添加所有测试设备。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">下载最新的应用配置文件</span><br><span class="line">更新配置配置文件，当它已过期</span><br><span class="line">修复配置配置文件，当它坏了</span><br><span class="line">创建新的配置配置文件（如果尚不存在）</span><br><span class="line">支持App Store，Ad Hoc和Development Profile</span><br><span class="line">支持多个Apple帐户，将您的凭据安全地存储在钥匙串中</span><br><span class="line">支持多个团队(multiple Teams)</span><br><span class="line">支持企业应用配置(Enterprise Profiles)</span><br></pre></td></tr></table></figure>
+
+<p>进入工程目录后</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane sigh #默认会在当前文件夹下生成针对appstore的&#96;.mobileprovision&#96;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>fastlane sigh</td>
+<td>App Store profile 或 InHouse profile</td>
+</tr>
+<tr>
+<td>fastlane sigh -a com.krausefx.app -u username</td>
+<td>指定bundle identifier 和 username(apple id)</td>
+</tr>
+<tr>
+<td>fastlane sigh –adhoc</td>
+<td>生成Ad Hoc profile</td>
+</tr>
+<tr>
+<td>fastlane sigh –development</td>
+<td>生成 development profile</td>
+</tr>
+<tr>
+<td>fastlane sigh -o “./Certificates/“</td>
+<td>指定输出文件夹</td>
+</tr>
+<tr>
+<td>fastlane sigh download_all</td>
+<td>下载所有的 provisioning profiles</td>
+</tr>
+<tr>
+<td>fastlane sigh –help</td>
+<td>列出帮助</td>
+</tr>
+</tbody></table>
+<p>高级使用</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>fastlane sigh –skip_install</td>
+<td>默认情况下，sigh将下载的配置文件安装在您的机器上。 如果只想生成配置文件并跳过安装,使用该命令</td>
+</tr>
+<tr>
+<td>fastlane sigh -a com.krausefx.app -u username -q “myProfile.mobileprovision”</td>
+<td>用特定的名字保存,使用 -q</td>
+</tr>
+<tr>
+<td>fastlane sigh –skip_certificate_verification</td>
+<td>跳过验证安装在本机上的 code signing identity</td>
+</tr>
+<tr>
+<td>fastlane sigh –force</td>
+<td>如果您需要更新配置配置文件，而不管其状态如何，请使用–force选项。这给您一个具有最大生命周期的配置文件。 –force还会将所有可用的设备添加到此配置文件中。</td>
+</tr>
+<tr>
+<td>fastlane sigh –help</td>
+<td>查看帮助:列出可用参数和命令</td>
+</tr>
+</tbody></table>
+<p>结合fastlane 使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">lane :beta do</span><br><span class="line">  cert</span><br><span class="line">  sigh(force: true)</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+
+<p><code>force：true将确保在每次运行时重新生成配置配置文件。 这将使得sign总是使用正确的签名证书(signing certificate),证书将会被安装到本机上。</code></p>
+<p>所有参数</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>–adhoc</td>
+<td>[VALUE]      Setting this flag will generate AdHoc profiles instead of App Store Profiles (SIGH_AD_HOC)</td>
+</tr>
+<tr>
+<td>–development</td>
+<td>[VALUE] Renew the development certificate instead of the production one (SIGH_DEVELOPMENT)</td>
+</tr>
+<tr>
+<td>–skip_install</td>
+<td>[VALUE] By default, the certificate will be added to your local machine. Setting this flag will skip this action (SIGH_SKIP_INSTALL)</td>
+</tr>
+<tr>
+<td>-f, –force</td>
+<td>[VALUE]  Renew provisioning profiles regardless of its state - to automatically add all devices for ad hoc profiles (SIGH_FORCE)</td>
+</tr>
+<tr>
+<td>-a, –app_identifier</td>
+<td>STRING The bundle identifier of your app (SIGH_APP_IDENTIFIER)</td>
+</tr>
+<tr>
+<td>-u, –username</td>
+<td>STRING Your Apple ID Username (SIGH_USERNAME)</td>
+</tr>
+<tr>
+<td>-b, –team_id</td>
+<td>STRING The ID of your Developer Portal team if you’re in multiple teams (SIGH_TEAM_ID)</td>
+</tr>
+<tr>
+<td>-l, –team_name</td>
+<td>STRING The name of your Developer Portal team if you’re in multiple teams (SIGH_TEAM_NAME)</td>
+</tr>
+<tr>
+<td>-n, –provisioning_name</td>
+<td>STRING The name of the profile that is used on the Apple Developer Portal (SIGH_PROVISIONING_PROFILE_NAME)</td>
+</tr>
+<tr>
+<td>–ignore_profiles_with_different_name</td>
+<td>[VALUE] Use in combination with :provisioning_name - when true only profiles matching this exact name will be downloaded(SIGH_IGNORE_PROFILES_WITH_DIFFERENT_NAME)</td>
+</tr>
+<tr>
+<td>-o, –output_path</td>
+<td>STRING Directory in which the profile should be stored(SIGH_OUTPUT_PATH)</td>
+</tr>
+<tr>
+<td>-i, –cert_id</td>
+<td>STRING The ID of the code signing certificate to use (e.g. 78ADL6LVAA)  (SIGH_CERTIFICATE_ID)</td>
+</tr>
+<tr>
+<td>-c, –cert_owner_name</td>
+<td>STRING The certificate name to use for new profiles, or to renew with. (e.g. “Felix Krause”) (SIGH_CERTIFICATE)</td>
+</tr>
+<tr>
+<td>-q, –filename</td>
+<td>STRING Filename to use for the generated provisioning profile (must include .mobileprovision) (SIGH_PROFILE_FILE_NAME)</td>
+</tr>
+<tr>
+<td>-w, –skip_fetch_profiles</td>
+<td>[VALUE] Skips the verification of existing profiles which is useful if you have thousands of profiles (SIGH_SKIP_FETCH_PROFILES)</td>
+</tr>
+<tr>
+<td>-z, –skip_certificate_verification</td>
+<td>[VALUE] Skips the verification of the certificates for every existing profiles. This will make sure the provisioning profile can be used on the local machine(SIGH_SKIP_CERTIFICATE_VERIFICATION)</td>
+</tr>
+<tr>
+<td>-p, –platform</td>
+<td>[VALUE] Set the provisioning profile’s platform (i.e. ios, tvos) (SIGH_PLATFORM)</td>
+</tr>
+<tr>
+<td>–template_name</td>
+<td>STRING The name of provisioning profile template. If the developer account has provisioning profile templates, template name can be found by inspecting the Entitlements drop-down while creating/editing a provisioning profile(SIGH_PROVISIONING_PROFILE_TEMPLATE_NAME)</td>
+</tr>
+</tbody></table>
+<h2 id="自动打包"><a href="#自动打包" class="headerlink" title="自动打包"></a>自动打包</h2><p>用法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fastlane gym</span><br><span class="line">#fastlane gym --export_method ad-hoc</span><br><span class="line">#fastlane gym --export_method enterprise</span><br><span class="line">#fastlane gym --export_method app-store</span><br></pre></td></tr></table></figure>
+
+<p>当然可以增加一些配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastlane gym --workspace &quot;Example.xcworkspace&quot; --scheme &quot;AppName&quot; --clean</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>选择Xcode:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DEVELOPER_DIR&#x3D;&quot;&#x2F;Applications&#x2F;Xcode6.2.app&quot; gym</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>列出可用参数列表:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane gym --help</span><br></pre></td></tr></table></figure>
+
+<p>运行遇到错误,使用verbose模式获取更多信息:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastlane gym --verbose</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如果您没有上传到App Store或TestFlight，请设置正确的导出方法:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastlane gym --export_method ad-hoc</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>要使用bool参数,确保这么使用gym:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastlane gym --include_bitcode true --include_symbols false</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>获取xcodebuild输出,请到~/Library/Logs/gym查看。</p>
+<p>gym 的常用参数</p>
+<p> Options for build:</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-w, –workspace</td>
+<td>STRING Path to the workspace file (GYM_WORKSPACE)</td>
+</tr>
+<tr>
+<td>-p, –project</td>
+<td>STRING Path to the project file (GYM_PROJECT)</td>
+</tr>
+<tr>
+<td>-s, –scheme</td>
+<td>STRING  The project’s scheme. Make sure it’s marked as <code>Shared</code> (GYM_SCHEME)</td>
+</tr>
+<tr>
+<td>-c, –clean</td>
+<td>[VALUE]  Should the project be cleaned before building it? (GYM_CLEAN)</td>
+</tr>
+<tr>
+<td>-o, –output_directory</td>
+<td>STRING The directory in which the ipa file should be stored in (GYM_OUTPUT_DIRECTORY)</td>
+</tr>
+<tr>
+<td>-n, –output_name</td>
+<td>STRING The name of the resulting ipa file (GYM_OUTPUT_NAME)</td>
+</tr>
+<tr>
+<td>-q, –configuration</td>
+<td>STRING The configuration to use when building the app. Defaults to ‘Release’ (GYM_CONFIGURATION)</td>
+</tr>
+<tr>
+<td>-a, –silent</td>
+<td>[VALUE] Hide all information that’s not necessary while building (GYM_SILENT)</td>
+</tr>
+<tr>
+<td>-i, –codesigning_identity</td>
+<td>STRING The name of the code signing identity to use. It has to match the name exactly. e.g. ‘iPhone Distribution: SunApps GmbH’ (GYM_CODE_SIGNING_IDENTITY)</td>
+</tr>
+<tr>
+<td>–skip_package_ipa</td>
+<td>[VALUE] Should we skip packaging the ipa? (GYM_SKIP_PACKAGE_IPA)</td>
+</tr>
+<tr>
+<td>-m, –include_symbols</td>
+<td>[VALUE] Should the ipa file include symbols? (GYM_INCLUDE_SYMBOLS)</td>
+</tr>
+<tr>
+<td>-z, –include_bitcode</td>
+<td>[VALUE] Should the ipa file include bitcode? (GYM_INCLUDE_BITCODE)</td>
+</tr>
+<tr>
+<td>-j, –export_method</td>
+<td>STRING Method used to export the archive. Valid values are: app-store, ad-hoc, package, enterprise, development, developer-id (GYM_EXPORT_METHOD)</td>
+</tr>
+<tr>
+<td>–export_options</td>
+<td>[VALUE] Specifies path to export options plist. Use ‘xcodebuild -help’ to print the full set of available options (GYM_EXPORT_OPTIONS)</td>
+</tr>
+<tr>
+<td>–export_xcargs</td>
+<td>STRING Pass additional arguments to xcodebuild for the package phase. Be sure to quote the setting names and values e.g. OTHER_LDFLAGS=”-ObjC -lstdc++” (GYM_EXPORT_XCARGS)</td>
+</tr>
+<tr>
+<td>–skip_build_archive</td>
+<td>[VALUE] Export ipa from previously built xarchive. Uses archive_path as source (GYM_SKIP_BUILD_ARCHIVE)</td>
+</tr>
+<tr>
+<td>–build_path</td>
+<td>STRING  The directory in which the archive should be stored in (GYM_BUILD_PATH)</td>
+</tr>
+<tr>
+<td>-b, –archive_path</td>
+<td>STRING The path to the created archive (GYM_ARCHIVE_PATH)</td>
+</tr>
+<tr>
+<td>-f, –derived_data_path</td>
+<td>STRING The directory where built products and other derived data will go (GYM_DERIVED_DATA_PATH)</td>
+</tr>
+<tr>
+<td>-u, –result_bundle</td>
+<td>[VALUE] Location of the Xcode result bundle (GYM_RESULT_BUNDLE)</td>
+</tr>
+<tr>
+<td>-l, –buildlog_path</td>
+<td>STRING The directory where to store the build log (GYM_BUILDLOG_PATH)</td>
+</tr>
+<tr>
+<td>-k, –sdk STRING</td>
+<td>The SDK that should be used for building the application (GYM_SDK)</td>
+</tr>
+<tr>
+<td>–toolchain</td>
+<td>[VALUE]  The toolchain that should be used for building the application (e.g. com.apple.dt.toolchain.Swift_2_3, org.swift.30p620160816a) (GYM_TOOLCHAIN)</td>
+</tr>
+<tr>
+<td>-d, –destination</td>
+<td>STRING Use a custom destination for building the app (GYM_DESTINATION)</td>
+</tr>
+<tr>
+<td>-g, –export_team_id</td>
+<td>STRING Optional: Sometimes you need to specify a team id when exporting the ipa file (GYM_EXPORT_TEAM_ID)</td>
+</tr>
+<tr>
+<td>-x, –xcargs</td>
+<td>STRING  Pass additional arguments to xcodebuild for the build phase. Be sure to quote the setting names and values e.g. OTHER_LDFLAGS=”-ObjC -lstdc++” (GYM_XCARGS)</td>
+</tr>
+<tr>
+<td>-y, –xcconfig</td>
+<td>STRING Use an extra XCCONFIG file to build your app (GYM_XCCONFIG)</td>
+</tr>
+<tr>
+<td>-r, –suppress_xcode_output</td>
+<td>[VALUE] Suppress the output of xcodebuild to stdout. Output is still saved in buildlog_path (SUPPRESS_OUTPUT)</td>
+</tr>
+<tr>
+<td>–disable_xcpretty</td>
+<td>[VALUE] Disable xcpretty formatting of build output (DISABLE_XCPRETTY)</td>
+</tr>
+<tr>
+<td>–xcpretty_test_format</td>
+<td>[VALUE] Use the test (RSpec style) format for build output (XCPRETTY_TEST_FORMAT)</td>
+</tr>
+<tr>
+<td>–xcpretty_formatter</td>
+<td>STRING A custom xcpretty formatter to use (XCPRETTY_FORMATTER)</td>
+</tr>
+<tr>
+<td>–xcpretty_report_junit</td>
+<td>STRING Have xcpretty create a JUnit-style XML report at the provided path (XCPRETTY_REPORT_JUNIT)</td>
+</tr>
+<tr>
+<td>–xcpretty_report_html</td>
+<td>STRING Have xcpretty create a simple HTML report at the provided path (XCPRETTY_REPORT_HTML)</td>
+</tr>
+<tr>
+<td>–xcpretty_report_json</td>
+<td>STRING Have xcpretty create a JSON compilation database at the provided path (XCPRETTY_REPORT_JSON)</td>
+</tr>
+<tr>
+<td>–analyze_build_time</td>
+<td>[VALUE] Analyze the project build time and store the output in ‘culprits.txt’ file (GYM_ANALYZE_BUILD_TIME)</td>
+</tr>
+<tr>
+<td>–xcpretty_utf</td>
+<td>[VALUE] Have xcpretty us</td>
+</tr>
+</tbody></table>
+<p>至此打包基本完成！！！</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a target="_blank" rel="noopener" href="http://www.bijishequ.com/detail/434702?p=">自动化工具Fastlane笔记三: snapshot自动截图基础+示例</a><br><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/32044603/xcode-7-ui-debugging-recording-no-buildable-for-testable/33384426#33384426">无法录制</a><br><a target="_blank" rel="noopener" href="https://tyrad.cc/archives/93.html">fastlane - snapshot 自动截图</a><br><a target="_blank" rel="noopener" href="https://whlsxl.github.io/fastlane1/">小团队的自动化发布－Fastlane带来的全自动化发布</a><br><a target="_blank" rel="noopener" href="http://www.devzhang.cn/2017/07/17/fastLane%E5%85%A5%E9%97%A8%E4%B9%8Bsnapshot/">fastlane入门之snapshot</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/20739972">fastlane 之截图自动化</a><br><a target="_blank" rel="noopener" href="https://tyrad.cc/archive.html">fastlane</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Fastlane-%E6%88%AA%E5%9B%BE-%E7%AD%BE%E5%90%8D-%E8%87%AA%E5%8A%A8%E6%89%93%E5%8C%85/" rel="tag"># Fastlane,截图,签名,自动打包</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2017/10/09/iOS11-Adatper/" rel="prev" title="iOS11 Adatper">
+                  <i class="fa fa-chevron-left"></i> iOS11 Adatper
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/02/27/block-something/" rel="next" title="block的那些事">
+                  block的那些事 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : 'a0a8600aeb8cc1f7a97da1ad57481826',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

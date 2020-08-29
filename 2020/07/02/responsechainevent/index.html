@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="随着业务越来越负责，APP中的页面也变得越来越负责，层级变的越来越深，不论项目是MVC还是MVVM架构，我们都倾向于将事件的处理放到控制器中。随着层级越来越复杂，事件处理方法越来越多，为此我们的解决方案一般都是将部分处理事件放到viewmodel中或者给控制器添加分类。但这些方法都不能避免事件一层层的传递。那么有没有更好的方法呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于响应者链条的事件传递方式">
+<meta property="og:url" content="https://www.leewong.cn/2020/07/02/responsechainevent/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="随着业务越来越负责，APP中的页面也变得越来越负责，层级变的越来越深，不论项目是MVC还是MVVM架构，我们都倾向于将事件的处理放到控制器中。随着层级越来越复杂，事件处理方法越来越多，为此我们的解决方案一般都是将部分处理事件放到viewmodel中或者给控制器添加分类。但这些方法都不能避免事件一层层的传递。那么有没有更好的方法呢？">
+<meta property="og:locale">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggn0pu39ooj31080lywgd.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ggn1cvmukhj30je0km0td.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ggn1f8szz9j30v00u0jth.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ggn2npr3bpj312o0sa406.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ggn2npkq8fj315a0oojt8.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ggn2tyyrc4j310n0lhwfu.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggnacf0cmtj30jg090mxa.jpg">
+<meta property="article:published_time" content="2020-07-02T07:55:08.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:01:50.340Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="ResponseChain">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggn0pu39ooj31080lywgd.jpg">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2020/07/02/responsechainevent/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>基于响应者链条的事件传递方式 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E7%9A%84%E4%BC%A0%E9%80%92%E6%96%B9%E5%BC%8F%E5%92%8C%E5%BC%8A%E7%AB%AF"><span class="nav-number">1.</span> <span class="nav-text">现有的传递方式和弊端</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A3%B0%E6%98%8E%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.1.</span> <span class="nav-text">声明协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%90%86%E8%B0%83%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">代理调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">设置代理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8%E5%93%8D%E5%BA%94%E8%80%85%E9%93%BE%E6%9D%A1%E8%BF%9B%E8%A1%8C%E4%BA%8B%E4%BB%B6%E4%BC%A0%E9%80%92"><span class="nav-number">2.</span> <span class="nav-text">如何利用响应者链条进行事件传递</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E6%9C%80%E4%BD%B3%E5%93%8D%E5%BA%94%E8%80%85"><span class="nav-number">2.1.</span> <span class="nav-text">查找最佳响应者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86"><span class="nav-number">2.2.</span> <span class="nav-text">事件处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%88%A9%E7%94%A8%E5%93%8D%E5%BA%94%E8%80%85%E9%93%BE%E6%9D%A1%E5%AE%9E%E7%8E%B0%E4%BA%8B%E4%BB%B6%E4%BC%A0%E9%80%92"><span class="nav-number">3.</span> <span class="nav-text">如何实现利用响应者链条实现事件传递</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.1.</span> <span class="nav-text">实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98"><span class="nav-number">3.2.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#schema%E5%A4%84%E7%90%86%EF%BC%88%E4%B8%80%E5%AF%B9%E5%A4%9A%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">schema处理（一对多）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%A9%E5%B1%95"><span class="nav-number">4.</span> <span class="nav-text">扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/07/02/responsechainevent/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于响应者链条的事件传递方式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-07-02 15:55:08" itemprop="dateCreated datePublished" datetime="2020-07-02T15:55:08+08:00">2020-07-02</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:01:50" itemprop="dateModified" datetime="2020-07-19T22:01:50+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BB%84%E4%BB%B6%E5%8C%96/" itemprop="url" rel="index"><span itemprop="name">组件化</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2020/07/02/responsechainevent/" class="post-meta-item leancloud_visitors" data-flag-title="基于响应者链条的事件传递方式" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>随着业务越来越负责，APP中的页面也变得越来越负责，层级变的越来越深，不论项目是MVC还是MVVM架构，我们都倾向于将事件的处理放到控制器中。随着层级越来越复杂，事件处理方法越来越多，为此我们的解决方案一般都是将部分处理事件放到viewmodel中或者给控制器添加分类。但这些方法都不能避免事件一层层的传递。那么有没有更好的方法呢？</p>
+<a id="more"></a>
+
+<p>随着业务越来越负责，APP中的页面也变得越来越负责，层级变的越来越深，不论项目是MVC还是MVVM架构，我们都倾向于将事件的处理放到控制器中。随着层级越来越复杂，事件处理方法越来越多，为此我们的解决方案一般都是将部分处理事件放到viewmodel中或者给控制器添加分类。但这些方法都不能避免事件一层层的传递。那么有没有更好的方法呢？</p>
+<p>我们都知道屏幕上的某个按钮被点击之后，系统会先寻找最佳响应者然后在将事件交给最佳响应者去处理。这里我们可以看到其实每个事件的处理，系统也是在通过某些方法去找到一个最佳的响应者，那么我们是否可以利用这个过程呢？</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggn0pu39ooj31080lywgd.jpg" alt="响应者链条"></p>
+<p>响应者链的链路是: </p>
+<p>subview -&gt; view –&gt; (viewController) –&gt; parentView –&gt; … –&gt; UIWindow –&gt; UIApplication</p>
+<p>有没有感觉 这个其实跟我们的事件传递是一样的，我们在处理事件的时候也是想将子视图中的某些响应事件一层一层的传到控制器中，最终在控制器中处理这个事件。</p>
+<h2 id="现有的传递方式和弊端"><a href="#现有的传递方式和弊端" class="headerlink" title="现有的传递方式和弊端"></a>现有的传递方式和弊端</h2><p>目前我们事件传递的方式主要有：</p>
+<ul>
+<li>代理</li>
+<li>block</li>
+<li>通知</li>
+<li>KVO</li>
+<li>直接property传值</li>
+</ul>
+<p>很明显，除了通知其他几种一对一的传递方式，在层次比较深的场景下我们都需要做大量的事件传递，这就导致我们创建了大量的作用相似的block或者代理。</p>
+<p>那么到底有没有更好的方法呢？</p>
+<p>首先我们再次明确下，我们的目的: <code>优化复杂场景下事件传递方式，简化事件传递时的代码。</code></p>
+<p>下面 我们通过下面的例子来具体分析下：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ggn1cvmukhj30je0km0td.jpg" alt="示例"></p>
+<p>下面是上图展示视图的层级结构：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ggn1f8szz9j30v00u0jth.jpg" alt="层次结构"></p>
+<p>上面的示例中我们有两个按钮，这两个按钮的点击事件我们都需要像外部传递。</p>
+<p>下面先来看下传统的方式我们是如何向外部传递的(以delegate为例):</p>
+<h3 id="声明协议"><a href="#声明协议" class="headerlink" title="声明协议"></a>声明协议</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@protocol</span> <span class="title">LWCyanViewDelegate</span> &lt;<span class="title">NSObject</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/// 按钮的点击事件</span></span><br><span class="line"><span class="comment">/// @param cyanView cyanView description</span></span><br><span class="line">- (<span class="keyword">void</span>)cyanViewButtonDidClick:(LWCyanView *_Nullable)cyanView;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="代理调用"><a href="#代理调用" class="headerlink" title="代理调用"></a>代理调用</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)buttonDidClick &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>.delegate &amp;&amp; [<span class="keyword">self</span>.delegate respondsToSelector:<span class="keyword">@selector</span>(cyanViewButtonDidClick:)]) &#123;</span><br><span class="line">        [<span class="keyword">self</span>.delegate cyanViewButtonDidClick:<span class="keyword">self</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置代理"><a href="#设置代理" class="headerlink" title="设置代理"></a>设置代理</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">weak</span>) <span class="keyword">id</span> &lt;LWCyanViewDelegate&gt; delegate;</span><br></pre></td></tr></table></figure>
+
+<p>按照上面的步骤 我们要在示例中的<br>[purpleView] -&gt; [LWGreenView] -&gt; [LWBlueView] -&gt; [subController.view] -&gt; [ViewController.view] 中每层都要实现上面的三个步骤。</p>
+<p>这种实现过于复杂，而我们想要做的只是响应按钮的点击事件。</p>
+<p>导致的问题：</p>
+<p>由于这种方式需要层层传递，所以有些偷懒的同事就直接将事件的处理放到了view视图里，这样我们就不用传递事件了。但是这将导致更加严重的问题:视图复用。如果这个视图我们需要在其他位置复用，但是点击的响应事件我们不在是之前的那个，这样我们应该如何修改？</p>
+<p>还有些同事，不希望层层的实现和调用方法，因此选择将最外层的控制器作为代理 一层层的向内传递。但是这种做法同样存在一些问题，比如控制器遵守了某些层次较深的子视图的协议，但是这些视图实际上并不是直接加载当前控制器视图上的，而且当我们重用这个控制器的某些子视图时 我们不知道要处理那些事件，相反我们必须传递一个代理，但是起初我们是并不知道这个代理需要实现那些方法的。</p>
+<p>同时，因为代理的方法如果是<code>required</code>的方法但是未实现时，还会导致方法调用的崩溃。</p>
+<p>针对上面使用代理进行事件传递存在的问题,我们希望比较好的事件传递方式应该具备:</p>
+<ul>
+<li>省略层层的协议声明、代理方法调用、代理的设置</li>
+<li>在最外部的控制器中我们可以知道我们需要处理那些方法，以及如何处理</li>
+<li>如果外部方法不存在，内部调用时不会导致崩溃</li>
+</ul>
+<h2 id="如何利用响应者链条进行事件传递"><a href="#如何利用响应者链条进行事件传递" class="headerlink" title="如何利用响应者链条进行事件传递"></a>如何利用响应者链条进行事件传递</h2><h3 id="查找最佳响应者"><a href="#查找最佳响应者" class="headerlink" title="查找最佳响应者"></a>查找最佳响应者</h3><p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ggn2npr3bpj312o0sa406.jpg"></p>
+<p>查找最佳响应者的过程如上图，而其中最主要依赖的方法是</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>：- (<span class="keyword">nullable</span> <span class="built_in">UIView</span> *)hitTest:(<span class="built_in">CGPoint</span>)point withEvent:(<span class="keyword">nullable</span> <span class="built_in">UIEvent</span> *)event;</span><br><span class="line"></span><br><span class="line"><span class="number">2</span>: - (<span class="built_in">BOOL</span>)pointInside:(<span class="built_in">CGPoint</span>)point withEvent:(<span class="keyword">nullable</span> <span class="built_in">UIEvent</span> *)event;</span><br></pre></td></tr></table></figure>
+
+<p>通过上面方法的递归调用 我们就可以找到某个事件的最佳响应者。</p>
+<h3 id="事件处理"><a href="#事件处理" class="headerlink" title="事件处理"></a>事件处理</h3><p>Application 已经找到了第一响应者对象，接下来 UIWindow 会将封装好的 <code>UIEvent</code> 对象，直接交给第一响应者，让其处理</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ggn2npkq8fj315a0oojt8.jpg"></p>
+<p>但是 如果第一响应者选择不处理这个事件，那么这个事件会根据响应者联调一次向上寻找下一个最佳响应者。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ggn2tyyrc4j310n0lhwfu.jpg"></p>
+<p>具体过程如上图的左边部分：</p>
+<p>当第一响应者不能处理 <code>UIEvent</code> 的时候，事件会被转发给下一个响应者(next Responder)，下一个响应者不能处理，则继续传递给 next Responder ，以此类推下去，便形成了响应者链。<code>UIResponder</code> 的属性 <code>nextResponder</code> 是建立响应者链的桥梁:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>, <span class="keyword">readonly</span>, <span class="keyword">nullable</span>) <span class="built_in">UIResponder</span> *nextResponder;</span><br></pre></td></tr></table></figure>
+
+<p>既然当最佳响应者选择不处理某个事件时，系统会自动向上查找下一个最佳响应者。那么我们是否可以利用这个机制来帮我们实现自定义的方法的数据传递。</p>
+<p>当A按钮被点击时，我们调用某个方法(方法参数可以确定是A按钮被点击)，如果这个方法没有实现，我们就去调用下一个响应者的这个方法，如果仍未实现那么继续向下查找，直到找到这个方法为止，如果到了<code>UIApplication</code>仍未能处理这个方法，那么直接丢弃。</p>
+<p>但是有一个明显的问题，我们的时间传递依赖<code>UIResponder</code>，那如果某些控件不继承自<code>UIResponder</code>呢？</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Responder objects—that is, instances of </span><br><span class="line"><span class="built_in">UIResponder</span>—constitute the event-handling </span><br><span class="line">backbone of a <span class="built_in">UIKit</span> app. Many key objects are also responders, including the </span><br><span class="line"><span class="built_in">UIApplication</span> object, <span class="built_in">UIViewController</span> objects, and all <span class="built_in">UIView</span> objects (which</span><br><span class="line"> includes <span class="built_in">UIWindow</span>). As events occur, <span class="built_in">UIKit</span> dispatches them to your app<span class="string">&#x27;s </span></span><br><span class="line"><span class="string"> responder objects for handling.</span></span><br></pre></td></tr></table></figure>
+
+<p>从上面的介绍中，我们可以看出我们平时使用的类基本都是继承<code>UIResponder</code>，他是仅次于NSObject的基类存在。</p>
+<p>既然不用考虑某些控件可能不继承自UIResponder的问题，那么该如何实现呢？</p>
+<h2 id="如何实现利用响应者链条实现事件传递"><a href="#如何实现利用响应者链条实现事件传递" class="headerlink" title="如何实现利用响应者链条实现事件传递"></a>如何实现利用响应者链条实现事件传递</h2><h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p>因为上面我们说了要利用响应者链条，那么我们先给<code>UIResponder</code>做一个分类</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">UIResponder</span>+LW.h</span><br><span class="line">- (<span class="keyword">void</span>)routerEventWithName:(<span class="built_in">NSString</span> *)eventName userInfo:(<span class="built_in">NSDictionary</span> *)userInfo;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">UIResponder</span>+LW..m</span><br><span class="line">- (<span class="keyword">void</span>)routerEventWithName:(<span class="built_in">NSString</span> *)eventName userInfo:(<span class="built_in">NSDictionary</span> *)userInfo</span><br><span class="line">&#123;</span><br><span class="line">    [[<span class="keyword">self</span> nextResponder] routerEventWithName:eventName userInfo:userInfo];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样我们在按钮响应事件时调用分类中的方法</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)buttonDidClick &#123;</span><br><span class="line">    [<span class="keyword">self</span> routerEventWithName:<span class="string">@&quot;:LWButton DidClick&quot;</span> userInfo:@&#123;<span class="string">@&quot;test&quot;</span>:<span class="string">@&quot;test&quot;</span>&#125;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么这个方法就会顺着相应者链条依次调用，那么到了控制器中我们该如何处理呢？</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)routerEventWithName:(<span class="built_in">NSString</span> *)eventName userInfo:(<span class="built_in">NSDictionary</span> *)userInfo &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;event name %@  info%@&quot;</span>,eventName,userInfo);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们只需要实现这个方法，同时保证不再继续调用下一个响应者的这个方法。就表示这里已经将对应事件处理完成。不需要外部的响应者继续处理。</p>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>对于复杂的页面来说，我们要处理的事件肯定会非常多，不同的事件需要处理的方式也不同。那么在最终控制器里的<code>routerEventWithName</code>方法中 我们可能会写大量的<code>if/else</code>。</p>
+<p>大量的<code>if/else</code>虽然逻辑比较清晰，但是维护起来非常复杂，那么该如何解决这个问题呢？</p>
+<p>其实对于了解设计模式的人来说，有一种设计模式叫做策略模式，这种模式是专门用来解决类似问题的。下面我们来具体看下改怎么实现。</p>
+<p>首先，对于策略模式我们要确定的是策略。我们可以根据类型进行区分，这个类型最好可以一对多，这样策略模式作用才能最大的提现。</p>
+<p>例如我们可以根据视图作为策略进行区分。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggnacf0cmtj30jg090mxa.jpg"></p>
+<p>上图父视图中有两个子视图，每个子视图都有4个事件需要处理。<br>这里我们有两种方式指定策略</p>
+<p>1、以视图作为区分策略</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (A || B || C || D)</span><br><span class="line">    <span class="keyword">return</span> Strategy1</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (F || G || H || I ) </span><br><span class="line">    <span class="keyword">return</span> Strategy2</span><br></pre></td></tr></table></figure>
+
+<p>2、根据预定规范的方法名</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ([eventName hasPrefix:A])</span><br><span class="line">    <span class="keyword">return</span> Strategy1</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> ([eventName hasPrefix:B]) </span><br><span class="line">    <span class="keyword">return</span> Strategy2</span><br></pre></td></tr></table></figure>
+
+<p>实际应用<br>普通视图方法解耦 （一对一）<br>假设我们有6个事件需要处理，那么我们首先需要维护6个事件名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kULAViewEventA,kULAViewEventB,kULAViewEventC,kULAViewEventD</span><br><span class="line">kULBViewEventF,kULBViewEventG,kULBViewEventH,kULBViewEventI</span><br></pre></td></tr></table></figure>
+
+<p>其次我们需要维护一个映射表或者条件转换方法</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">NSDictionary</span> &lt;<span class="built_in">NSString</span> *, <span class="built_in">NSInvocation</span> *&gt; *)eventStrategy</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (_eventStrategy == <span class="literal">nil</span>) &#123;</span><br><span class="line">        _eventStrategy = @&#123;</span><br><span class="line">                               kULAViewEventA:[<span class="keyword">self</span> createInvocationWithSelector:<span class="keyword">@selector</span>(aViewEventA:)],</span><br><span class="line">                               kULAViewEventB:[<span class="keyword">self</span> createInvocationWithSelector:<span class="keyword">@selector</span>(aViewEventB:)],</span><br><span class="line">                               kULAViewEventC:[<span class="keyword">self</span> createInvocationWithSelector:<span class="keyword">@selector</span>(aViewEventC:)],</span><br><span class="line">                               kULAViewEventD:[<span class="keyword">self</span> createInvocationWithSelector:<span class="keyword">@selector</span>(aViewEventD:)],</span><br><span class="line">                               kULBViewEventF:[<span class="keyword">self</span> createInvocationWithSelector:<span class="keyword">@selector</span>(bViewEventA:)],</span><br><span class="line">                               kULBViewEventG:[<span class="keyword">self</span> createInvocationWithSelector:<span class="keyword">@selector</span>(bViewEventB:)],</span><br><span class="line">                               kULBViewEventH:[<span class="keyword">self</span> createInvocationWithSelector:<span class="keyword">@selector</span>(bViewEventC:)],</span><br><span class="line">                               kULBViewEventI:[<span class="keyword">self</span> createInvocationWithSelector:<span class="keyword">@selector</span>(bViewEventD:)]</span><br><span class="line">                               &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> _eventStrategy;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面这个方法，我们可以在调用的时候通过下面的方法完成转换 然后进行方法的执行</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)routerEventWithName:(<span class="built_in">NSString</span> *)eventName userInfo:(<span class="built_in">NSDictionary</span> *)userInfo</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">NSInvocation</span> *invocation = <span class="keyword">self</span>.eventStrategy[eventName];</span><br><span class="line">    [invocation setArgument:&amp;userInfo atIndex:<span class="number">2</span>];</span><br><span class="line">    [invocation invoke];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样我们我们就可以将大量的<code>if/else</code>转换为上面的几句代码实现，但是不可否认的是，这个过程中我们需要维护一个<code>映射表</code>，所以我们每次添加方法的时候都需要添加一个对应的事件名。这里实际上是有可以继续优化的，如果大家有好的方法可以给我留言。</p>
+<h3 id="schema处理（一对多）"><a href="#schema处理（一对多）" class="headerlink" title="schema处理（一对多）"></a>schema处理（一对多）</h3><p>每个APP可能都维护了大量的scheme跳转路径，比如 <code>a://b/c?id=1</code>这个scheme，我们通过这个scheme就知道我们应该跳转到b业务c页面参数为id=1。但是我们在处理scheme的位置可能会有大量的判断。而且这些判断的位置都集中在一起，也给我们组件化造成了一定的困扰。</p>
+<p>下面我们就尝试使用策略模式进行优化 我们先看下之前的逻辑</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">BOOL</span>)handleOpenScheme:(<span class="built_in">NSString</span> *)scheme</span><br><span class="line"><span class="keyword">if</span>([scheme hasPrefix:<span class="string">@&quot;http&quot;</span>]) &#123;</span><br><span class="line">    <span class="comment">// 跳转到网页</span></span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> ([scheme hasPrefix:<span class="string">@&quot;projectName&quot;</span>]) &#123;</span><br><span class="line">    <span class="comment">// 项目自身的scheme</span></span><br><span class="line">    <span class="keyword">if</span>([scheme isEqualToString:<span class="string">@&quot;APage&quot;</span>]) &#123;</span><br><span class="line">        <span class="comment">// 跳转到A页面</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>([scheme isEqualToString:<span class="string">@&quot;BPage&quot;</span>]) &#123;</span><br><span class="line">        <span class="comment">// 跳转到B页面</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>([scheme isEqualToString:<span class="string">@&quot;CPage&quot;</span>]) &#123;</span><br><span class="line">        <span class="comment">// 跳转到C页面</span></span><br><span class="line">    &#125;</span><br><span class="line">    .....</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 暂不支持的方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从上面的代码我们可以看出 基本上APP有多少个页面这里就会有多少个if/else。随着我们项目组件化的进程我们也需要将这些跳转方法分散到各个模块当中。</p>
+<p>假设我们的项目中目前有四大模块：</p>
+<ul>
+<li>小说模块</li>
+<li>直播间模块</li>
+<li>广播剧模块</li>
+<li>个人主页模块</li>
+</ul>
+<p>那么我们先声明一个协议，协议中是处理跳转的方法</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@protocol</span> <span class="title">ULHandleSchemeDelegate</span> &lt;<span class="title">NSObject</span>&gt;</span></span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)handleScheme:(<span class="built_in">NSString</span> *)scheme;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>我们实现四个实体类：<code>NovelSchemeHandler</code>、<code>LiveSchemeHandler</code>、<code>DramaSchemeHandler</code>、<code>UserProfileSchemeHandler</code></p>
+<p>这四个类都遵守了<code>ULHandleSchemeDelegate</code>这个协议并实现了方法。</p>
+<p>下面我们来重新实现下之前的方法</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">BOOL</span>)handleOpenScheme:(<span class="built_in">NSString</span> *)scheme</span><br><span class="line">    <span class="built_in">NSURL</span> *url = [<span class="built_in">NSURL</span> URLWithString:scheme];</span><br><span class="line">    <span class="keyword">if</span>([scheme hasPrefix:<span class="string">@&quot;http&quot;</span>]) &#123;</span><br><span class="line">        <span class="comment">// 跳转到网页</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> ([url isEqualToString:<span class="string">@&quot;Live&quot;</span>]) &#123;</span><br><span class="line">            <span class="comment">// 直播模块处理 请忽略这里直接创建对应模块实例的方式</span></span><br><span class="line">            <span class="keyword">return</span> [[LiveSchemeHandler new] handleScheme:scheme];</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([url.host isEqualToString:<span class="string">@&quot;Novel&quot;</span>]) &#123;</span><br><span class="line">            <span class="comment">// 小说模块 请忽略这里直接创建对应模块实例的方式</span></span><br><span class="line">            <span class="keyword">return</span> [[NovelSchemeHandler new] handleScheme:scheme];</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([url.host isEqualToString:<span class="string">@&quot;Drama&quot;</span>]) &#123;</span><br><span class="line">            <span class="comment">// 话剧模块 请忽略这里直接创建对应模块实例的方式</span></span><br><span class="line">            <span class="keyword">return</span> [[DramaSchemeHandler new] handleScheme:scheme];</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([url.host isEqualToString:<span class="string">@&quot;Novel&quot;</span>]) &#123;</span><br><span class="line">            <span class="comment">// 个人主页 请忽略这里直接创建对应模块实例的方式</span></span><br><span class="line">            <span class="keyword">return</span> [[UserProfileSchemeHandler new] handleScheme:scheme];</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 暂不支持的方法</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过这中方式进行修改后，scheme的跳转变的更加清晰也更加容易维护了。当然我们还可以进行进一步的维护，添加一个映射方法</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">id</span> &lt;ULHandleSchemeDelegate&gt; )schemeHandlerForScheme:(<span class="built_in">NSString</span> *)scheme &#123;</span><br><span class="line">    <span class="keyword">if</span> ([url isEqualToString:<span class="string">@&quot;Live&quot;</span>]) &#123;</span><br><span class="line">        <span class="comment">// 直播模块处理</span></span><br><span class="line">        <span class="keyword">return</span> [LiveSchemeHandler new];</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([url.host isEqualToString:<span class="string">@&quot;Novel&quot;</span>]) &#123;</span><br><span class="line">        <span class="comment">// 小说模块</span></span><br><span class="line">        <span class="keyword">return</span> [NovelSchemeHandler new];</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([url.host isEqualToString:<span class="string">@&quot;Drama&quot;</span>]) &#123;</span><br><span class="line">        <span class="comment">// 话剧模块</span></span><br><span class="line">        <span class="keyword">return</span> [DramaSchemeHandler new];</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([url.host isEqualToString:<span class="string">@&quot;Novel&quot;</span>]) &#123;</span><br><span class="line">        <span class="comment">// 个人主页</span></span><br><span class="line">        <span class="keyword">return</span> [UserProfileSchemeHandler new];</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 暂不支持的方法</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样上面的<code>handleOpenScheme</code>方法可进一步简化为：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">BOOL</span>)handleOpenScheme:(<span class="built_in">NSString</span> *)scheme</span><br><span class="line">    <span class="built_in">NSURL</span> *url = [<span class="built_in">NSURL</span> URLWithString:scheme];</span><br><span class="line">    <span class="keyword">if</span>([scheme hasPrefix:<span class="string">@&quot;http&quot;</span>]) &#123;</span><br><span class="line">        <span class="comment">// 跳转到网页</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">id</span> &lt;ULHandleSchemeDelegate&gt; handler = [<span class="keyword">self</span> schemeHandlerForScheme:scheme];</span><br><span class="line">        [handler handleScheme:scheme];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过上面的方法我们可以将包含大量<code>if/else</code>语句的方法进行精简，而且根据自己的业务模块指定更好的策略，能达到更好的效果。</p>
+<h2 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h2><p>对于基于相应者链条的事件传递，其实还有其他的应用场景</p>
+<p>控件id 我们埋点的时候有时候希望可以在埋点中携带控件的唯一id，而这个id我们通常是根据路径获取的。我们对分类中的方法稍加改造</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)routerEventWithName:(<span class="built_in">NSString</span> *)eventName userInfo:(<span class="built_in">NSDictionary</span> *)userInfo</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSString</span> *newName = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;%@--%@&quot;</span>,<span class="built_in">NSStringFromClass</span>(<span class="keyword">self</span>.class),eventName];</span><br><span class="line">    [[<span class="keyword">self</span> nextResponder] routerEventWithName:newName userInfo:userInfo];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样当我们处理点击事件的时候是否就可以获取到被点击这个控件在当前页面的id了呢？而这个过程当中是否有其他信息可以通过事件传递携带呢？大家可以根据自己的业务进行发挥！！！</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这篇文章我们主要介绍了一种新的基于响应者链条的事件传递机制，同时针对这种问题存在的弊端，我们使用策略模式进行简化，让这种方式更具有实用价值，当然对于视图的点击事件这种方法还存在下面两个问题</p>
+<p>1、需要维护事件名称<br>2、需要维护不同事件名称与对应处理方法的映射表<br>不过在scheme处理的例子中，这种方式还是有很明显的效果的。</p>
+<p>参考文档</p>
+<p><a target="_blank" rel="noopener" href="https://juejin.im/post/5e77135e6fb9a07ca714dbc4#heading-23">调试iOS用户交互事件响应流程</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.xiaobotalk.com/2020/03/responder-chain/">iOS 响应者链与事件处理</a></p>
+<p><a target="_blank" rel="noopener" href="https://casatwy.com/responder_chain_communication.html">一种基于ResponderChain的对象交互方式</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.im/post/5e77135e6fb9a07ca714dbc4#heading-23">调试iOS用户交互事件响应流程</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ResponseChain/" rel="tag"># ResponseChain</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/02/20/webpframework/" rel="prev" title="iOS webP.framework制作">
+                  <i class="fa fa-chevron-left"></i> iOS webP.framework制作
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/07/25/appmodule/" rel="next" title="组件化设计方案">
+                  组件化设计方案 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : 'ac70290002ad2925ec1a8dafed762a3e',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

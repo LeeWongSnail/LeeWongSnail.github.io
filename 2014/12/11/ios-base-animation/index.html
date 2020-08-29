@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="简单的介绍了一下，iOS 开发过程中常用的一些基础动画，结合使用的场景能够更好的去了解和实践。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS基础动画">
+<meta property="og:url" content="https://www.leewong.cn/2014/12/11/ios-base-animation/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="简单的介绍了一下，iOS 开发过程中常用的一些基础动画，结合使用的场景能够更好的去了解和实践。">
+<meta property="og:locale">
+<meta property="og:image" content="http://img.hoop8.com/attachments/1601/950757074960.png">
+<meta property="og:image" content="http://img.hoop8.com/attachments/1601/5941760466397.gif">
+<meta property="article:published_time" content="2014-12-11T10:18:10.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:08:07.186Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="Objective-C">
+<meta property="article:tag" content="CABaseAnimation">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://img.hoop8.com/attachments/1601/950757074960.png">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2014/12/11/ios-base-animation/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>iOS基础动画 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81CALayer-%E5%9B%BE%E5%B1%82%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">1、CALayer 图层介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E5%9B%BE%E5%B1%82%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">2.</span> <span class="nav-text">2、图层的创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81CAAnimation"><span class="nav-number">3.</span> <span class="nav-text">3、CAAnimation</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%9F%BA%E7%A1%80%E5%8A%A8%E7%94%BB-CABasicAnimation"><span class="nav-number">3.1.</span> <span class="nav-text">1、基础动画 CABasicAnimation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%85%B3%E9%94%AE%E5%B8%A7%E5%8A%A8%E7%94%BB-CAKeyframeAnimation"><span class="nav-number">3.2.</span> <span class="nav-text">2、关键帧动画 CAKeyframeAnimation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E8%BD%AC%E5%9C%BA%E5%8A%A8%E7%94%BB-CATransition"><span class="nav-number">3.3.</span> <span class="nav-text">3、转场动画 CATransition</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E5%8A%A8%E7%94%BB%E7%BB%84-CAAnimationGroup"><span class="nav-number">3.4.</span> <span class="nav-text">4、动画组 CAAnimationGroup</span></a></li></ol></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2014/12/11/ios-base-animation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS基础动画
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2014-12-11 18:18:10" itemprop="dateCreated datePublished" datetime="2014-12-11T18:18:10+08:00">2014-12-11</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:08:07" itemprop="dateModified" datetime="2020-07-19T22:08:07+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/UI/" itemprop="url" rel="index"><span itemprop="name">UI</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2014/12/11/ios-base-animation/" class="post-meta-item leancloud_visitors" data-flag-title="iOS基础动画" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>简单的介绍了一下，iOS 开发过程中常用的一些基础动画，结合使用的场景能够更好的去了解和实践。</p>
+<a id="more"></a>
+
+<h3 id="1、CALayer-图层介绍"><a href="#1、CALayer-图层介绍" class="headerlink" title="1、CALayer 图层介绍"></a>1、CALayer 图层介绍</h3><p>Layer常用属性：<br>下面通过一个简单的Demo来看一下常用的属性:</p>
+<p><img src="http://img.hoop8.com/attachments/1601/950757074960.png" alt="layer的常用属性"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;设置阴影</span><br><span class="line">image.layer.shadowColor &#x3D; [UIColor blackColor].CGColor;</span><br><span class="line">&#x2F;&#x2F;设置阴影的偏移</span><br><span class="line">image.layer.shadowOffset &#x3D; CGSizeMake(10, 10);</span><br><span class="line">&#x2F;&#x2F;设置不透明度</span><br><span class="line">image.layer.shadowOpacity &#x3D; 0.5;</span><br><span class="line">&#x2F;&#x2F;设置圆角</span><br><span class="line">image.layer.cornerRadius &#x3D; 10;</span><br><span class="line">&#x2F;&#x2F;必须设置 强制内部子控件支持圆角效果，少了这个设置，UIImageView将没有圆角效果</span><br><span class="line">&#x2F;&#x2F;设置之后将没有阴影效果</span><br><span class="line">image.layer.masksToBounds &#x3D; YES;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;设置边框</span><br><span class="line">image.layer.borderWidth &#x3D; 5.;</span><br><span class="line">image.layer.borderColor &#x3D; [UIColor grayColor].CGColor;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;旋转</span><br><span class="line">&#x2F;&#x2F;x轴方向缩小为原来的0.5倍</span><br><span class="line">image.layer.transform &#x3D; CATransform3DMakeScale(0.5, 1, 0);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="2、图层的创建"><a href="#2、图层的创建" class="headerlink" title="2、图层的创建"></a>2、图层的创建</h3><p>1、图层的创建</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">CALayer *layer &#x3D; [CALayer layer];</span><br><span class="line">layer.bounds &#x3D; CGRectMake(0, 0, 100, 100);</span><br><span class="line">layer.position &#x3D; CGPointMake(100, 100);</span><br><span class="line">&#x2F;&#x2F;锚点：指明哪一个点在position的位置</span><br><span class="line">&#x2F;&#x2F;x,y均在0-1的范围内 （0，0）为原点 （1，1）为右下角</span><br><span class="line">layer.anchorPoint &#x3D; CGPointMake(1, 1);</span><br><span class="line">layer.backgroundColor &#x3D; [UIColor redColor].CGColor;</span><br><span class="line">[self.view.layer addSublayer:layer];</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>注意区分position和anchorPoint</code></p>
+<p>2、自定义图层的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1、间子类继承与CALayer,实现drawInContext:方法</span><br><span class="line">2、在控制器中设置代理，实现代理方法回执图层</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="3、CAAnimation"><a href="#3、CAAnimation" class="headerlink" title="3、CAAnimation"></a>3、CAAnimation</h3><h4 id="1、基础动画-CABasicAnimation"><a href="#1、基础动画-CABasicAnimation" class="headerlink" title="1、基础动画 CABasicAnimation"></a>1、基础动画 CABasicAnimation</h4><p>主要包括三种：形变 位置变化 旋转 都是通过设置keyPath实现的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">    CABasicAnimation *anim &#x3D; [CABasicAnimation animation];</span><br><span class="line">    </span><br><span class="line">&#x2F;&#x2F;    anim.keyPath &#x3D; @&quot;bounds&quot;;  &#x2F;&#x2F;形变</span><br><span class="line">&#x2F;&#x2F;    anim.toValue &#x3D; [NSValue valueWithCGRect:CGRectMake(0, 0, 50, 50)];</span><br><span class="line">    </span><br><span class="line">&#x2F;&#x2F;    anim.keyPath &#x3D; @&quot;position&quot;; &#x2F;&#x2F;位置变化</span><br><span class="line">&#x2F;&#x2F;    anim.toValue &#x3D; [NSValue valueWithCGPoint:CGPointMake(300, 300)];  &#x2F;&#x2F;终止点的位置</span><br><span class="line">&#x2F;&#x2F;    anim.byValue &#x3D; [NSValue valueWithCGPoint:CGPointMake(100, 100)];    &#x2F;&#x2F;相对移动的位置</span><br><span class="line">    </span><br><span class="line">    anim.keyPath &#x3D; @&quot;transform&quot;; &#x2F;&#x2F;旋转</span><br><span class="line">    &#x2F;&#x2F;围绕x,y轴方向旋转</span><br><span class="line">    anim.toValue &#x3D; [NSValue valueWithCATransform3D:CATransform3DMakeRotation(M_PI_4, 1, 1, 0)];</span><br><span class="line">    </span><br><span class="line">    anim.duration &#x3D; 2.0f;</span><br><span class="line">    anim.removedOnCompletion &#x3D; NO;</span><br><span class="line">    anim.fillMode &#x3D; @&quot;forwards&quot;;</span><br><span class="line">    </span><br><span class="line">    [self.layer addAnimation:anim forKey:nil];</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="2、关键帧动画-CAKeyframeAnimation"><a href="#2、关键帧动画-CAKeyframeAnimation" class="headerlink" title="2、关键帧动画 CAKeyframeAnimation"></a>2、关键帧动画 CAKeyframeAnimation</h4><p>可以为动画设置一个路径，让某一个对象按这个路径去运动，可以设置动画的执行节奏</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">    CAKeyframeAnimation *anim &#x3D; [CAKeyframeAnimation animationWithKeyPath:@&quot;position&quot;];</span><br><span class="line">    anim.removedOnCompletion &#x3D; NO;</span><br><span class="line">    &#x2F;&#x2F;保持最新的状态</span><br><span class="line">    anim.fillMode &#x3D; kCAFillModeForwards;</span><br><span class="line">    anim.duration &#x3D; 2.f;</span><br><span class="line">    CGMutablePathRef path &#x3D; CGPathCreateMutable();</span><br><span class="line">&#x2F;&#x2F;    CGPathAddRect(path, NULL, CGRectMake(0, 0, 100, 100));</span><br><span class="line">    CGPathAddEllipseInRect(path, NULL, CGRectMake(0, 0, 100, 100));</span><br><span class="line">    </span><br><span class="line">    anim.path &#x3D; path;</span><br><span class="line">    &#x2F;&#x2F;设置动画的执行节奏</span><br><span class="line">    anim.timingFunction &#x3D; [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];</span><br><span class="line">    </span><br><span class="line">    [self.layer addAnimation:anim forKey:nil];</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="3、转场动画-CATransition"><a href="#3、转场动画-CATransition" class="headerlink" title="3、转场动画 CATransition"></a>3、转场动画 CATransition</h4><p>1、view的转场动画</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CATransition *transition &#x3D; [CATransition animation];</span><br><span class="line">transition.duration &#x3D; 2.f;</span><br><span class="line">transition.timingFunction &#x3D; [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];</span><br><span class="line"></span><br><span class="line">transition.type &#x3D; @&quot;push&quot;;</span><br><span class="line">transition.subtype &#x3D; kCATransitionFromTop;</span><br><span class="line"></span><br><span class="line">[_animationView exchangeSubviewAtIndex:0 withSubviewAtIndex:1];</span><br><span class="line"></span><br><span class="line">[_animationView.layer addAnimation:transition forKey:@&quot;myAnimation&quot;];</span><br></pre></td></tr></table></figure>
+
+<p>2、控制器的专场动画</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">CATransition *transition &#x3D; [CATransition animation];</span><br><span class="line">transition.duration &#x3D; 2.f;</span><br><span class="line">transition.timingFunction &#x3D; [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];</span><br><span class="line"></span><br><span class="line">transition.type &#x3D; @&quot;rippleEffect&quot;;</span><br><span class="line">transition.subtype &#x3D; kCATransitionFromTop;</span><br><span class="line"></span><br><span class="line">[self.navigationController.view.layer addAnimation:transition forKey:@&quot;navAnimation&quot;];</span><br><span class="line"></span><br><span class="line">DetailViewController *detailVc &#x3D; [[DetailViewController alloc] init];</span><br><span class="line">[self.navigationController showViewController:detailVc sender:nil];</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="http://img.hoop8.com/attachments/1601/5941760466397.gif" alt="icon"></p>
+<p>支持的过渡效果和过渡方向</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* 过渡效果</span><br><span class="line"> fade     &#x2F;&#x2F;交叉淡化过渡(不支持过渡方向) kCATransitionFade</span><br><span class="line"> push     &#x2F;&#x2F;新视图把旧视图推出去  kCATransitionPush</span><br><span class="line"> moveIn   &#x2F;&#x2F;新视图移到旧视图上面   kCATransitionMoveIn</span><br><span class="line"> reveal   &#x2F;&#x2F;将旧视图移开,显示下面的新视图  kCATransitionReveal</span><br><span class="line"> cube     &#x2F;&#x2F;立方体翻滚效果</span><br><span class="line"> oglFlip  &#x2F;&#x2F;上下左右翻转效果</span><br><span class="line"> suckEffect   &#x2F;&#x2F;收缩效果，如一块布被抽走(不支持过渡方向)</span><br><span class="line"> rippleEffect &#x2F;&#x2F;滴水效果(不支持过渡方向)</span><br><span class="line"> pageCurl     &#x2F;&#x2F;向上翻页效果</span><br><span class="line"> pageUnCurl   &#x2F;&#x2F;向下翻页效果</span><br><span class="line"> cameraIrisHollowOpen  &#x2F;&#x2F;相机镜头打开效果(不支持过渡方向)</span><br><span class="line"> cameraIrisHollowClose &#x2F;&#x2F;相机镜头关上效果(不支持过渡方向)</span><br><span class="line">*&#x2F;</span><br><span class="line">   </span><br><span class="line">&#x2F;* 过渡方向</span><br><span class="line"> kCATransitionFromRight</span><br><span class="line"> kCATransitionFromLeft</span><br><span class="line"> kCATransitionFromBottom</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><code>使用的时候一定要注意，有些事苹果私有的API，小心被拒</code></p>
+<h4 id="4、动画组-CAAnimationGroup"><a href="#4、动画组-CAAnimationGroup" class="headerlink" title="4、动画组 CAAnimationGroup"></a>4、动画组 CAAnimationGroup</h4><p>将几个动画放到一个动画组里，这些动画会依次执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">CATransition *transition &#x3D; [CATransition animation];</span><br><span class="line">transition.duration &#x3D; 2.f;</span><br><span class="line">transition.timingFunction &#x3D; [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];</span><br><span class="line"></span><br><span class="line">transition.type &#x3D; @&quot;push&quot;;</span><br><span class="line">transition.subtype &#x3D; kCATransitionFromTop;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">CATransition *transition1 &#x3D; [CATransition animation];</span><br><span class="line">transition1.duration &#x3D; 2.f;</span><br><span class="line">transition1.timingFunction &#x3D; [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];</span><br><span class="line"></span><br><span class="line">transition1.type &#x3D; @&quot;moveIn&quot;;</span><br><span class="line">transition1.subtype &#x3D; kCATransitionFromTop;</span><br><span class="line"></span><br><span class="line">CAAnimationGroup *group &#x3D; [CAAnimationGroup animation];</span><br><span class="line">group.animations &#x3D; @[transition,transition1];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[_animationView exchangeSubviewAtIndex:0 withSubviewAtIndex:1];</span><br><span class="line"></span><br><span class="line">[_animationView.layer addAnimation:group forKey:@&quot;myAnimation&quot;];</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Objective-C/" rel="tag"># Objective-C</a>
+              <a href="/tags/CABaseAnimation/" rel="tag"># CABaseAnimation</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/05/05/ios-develop-tips/" rel="next" title="iOS开发中的小技巧">
+                  iOS开发中的小技巧 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : 'dbb2d55d210e623a55b140fe10a5f586',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

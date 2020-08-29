@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="Xcode这个开发工具的使用相信每一个iOS开发者都已经可以熟练使用，但是要说到所有功能都详细了解，想必人数不多，这篇文章主要介绍xcode的断点调试功能。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Xcode之断点调试">
+<meta property="og:url" content="https://www.leewong.cn/2020/07/25/howtousexcodebreakpoint/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="Xcode这个开发工具的使用相信每一个iOS开发者都已经可以熟练使用，但是要说到所有功能都详细了解，想必人数不多，这篇文章主要介绍xcode的断点调试功能。">
+<meta property="og:locale">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh3oilaohxj30ve0jmtbt.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh3oq80owkj30qg09itkn.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh3ovyntb5j31600e0h1s.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh3p5pghn0j30va0dk40p.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gh3pxix809j315m0jgqp9.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gh3q07f1x0j31740ou1kx.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gh3q601k8qj319s0latzt.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gh3qbe3athj316s0le7uf.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gh3qdqls9pj30qg0g0wym.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gh3ql0796sj30gk0ree17.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh45yjnc3vj30na0a012t.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh46crks7lj310a0fohaa.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gh4nyg02l0j31k00oob0j.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gh4o13mn2vj31ka0pq4qh.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh4orcbwjxj31790u01kx.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh4rzvcuwcj31c30u0tff.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh4s00sz7jj30tm0t4k1g.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ghc98hkth0j30jg0fe74c.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghcaasl8hij31730u0hdt.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ghcc7adgyej30qg0f8wvz.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ghccdb25i4j30ku1120yj.jpg">
+<meta property="article:published_time" content="2020-07-25T15:59:34.000Z">
+<meta property="article:modified_time" content="2020-08-02T14:33:09.508Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="Xcode,breakPoint">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh3oilaohxj30ve0jmtbt.jpg">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2020/07/25/howtousexcodebreakpoint/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Xcode之断点调试 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Xcode%E6%96%AD%E7%82%B9%E8%B0%83%E8%AF%95"><span class="nav-number">1.</span> <span class="nav-text">Xcode断点调试</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Condition"><span class="nav-number">1.1.</span> <span class="nav-text">Condition</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Ignore"><span class="nav-number">1.2.</span> <span class="nav-text">Ignore</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Action"><span class="nav-number">1.3.</span> <span class="nav-text">Action</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Debugger-Command"><span class="nav-number">1.3.1.</span> <span class="nav-text">Debugger Command</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Log-Message"><span class="nav-number">1.3.2.</span> <span class="nav-text">Log Message</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Options"><span class="nav-number">1.4.</span> <span class="nav-text">Options</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%AD%E7%82%B9"><span class="nav-number"></span> <span class="nav-text">断点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%AD%E7%82%B9%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">断点类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Exception-Breakpoint%EF%BC%88%E5%BC%82%E5%B8%B8%E6%96%AD%E7%82%B9%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">Exception Breakpoint（异常断点）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Symbolic-Breakpoint-%E7%AC%A6%E5%8F%B7%E6%96%AD%E7%82%B9"><span class="nav-number">1.2.</span> <span class="nav-text">Symbolic Breakpoint (符号断点)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Symbol"><span class="nav-number">1.2.1.</span> <span class="nav-text">Symbol</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Module"><span class="nav-number">1.2.2.</span> <span class="nav-text">Module</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Condition-1"><span class="nav-number">1.2.3.</span> <span class="nav-text">Condition</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Watch-Breakpoint-%E7%9B%91%E6%8E%A7%E6%96%AD%E7%82%B9"><span class="nav-number">1.3.</span> <span class="nav-text">Watch Breakpoint(监控断点)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%AD%E7%82%B9%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">断点的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8BUI%E6%8E%A7%E4%BB%B6%E7%BA%A6%E6%9D%9F%E5%86%B2%E7%AA%81"><span class="nav-number">2.1.</span> <span class="nav-text">查看UI控件约束冲突</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%BA%A6%E6%9D%9F%E9%97%AE%E9%A2%98%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">2.1.1.</span> <span class="nav-text">约束问题是什么</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%93%AA%E4%B8%AA%E8%A7%86%E5%9B%BE%E7%BA%A6%E6%9D%9F%E6%9C%89%E9%97%AE%E9%A2%98"><span class="nav-number">2.1.2.</span> <span class="nav-text">哪个视图约束有问题</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E5%86%85%E5%AD%98%E5%9C%B0%E5%9D%80%E5%AE%9A%E4%BD%8D"><span class="nav-number">2.1.2.1.</span> <span class="nav-text">通过内存地址定位</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E9%80%9A%E8%BF%87lldb%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.2.2.</span> <span class="nav-text">通过lldb命令</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number"></span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number"></span> <span class="nav-text">参考文章</span></a></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/07/25/howtousexcodebreakpoint/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Xcode之断点调试
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-07-25 23:59:34" itemprop="dateCreated datePublished" datetime="2020-07-25T23:59:34+08:00">2020-07-25</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-08-02 22:33:09" itemprop="dateModified" datetime="2020-08-02T22:33:09+08:00">2020-08-02</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/iOS%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index"><span itemprop="name">iOS进阶</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2020/07/25/howtousexcodebreakpoint/" class="post-meta-item leancloud_visitors" data-flag-title="Xcode之断点调试" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>Xcode这个开发工具的使用相信每一个iOS开发者都已经可以熟练使用，但是要说到所有功能都详细了解，想必人数不多，这篇文章主要介绍xcode的断点调试功能。</p>
+<a id="more"></a>
+
+<p>##简介</p>
+<h3 id="Xcode断点调试"><a href="#Xcode断点调试" class="headerlink" title="Xcode断点调试"></a>Xcode断点调试</h3><p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh3oilaohxj30ve0jmtbt.jpg"></p>
+<p>上图是我们使用Xcode进行断点调试时，上图底部图标从左到右功能分别如下：</p>
+<ul>
+<li>启用/禁用断点（点击后变灰色，所有断点失效；再点击变蓝色，所有断点生效）</li>
+<li>继续执行程序（点击后跳过本次断点，继续执行程序）</li>
+<li>执行下一步（点击后执行第23行代码）</li>
+<li>进入方法（点击后进入-testLog方法）</li>
+<li>跳出方法（在-testLog方法内部点击后回到第22行代码）</li>
+</ul>
+<p>除了这些功能，我们还可以编辑断点，在断点出右键选择<code>Edit BreakPoint</code></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh3oq80owkj30qg09itkn.jpg"></p>
+<p>下面我们来分别介绍下这几个选项以及如何设置这些选项:</p>
+<h4 id="Condition"><a href="#Condition" class="headerlink" title="Condition"></a>Condition</h4><p><code>Condition</code>表示断点条件。开发者可以在<code>Condition</code>输入框中设置触发断点的条件。比如上面for循环的例子我们可以在<code>Condition</code>条件中添加条件</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh3ovyntb5j31600e0h1s.jpg"></p>
+<p>这样我们的断点只有在<code>index==5</code>时才会被触发,这样就有利于我们在某些for循环时只有在满足某个条件时才触发断点。</p>
+<h4 id="Ignore"><a href="#Ignore" class="headerlink" title="Ignore"></a>Ignore</h4><p><code>Ignore</code>为忽略次数,同样我们在上面for循环的例子中可以将<code>Ignore</code>设置为5，那么断点第一次触发时index=6时。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh3p5pghn0j30va0dk40p.jpg"></p>
+<h4 id="Action"><a href="#Action" class="headerlink" title="Action"></a>Action</h4><p>Action为触发动作。Action可以添加多条，在触发断点后，会紧接着执行设定的Actions。Action有6种执行类型，其中较常用的有Debugger Command和Log message。</p>
+<h5 id="Debugger-Command"><a href="#Debugger-Command" class="headerlink" title="Debugger Command"></a>Debugger Command</h5><p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh3pxix809j315m0jgqp9.jpg"></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh3q07f1x0j31740ou1kx.jpg"></p>
+<h5 id="Log-Message"><a href="#Log-Message" class="headerlink" title="Log Message"></a>Log Message</h5><p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh3q601k8qj319s0latzt.jpg"></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh3qbe3athj316s0le7uf.jpg"></p>
+<p>当然log的信息还可以读出来</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh3qdqls9pj30qg0g0wym.jpg"></p>
+<p>试一下吧，有惊喜！！！</p>
+<h4 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h4><p><code>Options</code>控制在执行断点对应的<code>Actions</code>后是否自动继续执行程序。勾选后<code>Options</code>后，断点被触发后不进入<code>Debug</code>界面。</p>
+<p>接下来看下断点的正题</p>
+<h2 id="断点"><a href="#断点" class="headerlink" title="断点"></a>断点</h2><h3 id="断点类型"><a href="#断点类型" class="headerlink" title="断点类型"></a>断点类型</h3><p>我们在Xocde中添加断点时有几种类型的断点：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh3ql0796sj30gk0ree17.jpg"></p>
+<p>下面我们来介绍下我们常用的集中类型的断点：</p>
+<h4 id="Exception-Breakpoint（异常断点）"><a href="#Exception-Breakpoint（异常断点）" class="headerlink" title="Exception Breakpoint（异常断点）"></a>Exception Breakpoint（异常断点）</h4><p>当我们添加了一个<code>Exception BreakPoint </code>时，实际上是添加了一个全局断点</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh45yjnc3vj30na0a012t.jpg"></p>
+<p>正常情况下我们的代码崩溃后，如果没有全局断点 代码会崩溃在main函数中，但是我们如果添加了全局断点，代码发生崩溃时，就会自动崩溃到出现问题的哪一行代码，比较方便我们去定位问题。</p>
+<h4 id="Symbolic-Breakpoint-符号断点"><a href="#Symbolic-Breakpoint-符号断点" class="headerlink" title="Symbolic Breakpoint (符号断点)"></a>Symbolic Breakpoint (符号断点)</h4><p>当我们添加一个符号断点时，会自动为我们弹出自定义面板，</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh46crks7lj310a0fohaa.jpg"></p>
+<p>与普通断点相比，符号断点的编辑界面多出来Symbol和Module两个输入框。下面我们来看下这两个输入框的作用。</p>
+<h5 id="Symbol"><a href="#Symbol" class="headerlink" title="Symbol"></a>Symbol</h5><p>可以在Symbol输入框中设置断点出发方法/函数。在Symbol中设置一个方法/函数后，运行程序并执行到此方法时会触发断点。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh4nyg02l0j31k00oob0j.jpg"></p>
+<p>如果是C语言方法那么直接使用方法名就可以</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh4o13mn2vj31ka0pq4qh.jpg"></p>
+<h5 id="Module"><a href="#Module" class="headerlink" title="Module"></a>Module</h5><p>可以在Module输入框中设置Symbol中的函数所在的库，以避免不同库中存在名字相同的方法/函数，默认不用填写。</p>
+<h5 id="Condition-1"><a href="#Condition-1" class="headerlink" title="Condition"></a>Condition</h5><p>与普通断点的用法基本一致<br>在Condition输入框中设置<code>$arg3==nil</code>，就会限制断点在满足第一个参数和第二个参数都为nil时才会被触发。但是实际上使用下面这种写法才可以<br><code>[(NSString *)$arg3 length] == 0</code></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh4orcbwjxj31790u01kx.jpg"></p>
+<p>这里我们可以用来判断某个方法再被调用时，哪里的参数传递是有问题的。</p>
+<h4 id="Watch-Breakpoint-监控断点"><a href="#Watch-Breakpoint-监控断点" class="headerlink" title="Watch Breakpoint(监控断点)"></a>Watch Breakpoint(监控断点)</h4><p>有时候我们需要监听某个变量的值的变化</p>
+<p>添加断点<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh4rzvcuwcj31c30u0tff.jpg"><br>断点结果<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gh4s00sz7jj30tm0t4k1g.jpg"></p>
+<p>很可惜没有发现监听数组个数变化的断点</p>
+<h3 id="断点的应用"><a href="#断点的应用" class="headerlink" title="断点的应用"></a>断点的应用</h3><h4 id="查看UI控件约束冲突"><a href="#查看UI控件约束冲突" class="headerlink" title="查看UI控件约束冲突"></a>查看UI控件约束冲突</h4><p>我们先看下下面这段代码:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)addVCSubView &#123;</span><br><span class="line">    <span class="built_in">UIView</span> *contentView = [[<span class="built_in">UIView</span> alloc] init];</span><br><span class="line">    contentView.backgroundColor = [<span class="built_in">UIColor</span> blueColor];</span><br><span class="line">    [<span class="keyword">self</span>.view addSubview:contentView];</span><br><span class="line">    [contentView mas_makeConstraints:^(MASConstraintMaker *make) &#123;</span><br><span class="line">        make.center.equalTo(<span class="keyword">self</span>.view);</span><br><span class="line">        make.width.height.equalTo(@<span class="number">200</span>);</span><br><span class="line">    &#125;];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="built_in">UIView</span> *view = [[<span class="built_in">UIView</span> alloc] init];</span><br><span class="line">    view.backgroundColor = [<span class="built_in">UIColor</span> greenColor];</span><br><span class="line">    [contentView addSubview:view];</span><br><span class="line">    [view mas_makeConstraints:^(MASConstraintMaker *make) &#123;</span><br><span class="line">        make.centerX.equalTo(contentView);</span><br><span class="line">        make.centerY.equalTo(contentView);</span><br><span class="line">        make.top.equalTo(contentView.mas_top).offset(<span class="number">20</span>);</span><br><span class="line">        make.width.height.equalTo(@<span class="number">100</span>);</span><br><span class="line">    &#125;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>具体的展示如图:</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ghc98hkth0j30jg0fe74c.jpg"></p>
+<p>从图中我们可以很明显的看到绿色的子视图的宽高并不相同，同样在控制台上我们也看到了这样的输出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">2020-08-02 10:16:30.755508+0800 APPLaunchTime[1629:28678] [LayoutConstraints] Unable to simultaneously satisfy constraints.</span><br><span class="line">	Probably at least one of the constraints in the following list is one you don&#39;t want. </span><br><span class="line">	Try this: </span><br><span class="line">		(1) look at each constraint and try to figure out which you don&#39;t expect; </span><br><span class="line">		(2) find the code that added the unwanted constraint or constraints and fix it. </span><br><span class="line">(</span><br><span class="line">    &quot;&lt;MASLayoutConstraint:0x600000e183c0 UIView:0x7fa513e11cc0.height &#x3D;&#x3D; 200&gt;&quot;,</span><br><span class="line">    &quot;&lt;MASLayoutConstraint:0x600000e181e0 UIView:0x7fa516604e70.centerY &#x3D;&#x3D; UIView:0x7fa513e11cc0.centerY&gt;&quot;,</span><br><span class="line">    &quot;&lt;MASLayoutConstraint:0x600000e18600 UIView:0x7fa516604e70.top &#x3D;&#x3D; UIView:0x7fa513e11cc0.top + 20&gt;&quot;,</span><br><span class="line">    &quot;&lt;MASLayoutConstraint:0x600000e186c0 UIView:0x7fa516604e70.height &#x3D;&#x3D; 100&gt;&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">Will attempt to recover by breaking constraint </span><br><span class="line">&lt;MASLayoutConstraint:0x600000e186c0 UIView:0x7fa516604e70.height &#x3D;&#x3D; 100&gt;</span><br><span class="line"></span><br><span class="line">Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.</span><br><span class="line">The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in &lt;UIKitCore&#x2F;UIView.h&gt; may also be helpful.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>控制台提示我们 下面列表中的约束其中有一个是不需要的，同时当前展示的样子是系统通过移除了哪个约束后展示出来的</p>
+<h5 id="约束问题是什么"><a href="#约束问题是什么" class="headerlink" title="约束问题是什么"></a>约束问题是什么</h5><p>我们先看下控制台输出的提示</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&quot;&lt;MASLayoutConstraint:0x600000e183c0 UIView:0x7fa513e11cc0.height &#x3D;&#x3D; 200&gt;&quot;,</span><br><span class="line">&quot;&lt;MASLayoutConstraint:0x600000e181e0 UIView:0x7fa516604e70.centerY &#x3D;&#x3D; UIView:0x7fa513e11cc0.centerY&gt;&quot;,</span><br><span class="line">&quot;&lt;MASLayoutConstraint:0x600000e18600 UIView:0x7fa516604e70.top &#x3D;&#x3D; UIView:0x7fa513e11cc0.top + 20&gt;&quot;,</span><br><span class="line">&quot;&lt;MASLayoutConstraint:0x600000e186c0 UIView:0x7fa516604e70.height &#x3D;&#x3D; 100&gt;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>上面的提示中设计到两个UIView对象，<code>0x600000e183c0</code>和<code>0x7fa513e11cc0</code>,通过查看上面的约束提示，我们发现<code>height</code>,<code>centerY</code>,<code>top</code>,<code>height</code> 这几个约束都是垂直方向的约束。</p>
+<p>上面的提示还有下面这句</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Will attempt to recover by breaking constraint </span><br><span class="line">&lt;MASLayoutConstraint:<span class="number">0x600000e186c0</span> <span class="built_in">UIView</span>:<span class="number">0x7fa516604e70</span>.height == <span class="number">100</span>&gt;</span><br></pre></td></tr></table></figure>
+<p>尝试通过break高度为100的约束来正确展示这个视图，而结合我们上面展示的图片 没有生效的约束是<code>height=100</code>与上面的描述一致。</p>
+<p>那通过上面的分析我们得出这次约束的问题是：</p>
+<p>控件<code>0x600000e183c0</code>和<code>0x7fa516604e70</code>在垂直方向存在约束冲突，目前系统通过移除<code>UIView:0x7fa516604e70.height == 100</code>约束来展示UI，如果系统的修改与你的预期不符，可以通过修改上面提到的四个约束中的一个来展示出正确的UI。</p>
+<h5 id="哪个视图约束有问题"><a href="#哪个视图约束有问题" class="headerlink" title="哪个视图约束有问题"></a>哪个视图约束有问题</h5><p>分析出约束的问题后，我们需要定位到底是哪两个视图出现了约束问题。</p>
+<h6 id="通过内存地址定位"><a href="#通过内存地址定位" class="headerlink" title="通过内存地址定位"></a>通过内存地址定位</h6><p>我们可以通过查看层次结果，然后通过出现约束问题的视图的内存地址进行筛选，这样我们就能容易的定位到出现问题的视图。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghcaasl8hij31730u0hdt.jpg"></p>
+<h6 id="通过lldb命令"><a href="#通过lldb命令" class="headerlink" title="通过lldb命令"></a>通过lldb命令</h6><p>我们还可以通过设置出现问题的视图的背景颜色来定位到底是哪个视图出现问题，当然是用lldb命令的前提是我们需要在合适的地方添加断点。</p>
+<p>首先我们需要在项目中添加约束冲突(符号断点)断点，添加方法如下</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ghcc7adgyej30qg0f8wvz.jpg"></p>
+<p>添加了这个断点后，在应用启动遇到约束冲突的位置系统会，直接有约束冲突的位置设置断点，下面截取一部分发生断点时的提示</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">*UIButton:0x10b091670&#39;注册&#x2F;登录&#39;- AMBIGUOUS LAYOUT for UIButton:0x10b091670&#39;注册&#x2F;登录&#39;.minY&#123;id: 159&#125;   UIButtonLabel:0x10b15fb60&#39;注册&#x2F;登录&#39;</span><br><span class="line"></span><br><span class="line"> *UILabel:0x10b08f790&#39;群组&#39;- AMBIGUOUS LAYOUT for UILabel:0x10b08f790&#39;群组&#39;.minX&#123;id: 136&#125;, UILabel:0x10b08f790&#39;群组&#39;.minY&#123;id: 138&#125;, UILabel:0x10b08f790&#39;群组&#39;.Width&#123;id: 135&#125;, UILabel:0x10b08f790&#39;群组&#39;.Height&#123;id: 140&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里我们可以通过关键词 <code>AMBIGUOUS LAYOUT</code> 来获取所有存在约束冲突的位置，因为log中有了按钮或者label的文案我们可以很快的定位到具体位置。</p>
+<p>当然 如果层次非常深，或者我们无法通过文案进行区分，我们还可以通过下面的命令修改视图的背景颜色来定位出现约束冲突的视图。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">expr ((UILabel *)0x10b091670).backgroundColor &#x3D; [UIColor yellowColor];</span><br></pre></td></tr></table></figure>
+
+<p>结果如下图：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ghccdb25i4j30ku1120yj.jpg"></p>
+<p>通过上面的方法我们可以定位到出现问题的视图控件，那么我们 下一步就要看如何去解决这个约束冲突。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通过上面的方法我们可以准确的定位出出现约束冲突的控件是什么，约束冲突的原因是什么，那么接下来我们就需要根据自己的场景以及控制台给出的提示去判断目标的布局是什么样的，怎么去改。</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/26389273/how-to-trap-on-uiviewalertforunsatisfiableconstraints">How to trap on UIViewAlertForUnsatisfiableConstraints?</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/b2ab97a3b3b8">有歧义(AMBIGUOUS LAYOUT)的约束布局调试方法</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Xcode-breakPoint/" rel="tag"># Xcode,breakPoint</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/07/25/appmodule/" rel="prev" title="组件化设计方案">
+                  <i class="fa fa-chevron-left"></i> 组件化设计方案
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/08/02/retaincount/" rel="next" title="retain和release实现探究">
+                  retain和release实现探究 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : '01f50dedd4db2941dbb9a1537fc5b603',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

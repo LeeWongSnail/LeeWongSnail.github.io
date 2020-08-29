@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="最近工作事情不多,本着紧跟潮流的想法,在公司附近找了几家公司面试,涨涨经验顺便看看最近iOS都在招什么方向的的人！ 本人计算机专业毕业(不过基本已经把老师讲的还给老师了),因此在这次面试中 完全被虐。因此,打算写一篇文章来祭奠我的这次面试！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="祭最近的一次面试">
+<meta property="og:url" content="https://www.leewong.cn/2018/04/21/latest-interview/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="最近工作事情不多,本着紧跟潮流的想法,在公司附近找了几家公司面试,涨涨经验顺便看看最近iOS都在招什么方向的的人！ 本人计算机专业毕业(不过基本已经把老师讲的还给老师了),因此在这次面试中 完全被虐。因此,打算写一篇文章来祭奠我的这次面试！">
+<meta property="og:locale">
+<meta property="og:image" content="https://img-blog.csdn.net/20160323220752422">
+<meta property="og:image" content="https://img-blog.csdn.net/20160323214456532">
+<meta property="og:image" content="https://gss3.bdstatic.com/-Po3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike80%2C5%2C5%2C80%2C26/sign=408997773a12b31bd361c57be7715d1f/0df431adcbef7609783292af2ddda3cc7cd99ec0.jpg">
+<meta property="og:image" content="https://gss2.bdstatic.com/9fo3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike80%2C5%2C5%2C80%2C26/sign=b3c80026d72a6059461de948495d5ffe/94cad1c8a786c9179df9bed6c93d70cf3ac75763.jpg">
+<meta property="og:image" content="https://gss2.bdstatic.com/9fo3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike80%2C5%2C5%2C80%2C26/sign=f997b13a8c01a18be4e61a1dff466c6d/3801213fb80e7bec26a434f7242eb9389b506bad.jpg">
+<meta property="og:image" content="https://github.com/HIT-Alibaba/interview/blob/master/img/hash-table.jpg?raw=true">
+<meta property="og:image" content="https://img-blog.csdn.net/20160513101728296">
+<meta property="og:image" content="https://img-blog.csdn.net/20160513104920809">
+<meta property="og:image" content="http://static.oschina.net/uploads/img/201311/25085218_epWy.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/WiInputMethod/interview/master/img/ios-runtime-method-resolve.png">
+<meta property="article:published_time" content="2018-04-21T10:47:28.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:11:53.371Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="数据结果 算法 计算机基础">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdn.net/20160323220752422">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2018/04/21/latest-interview/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>祭最近的一次面试 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9B%AE"><span class="nav-number">1.</span> <span class="nav-text">面试题目</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%BD%E5%AD%A6%E8%BF%87%E5%93%AA%E4%BA%9B%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">都学过哪些数据结构？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%9A%84%E9%80%BB%E8%BE%91%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="nav-number">1.1.1.</span> <span class="nav-text">数据的逻辑结构：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%9A%84%E7%89%A9%E7%90%86%E7%BB%93%E6%9E%84%EF%BC%9A%E6%8C%87%E6%95%B0%E6%8D%AE%E5%9C%A8%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%AD%98%E5%82%A8%E7%A9%BA%E9%97%B4%E7%9A%84%E5%AD%98%E6%94%BE%E5%BD%A2%E5%BC%8F"><span class="nav-number">1.1.2.</span> <span class="nav-text">数据的物理结构：指数据在计算机存储空间的存放形式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">常用的数据结构：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E7%BB%84%E5%92%8C%E9%93%BE%E8%A1%A8%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.2.</span> <span class="nav-text">数组和链表的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A1%BA%E5%BA%8F%E8%A1%A8"><span class="nav-number">1.2.1.</span> <span class="nav-text">顺序表</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">特点</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%93%BE%E8%A1%A8"><span class="nav-number">1.2.2.</span> <span class="nav-text">链表</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%89%B9%E7%82%B9-1"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">特点</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8C%BA%E5%88%AB%E5%92%8C%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">1.2.3.</span> <span class="nav-text">区别和优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E7%9A%84%E5%BC%80%E8%BE%9F"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">空间的开辟</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">1.2.3.2.</span> <span class="nav-text">空间的使用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E9%9A%8F%E6%9C%BA%E5%85%83%E7%B4%A0%E7%9A%84%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="nav-number">1.2.3.3.</span> <span class="nav-text">访问随机元素的时间复杂度</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E4%BD%8D%E7%BD%AE%E6%8F%92%E5%85%A5%E3%80%81%E5%88%A0%E9%99%A4%E5%85%83%E7%B4%A0%E7%9A%84%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="nav-number">1.2.3.3.1.</span> <span class="nav-text">随机位置插入、删除元素的时间复杂度</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%91%E5%AD%A6%E8%BF%87%E5%93%AA%E4%BA%9B%E6%A0%91-%E4%BB%80%E4%B9%88%E6%98%AF%E5%AE%8C%E5%85%A8%E4%BA%8C%E5%8F%89%E6%A0%91-%E9%9C%8D%E5%A4%AB%E6%9B%BC%E6%A0%91-%E7%BA%A2%E9%BB%91%E6%A0%91-%E5%9B%BE"><span class="nav-number">1.3.</span> <span class="nav-text">树学过哪些树 什么是完全二叉树 霍夫曼树 红黑树 图</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="nav-number">1.3.1.</span> <span class="nav-text">二叉树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%BB%A1%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="nav-number">1.3.2.</span> <span class="nav-text">满二叉树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%8C%E5%85%A8%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="nav-number">1.3.3.</span> <span class="nav-text">完全二叉树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A0%86"><span class="nav-number">1.3.4.</span> <span class="nav-text">堆</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%93%88%E5%BC%97%E6%9B%BC%E6%A0%91"><span class="nav-number">1.3.5.</span> <span class="nav-text">哈弗曼树</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9E%84%E9%80%A0%EF%BC%9A"><span class="nav-number">1.3.5.1.</span> <span class="nav-text">构造：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E5%8F%89%E6%8E%92%E5%BA%8F%E6%A0%91"><span class="nav-number">1.3.6.</span> <span class="nav-text">二叉排序树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%B3%E8%A1%A1%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="nav-number">1.3.7.</span> <span class="nav-text">平衡二叉树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#B-%E6%A0%91"><span class="nav-number">1.3.8.</span> <span class="nav-text">B-树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Trie-%E6%A0%91"><span class="nav-number">1.3.9.</span> <span class="nav-text">Trie 树</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E8%A1%A8-%E7%BB%99%E4%B8%80%E4%B8%AA%E6%95%B0%E6%8D%AE%E5%A6%82%E4%BD%95%E5%AD%98%E5%88%B0%E5%93%88%E5%B8%8C%E8%A1%A8%E4%B8%AD-%E5%A6%82%E4%BD%95%E5%BE%97%E5%88%B0%E8%BF%99%E4%B8%AAkey"><span class="nav-number">1.4.</span> <span class="nav-text">哈希表 给一个数据如何存到哈希表中 如何得到这个key</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">1.4.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E5%87%BD%E6%95%B0"><span class="nav-number">1.4.2.</span> <span class="nav-text">哈希函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%B2%E7%AA%81%E8%A7%A3%E5%86%B3"><span class="nav-number">1.4.3.</span> <span class="nav-text">冲突解决</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%93%BE%E5%9C%B0%E5%9D%80%E6%B3%95"><span class="nav-number">1.4.4.</span> <span class="nav-text">链地址法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E5%AD%A6%E8%BF%87%E5%93%AA%E4%BA%9B"><span class="nav-number">1.5.</span> <span class="nav-text">算法学过哪些</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95"><span class="nav-number">1.5.1.</span> <span class="nav-text">常见排序算法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E7%A8%B3%E5%AE%9A%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E6%9C%89%EF%BC%9A"><span class="nav-number">1.5.1.1.</span> <span class="nav-text">常见的稳定排序算法有：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E4%B8%8D%E7%A8%B3%E5%AE%9A%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E6%9C%89%EF%BC%9A"><span class="nav-number">1.5.1.2.</span> <span class="nav-text">常见的不稳定排序算法有：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%9F%A5%E6%89%BE%E7%AE%97%E6%B3%95"><span class="nav-number">1.5.2.</span> <span class="nav-text">常用查找算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%9A%84%E5%88%86%E5%8C%BA%EF%BC%9F"><span class="nav-number">1.6.</span> <span class="nav-text">内存的分区？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A0%86%E5%92%8C%E6%A0%88%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%9F-%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%8E%BB%E7%AE%A1%E7%90%86%E6%A0%88%E7%9A%84%E5%86%85%E5%AD%98-%E6%98%AF%E8%BF%90%E8%A1%8C%E6%9C%9F%E9%97%B4%E8%BF%98%E6%98%AF%E7%BC%96%E8%AF%91%E4%B9%8B%E5%90%8E%E5%B0%B1%E7%A1%AE%E5%AE%9A%E4%BA%86"><span class="nav-number">1.7.</span> <span class="nav-text">堆和栈的区别？ 系统如何去管理栈的内存 是运行期间还是编译之后就确定了?</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%88"><span class="nav-number">1.7.1.</span> <span class="nav-text">栈</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A0%86-1"><span class="nav-number">1.7.2.</span> <span class="nav-text">堆</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A0%86%E5%92%8C%E6%A0%88%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.7.3.</span> <span class="nav-text">堆和栈的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7%E6%96%B9%E5%BC%8F"><span class="nav-number">1.7.3.1.</span> <span class="nav-text">申请方式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7%E5%90%8E%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%93%8D%E5%BA%94"><span class="nav-number">1.7.3.2.</span> <span class="nav-text">申请后系统的响应</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7%E5%A4%A7%E5%B0%8F%E7%9A%84%E9%99%90%E5%88%B6"><span class="nav-number">1.7.3.3.</span> <span class="nav-text">申请大小的限制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7%E6%95%88%E7%8E%87"><span class="nav-number">1.7.3.4.</span> <span class="nav-text">申请效率</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E5%86%85%E5%AE%B9"><span class="nav-number">1.7.3.5.</span> <span class="nav-text">存储内容</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AD%98%E5%8F%96%E6%95%88%E7%8E%87"><span class="nav-number">1.7.3.6.</span> <span class="nav-text">存取效率</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%82%A3%E7%A7%8D%E5%86%85%E5%AD%98%E5%AE%B9%E6%98%93%E4%BA%A7%E7%94%9F%E5%86%85%E5%AD%98%E7%A2%8E%E7%89%87-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E4%BA%A7%E7%94%9F%E5%86%85%E5%AD%98%E7%A2%8E%E7%89%87"><span class="nav-number">1.8.</span> <span class="nav-text">那种内存容易产生内存碎片? 为什么会产生内存碎片</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%A2%8E%E7%89%87"><span class="nav-number">1.8.1.</span> <span class="nav-text">内存碎片</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%A2%8E%E7%89%87%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.8.2.</span> <span class="nav-text">内存碎片类型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%86%85%E9%83%A8%E7%A2%8E%E7%89%87%EF%BC%9A"><span class="nav-number">1.8.2.1.</span> <span class="nav-text">内部碎片：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%A4%96%E9%83%A8%E7%A2%8E%E7%89%87"><span class="nav-number">1.8.2.2.</span> <span class="nav-text">外部碎片</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%9A%84%E5%AF%B9%E9%BD%90"><span class="nav-number">1.9.</span> <span class="nav-text">内存的对齐</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95-%E4%BB%80%E4%B9%88%E6%98%AF%E4%BC%98%E5%85%88%E7%BA%A7%E5%8F%8D%E8%BD%AC%EF%BC%9F"><span class="nav-number">1.10.</span> <span class="nav-text">线程调度算法 什么是优先级反转？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="nav-number">1.10.1.</span> <span class="nav-text">线程调度算法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%85%88%E5%88%B0%E5%85%88%E6%9C%8D%E5%8A%A1%E7%AE%97%E6%B3%95"><span class="nav-number">1.10.1.1.</span> <span class="nav-text">先到先服务算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E7%89%87%E8%BD%AE%E8%BD%AC%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="nav-number">1.10.1.2.</span> <span class="nav-text">时间片轮转调度算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95%E3%80%82"><span class="nav-number">1.10.1.3.</span> <span class="nav-text">优先级调度算法。</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7%E5%8F%8D%E8%BD%AC"><span class="nav-number">1.10.2.</span> <span class="nav-text">优先级反转</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#OC%E7%9A%84%E5%AF%B9%E8%B1%A1%E5%AD%98%E5%9C%A8%E5%93%AA%E9%87%8C-%E5%AD%98%E7%9A%84%E6%98%AF%E9%82%A3%E4%BA%9B%E4%B8%9C%E8%A5%BF%EF%BC%9F"><span class="nav-number">1.10.3.</span> <span class="nav-text">OC的对象存在哪里 存的是那些东西？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%88%B6%E7%B1%BB%E5%92%8C%E5%AD%90%E7%B1%BB%E7%9A%84%E5%86%85%E5%AD%98%E6%98%AF%E5%88%86%E9%85%8D%E5%9C%A8%E4%B8%80%E8%B5%B7%E7%9A%84%E5%90%97%EF%BC%9F-%E7%88%B7%E7%88%B7%E7%B1%BB-%E7%88%B6%E7%B1%BB-%E5%AD%90%E7%B1%BB-%EF%BC%81"><span class="nav-number">1.11.</span> <span class="nav-text">父类和子类的内存是分配在一起的吗？ 爷爷类 父类 子类 ！</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E6%96%B9%E6%B3%95%E7%9A%84%E6%B5%81%E7%A8%8B-%E5%AF%B9%E8%B1%A1%E6%96%B9%E6%B3%95%E5%92%8C%E7%B1%BB%E6%96%B9%E6%B3%95"><span class="nav-number">1.12.</span> <span class="nav-text">调用方法的流程 对象方法和类方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%83%E7%B1%BB%E6%98%AF%E4%B8%AA%E4%BB%80%E4%B9%88%E4%B8%9C%E8%A5%BF-%E5%85%83%E7%B1%BB%E5%8F%AA%E6%98%AF%E5%AD%98%E6%94%BE%E7%B1%BB%E6%96%B9%E6%B3%95%E5%90%97%EF%BC%9F"><span class="nav-number">1.13.</span> <span class="nav-text">元类是个什么东西 元类只是存放类方法吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%88%E8%B0%88Runloop"><span class="nav-number">1.14.</span> <span class="nav-text">谈谈Runloop</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#runloop%E5%92%8C%E7%BA%BF%E7%A8%8B%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB%EF%BC%9F-runloop%E5%92%8Cautoreleasepool%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB"><span class="nav-number">1.15.</span> <span class="nav-text">runloop和线程是什么关系？ runloop和autoreleasepool是什么关系</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Runloop%E5%92%8C%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.15.1.</span> <span class="nav-text">Runloop和线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Runloop%E5%92%8C-autoreleasepool"><span class="nav-number">1.15.2.</span> <span class="nav-text">Runloop和 autoreleasepool</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E4%B8%AArunloop%E4%B8%AD%E5%8F%AF%E4%BB%A5%E6%9C%89%E5%A4%9A%E4%B8%AAautoreleasepool%E5%90%97%EF%BC%9F"><span class="nav-number">1.16.</span> <span class="nav-text">一个runloop中可以有多个autoreleasepool吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%8B%BF%E5%88%B0%E4%B8%80%E4%B8%AArunloop%E7%9A%84%E6%89%80%E6%9C%89%E7%8A%B6%E6%80%81"><span class="nav-number">1.17.</span> <span class="nav-text">如何拿到一个runloop的所有状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSTimer%E6%98%AF%E5%87%86%E7%A1%AE%E7%9A%84timer%E5%90%97%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.18.</span> <span class="nav-text">NSTimer是准确的timer吗？为什么？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E6%9B%B4%E5%87%86%E7%A1%AE%E7%9A%84Timer"><span class="nav-number">1.18.1.</span> <span class="nav-text">其他更准确的Timer</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#CADisplayLink"><span class="nav-number">1.18.1.1.</span> <span class="nav-text">CADisplayLink</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GCD%E5%AE%9A%E6%97%B6%E5%99%A8"><span class="nav-number">1.18.1.2.</span> <span class="nav-text">GCD定时器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#mach-absolute-time"><span class="nav-number">1.18.1.3.</span> <span class="nav-text">mach_absolute_time</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GCD-%E9%98%9F%E5%88%97%E5%92%8C%E7%BA%BF%E7%A8%8B%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB%EF%BC%9F"><span class="nav-number">1.19.</span> <span class="nav-text">GCD 队列和线程是什么关系？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%9F%E5%88%97"><span class="nav-number">1.19.1.</span> <span class="nav-text">队列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.19.2.</span> <span class="nav-text">线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%A4%E5%8F%89%E5%87%BA%E7%8E%B0%E7%9A%84%E6%83%85%E5%86%B5"><span class="nav-number">1.19.3.</span> <span class="nav-text">交叉出现的情况</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%B2%E8%A1%8C%E9%98%9F%E5%88%97%EF%BC%8C%E5%90%8C%E6%AD%A5%E6%89%A7%E8%A1%8C"><span class="nav-number">1.19.3.1.</span> <span class="nav-text">串行队列，同步执行</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%B2%E8%A1%8C%E9%98%9F%E5%88%97%EF%BC%8C%E5%BC%82%E6%AD%A5%E6%89%A7%E8%A1%8C"><span class="nav-number">1.19.3.2.</span> <span class="nav-text">串行队列，异步执行</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E9%98%9F%E5%88%97%EF%BC%8C%E5%BC%82%E6%AD%A5%E6%89%A7%E8%A1%8C"><span class="nav-number">1.19.3.3.</span> <span class="nav-text">并发队列，异步执行</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E9%98%9F%E5%88%97%EF%BC%8C%E5%90%8C%E6%AD%A5%E6%89%A7%E8%A1%8C"><span class="nav-number">1.19.3.4.</span> <span class="nav-text">并发队列，同步执行</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%BB%E9%98%9F%E5%88%97%EF%BC%8C%E5%BC%82%E6%AD%A5%E6%89%A7%E8%A1%8C"><span class="nav-number">1.19.3.5.</span> <span class="nav-text">主队列，异步执行</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%BB%E9%98%9F%E5%88%97%E3%80%81%E5%90%8C%E6%AD%A5%E6%89%A7%E8%A1%8C"><span class="nav-number">1.19.3.6.</span> <span class="nav-text">主队列、同步执行</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E4%BB%BB%E5%8A%A1%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">1.19.3.7.</span> <span class="nav-text">同步任务的特点</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E9%98%9F%E5%88%97"><span class="nav-number">1.19.3.8.</span> <span class="nav-text">全局队列</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E9%98%9F%E5%88%97%E5%8F%AF%E4%BB%A5%E7%AE%A1%E7%90%86%E5%A4%9A%E5%B0%91%E7%BA%BF%E7%A8%8B%EF%BC%9F"><span class="nav-number">1.20.</span> <span class="nav-text">一个队列可以管理多少线程？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%B2%E8%A1%8C%E9%98%9F%E5%88%97%E4%B8%AD%E7%9A%84%E6%89%80%E6%9C%89%E4%BB%BB%E5%8A%A1%E9%83%BD%E4%BC%9A%E5%9C%A8%E4%B8%80%E6%9D%A1%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%89%A7%E8%A1%8C%E5%90%97"><span class="nav-number">1.20.1.</span> <span class="nav-text">串行队列中的所有任务都会在一条线程中执行吗</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%99%BD%E6%9D%BF%E7%94%BB%E7%BA%BF-%E5%A6%82%E4%BD%95%E5%9C%A8%E7%82%B9%E4%B9%8B%E9%97%B4%E8%BF%9E%E7%BA%BF-%E7%94%A8%E4%BB%80%E4%B9%88%E5%8E%BB%E9%87%8D%E7%BB%98%E7%9A%84"><span class="nav-number">1.21.</span> <span class="nav-text">白板画线(如何在点之间连线)  用什么去重绘的</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-number">2.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2018/04/21/latest-interview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          祭最近的一次面试
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-04-21 18:47:28" itemprop="dateCreated datePublished" datetime="2018-04-21T18:47:28+08:00">2018-04-21</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:11:53" itemprop="dateModified" datetime="2020-07-19T22:11:53+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E9%9D%A2%E8%AF%95/" itemprop="url" rel="index"><span itemprop="name">面试</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2018/04/21/latest-interview/" class="post-meta-item leancloud_visitors" data-flag-title="祭最近的一次面试" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>最近工作事情不多,本着紧跟潮流的想法,在公司附近找了几家公司面试,涨涨经验顺便看看最近iOS都在招什么方向的的人！ 本人计算机专业毕业(不过基本已经把老师讲的还给老师了),因此在这次面试中 完全被虐。因此,打算写一篇文章来祭奠我的这次面试！</p>
+<a id="more"></a>
+
+<h2 id="面试题目"><a href="#面试题目" class="headerlink" title="面试题目"></a>面试题目</h2><h3 id="都学过哪些数据结构？"><a href="#都学过哪些数据结构？" class="headerlink" title="都学过哪些数据结构？"></a>都学过哪些数据结构？</h3><p>数据结构：是指相互之间存在着一种或多种关系的数据元素的集合和该集合中数据元素之间的关系组成<br>包括三个组成成分：数据的逻辑结构、物理结构（存储结构）、数据运算结构。</p>
+<h4 id="数据的逻辑结构："><a href="#数据的逻辑结构：" class="headerlink" title="数据的逻辑结构："></a>数据的逻辑结构：</h4><ul>
+<li>1、集合（数据之间无关系）</li>
+<li>2、线性结构（一对一）</li>
+<li>3、树形结构（一对多）</li>
+<li>4、图形结构（多对多）</li>
+</ul>
+<h4 id="数据的物理结构：指数据在计算机存储空间的存放形式"><a href="#数据的物理结构：指数据在计算机存储空间的存放形式" class="headerlink" title="数据的物理结构：指数据在计算机存储空间的存放形式"></a>数据的物理结构：指数据在计算机存储空间的存放形式</h4><p>顺序存储、链表存储、索引存储、散列存储</p>
+<h5 id="常用的数据结构："><a href="#常用的数据结构：" class="headerlink" title="常用的数据结构："></a>常用的数据结构：</h5><ul>
+<li>1、数组</li>
+<li>2、栈（先进后出、线性表）</li>
+<li>3、队列（先进先出、后进后出、线性表）</li>
+<li>4、链表（每个节点包括两个部分：一个存储数据元素的数据域、另一个存储下一个节点地址的指针域）</li>
+<li>5、树</li>
+<li>6、图</li>
+<li>7、堆（是一种动态的树形结构）</li>
+<li>8、散列表</li>
+</ul>
+<h3 id="数组和链表的区别"><a href="#数组和链表的区别" class="headerlink" title="数组和链表的区别"></a>数组和链表的区别</h3><h4 id="顺序表"><a href="#顺序表" class="headerlink" title="顺序表"></a>顺序表</h4><p>顺序表是在计算机内存中以数组的形式保存的线性表，是指用一组地址连续的存储单元依次存储数据元素的线性结构。只要确定了起始位置，表中任一元素的地址都通过下列公式得到：LOC（ai）=LOC（a1）+（i-1）*L 　1≤i≤n 其中，L是元素占用存储单元的长度。</p>
+<h5 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h5><ul>
+<li>长度固定，必须在分配内存之前确定数组的长度。</li>
+<li>存储空间连续，即允许元素的随机访问。</li>
+<li>存储密度大，内存中存储的全部是数据元素。</li>
+<li>要访问特定元素，可以使用索引访问，时间复杂度为 。</li>
+<li>要想在顺序表中插入或删除一个元素，都涉及到之后所有元素的移动，因此时间复杂度为 。</li>
+</ul>
+<p><img src="https://img-blog.csdn.net/20160323220752422" alt="顺序表"></p>
+<h4 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h4><p>单链表是一种链式存取的数据结构，用一组地址任意的存储单元存放线性表中的数据元素。它的数据是以结点（类型一般为结构体）来表示的，每个结点的构成：数据（类型为要存储的数据的类型） + 指针（结构体指针），数据就是链表里具体要存储的东西，指针就是用来把每个节点都连接起来，使它们形成一个链状</p>
+<p><img src="https://img-blog.csdn.net/20160323214456532" alt="链表"></p>
+<h5 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h5><ul>
+<li>长度不固定，可以任意增删。</li>
+<li>存储空间不连续，数据元素之间使用指针相连，每个数据元素只能访问周围的一个元素（根据单链表还是双链表有所不同）。</li>
+<li>存储密度小，因为每个数据元素，都需要额外存储一个指向下一元素的指针（双链表则需要两个指针）。</li>
+<li>要访问特定元素，只能从链表头开始，遍历到该元素，时间复杂度为 。</li>
+<li>在特定的数据元素之后插入或删除元素，不涉及到其他元素的移动，因此时间复杂度为 。双链表还允许在特定的数据元素之前插入或删除元素。</li>
+</ul>
+<h4 id="区别和优缺点"><a href="#区别和优缺点" class="headerlink" title="区别和优缺点"></a>区别和优缺点</h4><h5 id="空间的开辟"><a href="#空间的开辟" class="headerlink" title="空间的开辟"></a>空间的开辟</h5><p>顺序表的实现一般是实现连续开辟一段空间，然后在进行数据的增删查改（静态顺序表），所以顺序表一般是固定空间大小的；而单链表则是一次只开辟一个结点的空间，用来存储当前要保存的数据及指向下一个结点或NULL的指针，所以单链表的空间大小时动态变化的。（当然，顺序表也可以在初始化时利用malloc函数来开辟一块空间，每当空间不够用时，再用realloc来把当前空间扩容成2倍，从而也能实现空间的动态变化（动态顺序表））。</p>
+<h5 id="空间的使用"><a href="#空间的使用" class="headerlink" title="空间的使用"></a>空间的使用</h5><p>当我们不知道要存储多少数据时，用顺序表来开辟的空间如果太大，就会造成一定程度上的浪费，而用单链表是实现时，因为是每需要存储一个数据时，才开辟一个空间，虽然有非数据项的指针占空间，但相比顺序表来说，浪费不是那么明显；反之，当我们知道存储的数据的数量时，用顺序表来开辟对应的空间大小，来存储数据，因为顺序表中每个元素的存储密度为 1，就完全不会有浪费的空间，而用单链表，因为每个结点都会有非数据项得指针，那么就会造成空间的浪费。再者 链表可能会产生内存碎片</p>
+<h5 id="访问随机元素的时间复杂度"><a href="#访问随机元素的时间复杂度" class="headerlink" title="访问随机元素的时间复杂度"></a>访问随机元素的时间复杂度</h5><p>因为顺序表的结构就像是数组一样，可以用下标来访问它的元素，所以它的元素是支持随机访问的；相比之下，单链表的数据是链式存储的，它的元素是不支持随机访问的，想要知道某个元素，只能从头结点开始遍历整个链表，知道找到了该元素为止。因此顺序表访问随机元素的时间复杂度是O（1），而单链表访问随机元素的平均时间复杂度是O（n）。</p>
+<h6 id="随机位置插入、删除元素的时间复杂度"><a href="#随机位置插入、删除元素的时间复杂度" class="headerlink" title="随机位置插入、删除元素的时间复杂度"></a>随机位置插入、删除元素的时间复杂度</h6><p>因为顺序表的元素是连续存储的，因此要在特定位置插入、删除元素需要把它之后的元素全部后移或前移一个元素的位置，时间开销很大；而单链表在插入或删除元素时，只需要改变它的前驱元素及插入或删除元素的指向即可。因此，顺序表在插入随机位置插入、删除元素的平均时间复杂度是O（n），单链表在插入随机位置插入、删除元素的时间复杂度是O（1）。</p>
+<p>综上 <code>在查询操作使用的比较频繁时，使用顺序表会好一些；在插入、删除操作使用的比较频繁时，使用单链表会好一些。</code></p>
+<h3 id="树学过哪些树-什么是完全二叉树-霍夫曼树-红黑树-图"><a href="#树学过哪些树-什么是完全二叉树-霍夫曼树-红黑树-图" class="headerlink" title="树学过哪些树 什么是完全二叉树 霍夫曼树 红黑树 图"></a>树学过哪些树 什么是完全二叉树 霍夫曼树 红黑树 图</h3><h4 id="二叉树"><a href="#二叉树" class="headerlink" title="二叉树"></a>二叉树</h4><p>二叉树是有限个结点的集合，这个集合或者是空集，或者是由一个根结点和两株互不相交的二叉树组成，其中一株叫根的做左子树，另一棵叫做根的右子树</p>
+<p>二叉树的性质：</p>
+<ul>
+<li>性质1：在二叉树中第 i 层的结点数最多为2^(i-1)（i ≥ 1）</li>
+<li>性质2：高度为k的二叉树其结点总数最多为2^k－1（ k ≥ 1）</li>
+<li>性质3：对任意的非空二叉树 T ，如果叶结点的个数为 n0，而其度为 2 的结点数为 n2，则：n0 = n2 + 1</li>
+</ul>
+<h4 id="满二叉树"><a href="#满二叉树" class="headerlink" title="满二叉树"></a>满二叉树</h4><p>深度为k且有2^k －1个结点的二叉树称为满二叉树</p>
+<ul>
+<li>性质4：具有 n 个结点的完全二叉树的深度为 log2n + 1</li>
+</ul>
+<p><code>注意</code>:仅有前序和后序遍历，不能确定一个二叉树，必须有中序遍历的结果</p>
+<h4 id="完全二叉树"><a href="#完全二叉树" class="headerlink" title="完全二叉树"></a>完全二叉树</h4><p>深度为 k 的，有n个结点的二叉树，当且仅当其每个结点都与深度为 k 的满二叉树中编号从 1 至 n 的结点一一对应，称之为完全二叉树。（除最后一层外，每一层上的节点数均达到最大值；在最后一层上只缺少右边的若干结点）</p>
+<h4 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h4><p>如果一棵完全二叉树的任意一个非终端结点的元素都不小于其左儿子结点和右儿子结点（如果有的话） 的元素，则称此完全二叉树为<code>最大堆</code>。</p>
+<p>同样，如果一棵完全二叉树的任意一个非终端结点的元素都不大于其左儿子结点和右儿子结点（如果 有的话）的元素，则称此完全二叉树为<code>最小堆</code>。</p>
+<p><code>最大堆的根结点中的元素在整个堆中是最大的</code>；</p>
+<p><code>最小堆的根结点中的元素在整个堆中是最小的</code>。</p>
+<h4 id="哈弗曼树"><a href="#哈弗曼树" class="headerlink" title="哈弗曼树"></a>哈弗曼树</h4><p>定义：给定n个权值作为n的叶子结点，构造一棵二叉树，若带权路径长度达到最小，称这样的二叉树为最优二叉树，也称为哈夫曼树(Huffman tree)。</p>
+<h5 id="构造："><a href="#构造：" class="headerlink" title="构造："></a>构造：</h5><p>假设有n个权值，则构造出的哈夫曼树有n个叶子结点。 n个权值分别设为 w1、w2、…、wn，则哈夫曼树的构造规则为：</p>
+<ul>
+<li>将w1、w2、…，wn看成是有 n 棵树的森林(每棵树仅有一个结点)；</li>
+<li>在森林中选出两个根结点的权值最小的树合并，作为一棵新树的左、右子树，且新树的根结点权值为其左、右子树根结点权值之和；</li>
+<li>从森林中删除选取的两棵树，并将新树加入森林；</li>
+<li>重复(2)、(3)步，直到森林中只剩一棵树为止，该树即为所求得的哈夫曼树。</li>
+</ul>
+<p><img src="https://gss3.bdstatic.com/-Po3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike80%2C5%2C5%2C80%2C26/sign=408997773a12b31bd361c57be7715d1f/0df431adcbef7609783292af2ddda3cc7cd99ec0.jpg" alt="哈弗曼树"></p>
+<h4 id="二叉排序树"><a href="#二叉排序树" class="headerlink" title="二叉排序树"></a>二叉排序树</h4><p>二叉排序树（Binary Sort Tree）又称二叉查找树（Binary Search Tree），亦称二叉搜索树。</p>
+<p>二叉排序树或者是一棵空树，或者是具有下列性质的二叉树：</p>
+<ul>
+<li>若左子树不空，则左子树上所有结点的值均小于它的根结点的值；</li>
+<li>若右子树不空，则右子树上所有结点的值均大于或等于它的根结点的值；</li>
+<li>左、右子树也分别为二叉排序树；</li>
+<li>没有键值相等的节点</li>
+</ul>
+<p>二分查找的时间复杂度是O(log(n))，最坏情况下的时间复杂度是O(n)（相当于顺序查找）</p>
+<p><img src="https://gss2.bdstatic.com/9fo3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike80%2C5%2C5%2C80%2C26/sign=b3c80026d72a6059461de948495d5ffe/94cad1c8a786c9179df9bed6c93d70cf3ac75763.jpg" alt="二叉排序树"></p>
+<h4 id="平衡二叉树"><a href="#平衡二叉树" class="headerlink" title="平衡二叉树"></a>平衡二叉树</h4><p>平衡二叉树（balanced binary tree）,又称 AVL 树。它或者是一棵空树,或者是具有如下性质的二叉树：</p>
+<ul>
+<li>它的左子树和右子树都是平衡二叉树，</li>
+<li>左子树和右子树的深度之差的绝对值不超过1。</li>
+</ul>
+<p>平衡二叉树是对二叉搜索树(又称为二叉排序树)的一种改进。二叉搜索树有一个缺点就是，树的结构是无法预料的，随意性很大，它只与节点的值和插入的顺序有关系，往往得到的是一个不平衡的二叉树。在最坏的情况下，可能得到的是一个单支二叉树，其高度和节点数相同，相当于一个单链表，对其正常的时间复杂度有O(log(n))变成了O(n)，从而丧失了二叉排序树的一些应该有的优点</p>
+<p><img src="https://gss2.bdstatic.com/9fo3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike80%2C5%2C5%2C80%2C26/sign=f997b13a8c01a18be4e61a1dff466c6d/3801213fb80e7bec26a434f7242eb9389b506bad.jpg" alt="平衡二叉树"></p>
+<h4 id="B-树"><a href="#B-树" class="headerlink" title="B-树"></a>B-树</h4><p>B-树：B-树是一种非二叉的查找树， 除了要满足查找树的特性，还要满足以下结构特性：</p>
+<p>一棵 m 阶的B-树：</p>
+<ul>
+<li>树的根或者是一片叶子(一个节点的树),或者其儿子数在 2 和 m 之间。</li>
+<li>除根外，所有的非叶子结点的孩子数在 m/2 和 m 之间。</li>
+<li>所有的叶子结点都在相同的深度。</li>
+</ul>
+<p>B-树的平均深度为logm/2(N)。执行查找的平均时间为O(logm)；</p>
+<h4 id="Trie-树"><a href="#Trie-树" class="headerlink" title="Trie 树"></a>Trie 树</h4><p>Trie 树，又称前缀树，字典树， 是一种有序树，用于保存关联数组，其中的键通常是字符串。与二叉查找树不同，键不是直接保存在节点中，而是由节点在树中的位置决定。一个节点的所有子孙都有相同的前缀，也就是这个节点对应的字符串，而根节点对应空字符串。一般情况下，不是所有的节点都有对应的值，只有叶子节点和部分内部节点所对应的键才有相关的值。</p>
+<p>Trie 树查询和插入时间复杂度都是 O(n)，是一种以空间换时间的方法。当节点树较多的时候，Trie 树占用的内存会很大。</p>
+<p>Trie 树常用于搜索提示。如当输入一个网址，可以自动搜索出可能的选择。当没有完全匹配的搜索结果，可以返回前缀最相似的可能。</p>
+<h3 id="哈希表-给一个数据如何存到哈希表中-如何得到这个key"><a href="#哈希表-给一个数据如何存到哈希表中-如何得到这个key" class="headerlink" title="哈希表 给一个数据如何存到哈希表中 如何得到这个key"></a>哈希表 给一个数据如何存到哈希表中 如何得到这个key</h3><h4 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h4><p>哈希表（Hash Table，也叫散列表），是根据关键码值 (Key-Value) 而直接进行访问的数据结构。也就是说，它通过把关键码值映射到表中一个位置来访问记录，以加快查找的速度。哈希表的实现主要需要解决两个问题，哈希函数和冲突解决。</p>
+<h4 id="哈希函数"><a href="#哈希函数" class="headerlink" title="哈希函数"></a>哈希函数</h4><p>根据key,计算出key对应记录的储存位置</p>
+<p><code>position = f(key)</code></p>
+<p>哈希函数也叫散列函数，它对不同的输出值得到一个固定长度的消息摘要。理想的哈希函数对于不同的输入应该产生不同的结构，同时散列结果应当具有同一性（输出值尽量均匀）和雪崩效应（微小的输入值变化使得输出值发生巨大的变化）</p>
+<h4 id="冲突解决"><a href="#冲突解决" class="headerlink" title="冲突解决"></a>冲突解决</h4><p>现实中的哈希函数不是完美的，当两个不同的输入值对应一个输出值时，就会产生“碰撞”，这个时候便需要解决冲突。</p>
+<p>常见的冲突解决方法有开放定址法，链地址法，建立公共溢出区等。实际的哈希表实现中，使用最多的是链地址法</p>
+<h4 id="链地址法"><a href="#链地址法" class="headerlink" title="链地址法"></a>链地址法</h4><p>链地址法的基本思想是，为每个 Hash 值建立一个单链表，当发生冲突时，将记录插入到链表中。</p>
+<p>例 2 设有 8 个元素 { a,b,c,d,e,f,g,h } ，采用某种哈希函数得到的地址分别为： {0 ， 2 ， 4 ， 1 ， 0 ， 8 ， 7 ， 2} ，当哈希表长度为 10 时，采用链地址法解决冲突的哈希表如下图所示：</p>
+<p><img src="https://github.com/HIT-Alibaba/interview/blob/master/img/hash-table.jpg?raw=true" alt="链地址法"></p>
+<h3 id="算法学过哪些"><a href="#算法学过哪些" class="headerlink" title="算法学过哪些"></a>算法学过哪些</h3><h4 id="常见排序算法"><a href="#常见排序算法" class="headerlink" title="常见排序算法"></a>常见排序算法</h4><h5 id="常见的稳定排序算法有："><a href="#常见的稳定排序算法有：" class="headerlink" title="常见的稳定排序算法有："></a>常见的稳定排序算法有：</h5><ul>
+<li>冒泡排序（Bubble Sort） — O(n²)</li>
+<li>插入排序（Insertion Sort）— O(n²)</li>
+<li>桶排序（Bucket Sort）— O(n); 需要 O(k) 额外空间</li>
+<li>计数排序 (Counting Sort) — O(n+k); 需要 O(n+k) 额外空间</li>
+<li>合并排序（Merge Sort）— O(nlogn); 需要 O(n) 额外空间</li>
+<li>二叉排序树排序 （Binary tree sort） — O(n log n) 期望时间; O(n²)最坏时间; 需要 O(n) 额外空间</li>
+<li>基数排序（Radix sort）— O(n·k); 需要 O(n) 额外空间</li>
+</ul>
+<h5 id="常见的不稳定排序算法有："><a href="#常见的不稳定排序算法有：" class="headerlink" title="常见的不稳定排序算法有："></a>常见的不稳定排序算法有：</h5><ul>
+<li>选择排序（Selection Sort）— O(n²)</li>
+<li>希尔排序（Shell Sort）— O(nlogn)</li>
+<li>堆排序（Heapsort）— O(nlogn)</li>
+<li>快速排序（Quicksort）— O(nlogn) 期望时间, O(n²) 最坏情况; 对于大的、乱数串行一般相信是最快的已知排</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/whuslei/article/details/6442755">常见排序算法小结</a></p>
+<h4 id="常用查找算法"><a href="#常用查找算法" class="headerlink" title="常用查找算法"></a>常用查找算法</h4><ul>
+<li>顺序查找 时间复杂度为O(n)</li>
+<li>二分查找 O(log2n)</li>
+<li>分块查找</li>
+<li>树表查找</li>
+<li>哈希表查找</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="http://codingxiaxw.cn/2017/01/14/66-leetcode-find/">常用查找算法</a></p>
+<h3 id="内存的分区？"><a href="#内存的分区？" class="headerlink" title="内存的分区？"></a>内存的分区？</h3><p>一个程序的可执行文件在内存中的结果，从大的角度可以分为两个部分：只读部分和可读写部分。只读部分包括程序代码（.text）和程序中的常量（.rodata）。可读写部分（也就是变量）大致可以分成下面几个部分：</p>
+<ul>
+<li>.data： 初始化了的全局变量和静态变量</li>
+<li>.bss： 即 Block Started by Symbol， 未初始化的全局变量和静态变量（这个我感觉上课真的没讲过啊我去。。。）</li>
+<li>heap： 堆，使用 malloc, realloc, 和 free 函数控制的变量，堆在所有的线程，共享库，和动态加载的模块中被共享使用</li>
+<li>stack： 栈，函数调用时使用栈来保存函数现场，自动变量（即生命周期限制在某个 scope 的变量）也存放在栈中。</li>
+<li>文字常量区   —常量字符串就是放在这里的。程序结束后由系统释放  </li>
+<li>程序代码区—存放函数体的二进制代码。</li>
+</ul>
+<h3 id="堆和栈的区别？-系统如何去管理栈的内存-是运行期间还是编译之后就确定了"><a href="#堆和栈的区别？-系统如何去管理栈的内存-是运行期间还是编译之后就确定了" class="headerlink" title="堆和栈的区别？ 系统如何去管理栈的内存 是运行期间还是编译之后就确定了?"></a>堆和栈的区别？ 系统如何去管理栈的内存 是运行期间还是编译之后就确定了?</h3><h4 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h4><p>栈是用于存放本地变量，内部临时变量以及有关上下文的内存区域。程序在调用函数时，<code>操作系统会自动通过压栈和弹栈完成保存函数现场等操作</code>，不需要程序员手动干预。</p>
+<p>栈是一块连续的内存区域，栈顶的地址和栈的最大容量是系统预先规定好的。能从栈获得的空间较小。如果申请的空间超过栈的剩余空间时，例如<code>递归深度过深</code>，将提示<code>stackoverflow</code>。</p>
+<p>栈是机器系统提供的数据结构，计算机会在底层对栈提供支持：分配专门的寄存器存放栈的地址，压栈出栈都有专门的指令执行，这就决定了栈的效率比较高</p>
+<h4 id="堆-1"><a href="#堆-1" class="headerlink" title="堆"></a>堆</h4><p>堆是用于存放除了栈里的东西之外所有其他东西的内存区域，当使用malloc和free时就是在操作堆中的内存。对于堆来说，<code>释放工作由程序员控制</code>，<code>容易产生memory leak</code>。</p>
+<p>堆是向高地址扩展的数据结构，<code>是不连续的内存区域</code>。这是由于系统是用链表来存储的空闲内存地址的，自然是不连续的，而链表的遍历方向是由低地址向高地址。堆的大小受限于计算机系统中有效的虚拟内存。由此可见，堆获得的空间比较灵活，也比较大。</p>
+<p>对于堆来讲，<code>频繁的new/delete势必会造成内存空间的不连续，从而造成大量的碎片，使程序效率降低</code>。对于栈来讲，则不会存在这个问题，<code>因为栈是先进后出的队列，永远都不可能有一个内存块从栈中间弹出</code>。</p>
+<p>堆都是动态分配的，没有静态分配的堆。栈有2种分配方式：静态分配和动态分配。静态分配是编译器完成的，比如局部变量的分配。动态分配由alloca函数进行分配，但是栈的动态分配和堆是不同的，他的动态分配是由编译器进行释放，无需我们手工实现。</p>
+<p>计算机底层并没有对堆的支持，堆则是C/C++函数库提供的，同时由于上面提到的碎片问题，都会导致堆的效率比栈要低</p>
+<h4 id="堆和栈的区别"><a href="#堆和栈的区别" class="headerlink" title="堆和栈的区别"></a>堆和栈的区别</h4><h5 id="申请方式"><a href="#申请方式" class="headerlink" title="申请方式"></a>申请方式</h5><ul>
+<li>栈：由系统自动分配</li>
+<li>堆：  需要程序员自己申请，并指明大小，在c中malloc函数    </li>
+</ul>
+<h5 id="申请后系统的响应"><a href="#申请后系统的响应" class="headerlink" title="申请后系统的响应"></a>申请后系统的响应</h5><ul>
+<li><p>栈：只要栈的剩余空间大于所申请空间，系统将为程序提供内存，否则将报异常提示栈溢<br>出。   </p>
+</li>
+<li><p>堆：首先应该知道操作系统有一个记录空闲内存地址的链表，当系统收到程序的申请时，<br>会遍历该链表，寻找第一个空间大于所申请空间的堆结点，然后将该结点从空闲结点链表<br>中删除，并将该结点的空间分配给程序，另外，对于大多数系统，会在这块内存空间中的<br>首地址处记录本次分配的大小，这样，代码中的delete语句才能正确的释放本内存空间。<br>另外，由于找到的堆结点的大小不一定正好等于申请的大小，系统会自动的将多余的那部<br>分重新放入空闲链表中。    </p>
+</li>
+</ul>
+<h5 id="申请大小的限制"><a href="#申请大小的限制" class="headerlink" title="申请大小的限制"></a>申请大小的限制</h5><ul>
+<li><p>栈 ：栈顶的地址和栈的最大容量是系统预先规定好的 如果申请的空间超过栈的剩余空间时，将<br>提示overflow。因此，能从栈获得的空间较小</p>
+</li>
+<li><p>堆：是不连续的内存区域 堆的大小受限于计算机系统中有效的虚拟内存</p>
+</li>
+</ul>
+<h5 id="申请效率"><a href="#申请效率" class="headerlink" title="申请效率"></a>申请效率</h5><ul>
+<li>栈：栈由系统自动分配，速度较快。但程序员是无法控制的。    </li>
+<li>堆：堆是由new分配的内存，一般速度比较慢，而且容易产生内存碎片,不过用起来最方便.    </li>
+</ul>
+<h5 id="存储内容"><a href="#存储内容" class="headerlink" title="存储内容"></a>存储内容</h5><ul>
+<li><p>栈:在函数调用时，第一个进栈的是主函数中后的下一条指令（函数调用语句的下一条可<br>执行语句）的地址，然后是函数的各个参数，在大多数的C编译器中，参数是由右往左入栈<br>的，然后是函数中的局部变量。注意静态变量是不入栈的。 </p>
+</li>
+<li><p>堆:一般是在堆的头部用一个字节存放堆的大小。堆中的具体内容由程序员安排。    </p>
+</li>
+</ul>
+<h5 id="存取效率"><a href="#存取效率" class="headerlink" title="存取效率"></a>存取效率</h5><p>栈&gt;堆</p>
+<h3 id="那种内存容易产生内存碎片-为什么会产生内存碎片"><a href="#那种内存容易产生内存碎片-为什么会产生内存碎片" class="headerlink" title="那种内存容易产生内存碎片? 为什么会产生内存碎片"></a>那种内存容易产生内存碎片? 为什么会产生内存碎片</h3><p>内存碎片容易发生在堆上,因为只有堆我们才会自己去管理内存的申请使用和释放,栈区是不会碎片化的,因为栈区一直遵守后进先出的逻辑。</p>
+<h4 id="内存碎片"><a href="#内存碎片" class="headerlink" title="内存碎片"></a>内存碎片</h4><p>内存分配有静态分配和动态分配两种</p>
+<p>静态分配在程序编译链接时分配的大小和使用寿命就已经确定，而应用上要求操作系统可以提供给进程运行时申请和释放任意大小内存的功能，这就是内存的动态分配</p>
+<p><code>动态分配会导致内存的碎片化</code></p>
+<h4 id="内存碎片类型"><a href="#内存碎片类型" class="headerlink" title="内存碎片类型"></a>内存碎片类型</h4><h5 id="内部碎片："><a href="#内部碎片：" class="headerlink" title="内部碎片："></a>内部碎片：</h5><p>因为所有的内存分配必须起始于可被 4、8 或 16 整除（视处理器体系结构而定）的地址或者因为MMU的分页机制的限制，决定内存分配算法<code>仅能把预定大小的内存块分配给客户</code>。假设当某个客户请求一个 43 字节的内存块时，因为没有适合大小的内存，所以它可能会获得 44字节、48字节等稍大一点的字节，因此由所需大小四舍五入而产生的多余空间就叫内部碎片。</p>
+<h5 id="外部碎片"><a href="#外部碎片" class="headerlink" title="外部碎片"></a>外部碎片</h5><p>频繁的分配与回收物理页面会导致大量的、连续且小的页面块夹杂在已分配的页面中间，就会产生外部碎片。假设有一块一共有100个单位的连续空闲内存空间，范围是099。如果你从中申请一块内存，如10个单位，那么申请出来的内存块就为09区间。这时候你继续申请一块内存，比如说5个单位大，第二块得到的内存块就应该为1014区间。如果你把第一块内存块释放，然后再申请一块大于10个单位的内存块，比如说20个单位。因为刚被释放的内存块不能满足新的请求，所以只能从15开始分配出20个单位的内存块。现在整个内存空间的状态是09空闲，1014被占用，1524被占用，2599空闲。其中09就是一个内存碎片了。如果1014一直被占用，而以后申请的空间都大于10个单位，那么09就永远用不上了，变成外部碎片</p>
+<h3 id="内存的对齐"><a href="#内存的对齐" class="headerlink" title="内存的对齐"></a>内存的对齐</h3><p>看的我一脸懵逼 直接放别人的文章吧,以后慢慢参悟！</p>
+<p><a target="_blank" rel="noopener" href="https://songlee24.github.io/2014/09/20/memory-alignment/">C/C++内存对齐</a></p>
+<h3 id="线程调度算法-什么是优先级反转？"><a href="#线程调度算法-什么是优先级反转？" class="headerlink" title="线程调度算法 什么是优先级反转？"></a>线程调度算法 什么是优先级反转？</h3><h4 id="线程调度算法"><a href="#线程调度算法" class="headerlink" title="线程调度算法"></a>线程调度算法</h4><h5 id="先到先服务算法"><a href="#先到先服务算法" class="headerlink" title="先到先服务算法"></a>先到先服务算法</h5><p>用一个FIFO（先进先出）队列就可以满足要求。所有的线程构成一个队列，最先进入队列的线程获得处理器执行权，等到放弃处理器执行权时，又回到队列尾部，下一个线程继续执行。若有新的线程进来，则添加到队列尾部。此算法简单，易于实现，但是，如果每个线程执行的任务单元所需要的时间长短不一的话，则算法的实际效果可能非常不公平。</p>
+<h5 id="时间片轮转调度算法"><a href="#时间片轮转调度算法" class="headerlink" title="时间片轮转调度算法"></a>时间片轮转调度算法</h5><p>处理器的时间被分成了最大长度不超过某个值的时间片段，称为时间片，然后，用轮转方法分配给每一个线程。当一个线程获得了处理器执行权以后，按照自身的逻辑执行下去，直到时间片用完，或者自己主动放弃执行权（比如要等待一个信号量）。系统在获得了处理器控制权以后，用轮转方法找到下一个正在等待运行的线程，让它继续执行。这种线程调度方法实现简单，所有满足运行条件的线程排成一个队列，然后按照时间片的间隔，轮流让每一个线程获得处理器执行权。由于时钟中断每次都要打断一个线程的运行，所以，这种做法存在固有的线程切换开销，而时间片长短的选择会影响到线程切换开销所占的比例。在现代操作系统中，时间片通常设置为几毫秒到几十、上百毫秒。由于现代计算机的指令周期越来越短，线程切换开销（通常几百条指令或几千条指令，取决于算法实现的复杂程度）也在减小。这种算法使用很广泛，它不仅简单，也确实能公平地分配处理器资源。</p>
+<h5 id="优先级调度算法。"><a href="#优先级调度算法。" class="headerlink" title="优先级调度算法。"></a>优先级调度算法。</h5><p>在时间片轮转算法中，一个基本的假设是所有的线程都同等重要。这一假设在专用计算机上可能是非常合理的，但是，在现代多用途的计算机上，可能难以胜任多种不同类型的应用程序并发执行的实际情形。优先级调度算法是这种算法的一个改进，其基本思路是，每个线程都有一个优先级值，高优先级的线程总是优先被考虑在处理器上执行。操作系统在管理线程时，可以使用一个优先级队列，或者每一个优先级用一个队列来存放所有满足执行条件的线程，这样，当一个线程用完了它的时间片或者自动放弃处理器执行权时，系统选择优先级最高的线程作为下一个要运行的线程。每一个线程在队列中的位置是由它的优先级来决定的。同等优先级的线程使用轮转或先到先执行的策略。</p>
+<p>简单优先级算法的<code>潜在问题</code>是，高优先级的线程可能会霸占处理器资源不放，从而导致低优先级的线程一点执行机会都没有。所以，一些变种的优先级算法考虑引入动态优先级，即每个线程有静态的优先级和动态的优先级。所谓动态的优先级是在静态优先级的基础上根据某些特定的条件提升或降低线程的优先级，系统调度器根据线程的动态优先级来安排它们的执行顺序。例如，连续执行了多个时间片的线程可能要降低优先级，而长时间没有得到时间片的低优先级线程可能会得到优先级提升。</p>
+<h4 id="优先级反转"><a href="#优先级反转" class="headerlink" title="优先级反转"></a>优先级反转</h4><p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/kuliuheng/p/4080997.html">多线程编程之优先级翻转问题</a></p>
+<h4 id="OC的对象存在哪里-存的是那些东西？"><a href="#OC的对象存在哪里-存的是那些东西？" class="headerlink" title="OC的对象存在哪里 存的是那些东西？"></a>OC的对象存在哪里 存的是那些东西？</h4><p>OC的对象肯定是存放子啊堆中的！</p>
+<p>存放的具体内容 应该是这个对象所属的类所具有的 例如</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">objc_class</span> &#123;</span></span><br><span class="line">    Class _Nonnull isa  OBJC_ISA_AVAILABILITY;  <span class="comment">//isa指针指向类的元类(metaClass)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> !__OBJC2__</span></span><br><span class="line">    Class _Nullable super_class                              OBJC2_UNAVAILABLE; <span class="comment">//父类</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> * _Nonnull name                               OBJC2_UNAVAILABLE; <span class="comment">//类名</span></span><br><span class="line">    <span class="keyword">long</span> version                                             OBJC2_UNAVAILABLE; <span class="comment">//类版本</span></span><br><span class="line">    <span class="keyword">long</span> info                                                OBJC2_UNAVAILABLE; <span class="comment">//类的信息</span></span><br><span class="line">    <span class="keyword">long</span> instance_size                                       OBJC2_UNAVAILABLE; <span class="comment">//类实例对象的大小</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">objc_ivar_list</span> * _<span class="title">Nullable</span> <span class="title">ivars</span>                  <span class="title">OBJC2_UNAVAILABLE</span>;</span> <span class="comment">//实例变量的列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">objc_method_list</span> * _<span class="title">Nullable</span> * _<span class="title">Nullable</span> <span class="title">methodLists</span>                    <span class="title">OBJC2_UNAVAILABLE</span>;</span><span class="comment">//方法列表</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">objc_cache</span> * _<span class="title">Nonnull</span> <span class="title">cache</span>                       <span class="title">OBJC2_UNAVAILABLE</span>;</span> <span class="comment">//方法的缓存</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">objc_protocol_list</span> * _<span class="title">Nullable</span> <span class="title">protocols</span>          <span class="title">OBJC2_UNAVAILABLE</span>;</span> <span class="comment">//协议列表</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">&#125; OBJC2_UNAVAILABLE;</span><br></pre></td></tr></table></figure>
+
+<h3 id="父类和子类的内存是分配在一起的吗？-爷爷类-父类-子类-！"><a href="#父类和子类的内存是分配在一起的吗？-爷爷类-父类-子类-！" class="headerlink" title="父类和子类的内存是分配在一起的吗？ 爷爷类 父类 子类 ！"></a>父类和子类的内存是分配在一起的吗？ 爷爷类 父类 子类 ！</h3><p>创建一个对象的时候，发生了两件事情，一是分配对象所需的内存，二是调用构造函数进行初始化。子类对象包含从父类对象继承过来的成员，实现上来说，一般也是子类的内存区域中有一部分就是父类的内存区域。调用父类构造函数的时候，这块父类对象的内存区域就被初始化了。为了避免未初始化的问题，语法强制子类调用父类构造函数。</p>
+<p>属性（包括父类）都保存在对象本身的存储空间内；本类的实例方法保存在类对象中，本类的类方法保存在元类对象中；父类的实例方法保存在各级 super class 中，父类的类方法保存在各级 super meta class 中。</p>
+<p><img src="https://img-blog.csdn.net/20160513101728296" alt="对象内存"><br><img src="https://img-blog.csdn.net/20160513104920809" alt="类对象"></p>
+<p>子类的对象的大小实际是包含着父类一直到根类的大小的集合。跟方法没有关系。每个类的方法(实例方法和类方法都是固定的) 跟实际的对象没关系！只跟类有关系</p>
+<h3 id="调用方法的流程-对象方法和类方法"><a href="#调用方法的流程-对象方法和类方法" class="headerlink" title="调用方法的流程 对象方法和类方法"></a>调用方法的流程 对象方法和类方法</h3><p><img src="http://static.oschina.net/uploads/img/201311/25085218_epWy.png" alt="方法调用流程"></p>
+<p>如果当前类(元类)没有找到对应的实例方法(类方法),那么就去他的父类(父类的元类)查找,如果一直到根类仍然无法找到这个方法，那么会抛出unrecognized selector sent to instance异常</p>
+<p>如果想要阻止这次异常 可以使用运行时的方法进行补救！</p>
+<p><img src="https://raw.githubusercontent.com/WiInputMethod/interview/master/img/ios-runtime-method-resolve.png" alt="运行时补救"></p>
+<h3 id="元类是个什么东西-元类只是存放类方法吗？"><a href="#元类是个什么东西-元类只是存放类方法吗？" class="headerlink" title="元类是个什么东西 元类只是存放类方法吗？"></a>元类是个什么东西 元类只是存放类方法吗？</h3><p>类对象(class object)中包含了类的实例变量，实例方法的定义，而元类对象(metaclass object)中包括了类的类方法(也就是C++中的静态方法)的定义。类对象和元类对象中水果公司当然还会包含一些其它的东西，以后也可能添加其它的内容，但对于我们了解其内存布局来说，只需要记住：类对象存的是关于实例对象的信息(变量，实例方法等)，而元类对象(metaclass object)中存储的是关于类的信息(类的版本，名字，类方法等)。要注意的是，类对象(class object)和元类对象(metaclass object)的定义都是objc_class结构，其不同仅仅是在用途上，比如其中的方法列表在类对象(instance object)中保存的是实例方法(instance method)，而在元类对象(metaclass object)中则保存的是类方法(class method)。</p>
+<p>15、为什么类方法和实例方法分开存？</p>
+<ul>
+<li>类方法不需要创建一个类的实例就可以调用！对象方法必须创建这个类的实例才可以调用</li>
+<li>如果放在一起 可能存在重名的情况</li>
+</ul>
+<h3 id="谈谈Runloop"><a href="#谈谈Runloop" class="headerlink" title="谈谈Runloop"></a>谈谈Runloop</h3><p><a target="_blank" rel="noopener" href="https://blog.ibireme.com/2015/05/18/runloop/">深入理解RunLoop</a><br><a target="_blank" rel="noopener" href="https://hit-alibaba.github.io/interview/iOS/ObjC-Basic/Runloop.html">RunLoop</a></p>
+<h3 id="runloop和线程是什么关系？-runloop和autoreleasepool是什么关系"><a href="#runloop和线程是什么关系？-runloop和autoreleasepool是什么关系" class="headerlink" title="runloop和线程是什么关系？ runloop和autoreleasepool是什么关系"></a>runloop和线程是什么关系？ runloop和autoreleasepool是什么关系</h3><h4 id="Runloop和线程"><a href="#Runloop和线程" class="headerlink" title="Runloop和线程"></a>Runloop和线程</h4><p>线程和 RunLoop 之间是一一对应的，其关系是保存在一个全局的 Dictionary 里。线程刚创建时并没有 RunLoop，如果你不主动获取，那它一直都不会有。RunLoop 的创建是发生在第一次获取时，RunLoop 的销毁是发生在线程结束时。你只能在一个线程的内部获取其 RunLoop（主线程除外）。</p>
+<p>首先我们要明确一个概念，线程一般都是一次执行完任务，就销毁了。<br>而添加了runloop，并运行起来，实际上是添加了一个do,while循环，这样这个线程的程序一直卡在这个do,while循环上，这样相当于线程的任务一直没有执行完，所以线程一直不会销毁。</p>
+<p>所以，一旦我们添加了一个runloop，并run了，我们如果要销毁这个线程，必须停止runloop</p>
+<h4 id="Runloop和-autoreleasepool"><a href="#Runloop和-autoreleasepool" class="headerlink" title="Runloop和 autoreleasepool"></a>Runloop和 autoreleasepool</h4><p>App启动后，苹果在主线程 RunLoop 里注册了两个 Observer，其回调都是 _wrapRunLoopWithAutoreleasePoolHandler()。</p>
+<p>第一个 Observer 监视的事件是 Entry(即将进入Loop)，其回调内会调用 _objc_autoreleasePoolPush() 创建自动释放池。其 order 是-2147483647，优先级最高，保证创建释放池发生在其他所有回调之前。</p>
+<p>第二个 Observer 监视了两个事件： BeforeWaiting(准备进入休眠) 时调用_objc_autoreleasePoolPop() 和 _objc_autoreleasePoolPush() 释放旧的池并创建新池；Exit(即将退出Loop) 时调用 _objc_autoreleasePoolPop() 来释放自动释放池。这个 Observer 的 order 是 2147483647，优先级最低，保证其释放池子发生在其他所有回调之后。</p>
+<p>在主线程执行的代码，通常是写在诸如事件回调、Timer回调内的。这些回调会被 RunLoop 创建好的 AutoreleasePool 环绕着，所以不会出现内存泄漏，开发者也不必显示创建 Pool 了</p>
+<h3 id="一个runloop中可以有多个autoreleasepool吗？"><a href="#一个runloop中可以有多个autoreleasepool吗？" class="headerlink" title="一个runloop中可以有多个autoreleasepool吗？"></a>一个runloop中可以有多个autoreleasepool吗？</h3><pre><code>可以,这个不多说!</code></pre>
+<h3 id="如何拿到一个runloop的所有状态"><a href="#如何拿到一个runloop的所有状态" class="headerlink" title="如何拿到一个runloop的所有状态"></a>如何拿到一个runloop的所有状态</h3><p>CFRunLoopObserverRef是观察者，能够监听RunLoop的状态改变</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;创建一个runloop监听者</span><br><span class="line"></span><br><span class="line">    CFRunLoopObserverRef observer &#x3D; CFRunLoopObserverCreateWithHandler(CFAllocatorGetDefault(),kCFRunLoopAllActivities, YES, 0, ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity) &#123;</span><br><span class="line"></span><br><span class="line">        NSLog(@&quot;监听runloop状态改变---%zd&quot;,activity);</span><br><span class="line"></span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F;为runloop添加一个监听者</span><br><span class="line"></span><br><span class="line">    CFRunLoopAddObserver(CFRunLoopGetCurrent(), observer, kCFRunLoopDefaultMode);</span><br><span class="line"></span><br><span class="line">    CFRelease(observer);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>监听的状态:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) &#123;</span><br><span class="line"></span><br><span class="line">    kCFRunLoopEntry &#x3D; (1UL &lt;&lt; 0),   &#x2F;&#x2F;即将进入Runloop</span><br><span class="line"></span><br><span class="line">    kCFRunLoopBeforeTimers &#x3D; (1UL &lt;&lt; 1),    &#x2F;&#x2F;即将处理NSTimer</span><br><span class="line"></span><br><span class="line">    kCFRunLoopBeforeSources &#x3D; (1UL &lt;&lt; 2),   &#x2F;&#x2F;即将处理Sources</span><br><span class="line"></span><br><span class="line">    kCFRunLoopBeforeWaiting &#x3D; (1UL &lt;&lt; 5),   &#x2F;&#x2F;即将进入休眠</span><br><span class="line"></span><br><span class="line">    kCFRunLoopAfterWaiting &#x3D; (1UL &lt;&lt; 6),    &#x2F;&#x2F;刚从休眠中唤醒</span><br><span class="line"></span><br><span class="line">    kCFRunLoopExit &#x3D; (1UL &lt;&lt; 7),            &#x2F;&#x2F;即将退出runloop</span><br><span class="line"></span><br><span class="line">    kCFRunLoopAllActivities &#x3D; 0x0FFFFFFFU   &#x2F;&#x2F;所有状态改变</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="NSTimer是准确的timer吗？为什么？"><a href="#NSTimer是准确的timer吗？为什么？" class="headerlink" title="NSTimer是准确的timer吗？为什么？"></a>NSTimer是准确的timer吗？为什么？</h3><p>NSTimer不是准确的timer 其所在的 RunLoop 会定时检测是否可以触发 NSTimer 的事件，但由于 iOS 有多个 RunLoop 的运行模式，如果被切到另一个 run loop，NSTimer 就不会被触发。每个 RunLoop 的循环间隔也无法保证，当某个任务耗时比较久，RunLoop 的下一个消息处理就只能顺延，导致 NSTimer 的时间已经到达，但 Runloop 却无法及时触发 NSTimer，导致该时间点的回调被错过。</p>
+<p>苹果官方文档：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A timer is not a real-time mechanism; it fires only when one of the run loop modes to which the timer has been added is running and able to check if the timer’s firing time has passed. If a timer’s firing time occurs during a long callout or while the run loop is in a mode that is not monitoring the timer, the timer does not fire until the next time the run loop checks the timer.</span><br></pre></td></tr></table></figure>
+
+<h4 id="其他更准确的Timer"><a href="#其他更准确的Timer" class="headerlink" title="其他更准确的Timer"></a>其他更准确的Timer</h4><h5 id="CADisplayLink"><a href="#CADisplayLink" class="headerlink" title="CADisplayLink"></a>CADisplayLink</h5><p>CADisplayLink是一个频率能达到屏幕刷新率的定时器类。iPhone屏幕刷新频率为60帧/秒，也就是说最小间隔可以达到1/60s。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CADisplayLink * displayLink &#x3D; [CADisplayLink displayLinkWithTarget:self selector:@selector(logInfo)];</span><br><span class="line">[displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h5 id="GCD定时器"><a href="#GCD定时器" class="headerlink" title="GCD定时器"></a>GCD定时器</h5><p>我们知道，RunLoop是dispatch_source_t实现的timer，所以理论上来说，GCD定时器的精度比NSTimer只高不低。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">NSTimeInterval interval &#x3D; 1.0;</span><br><span class="line">_timer &#x3D; dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));</span><br><span class="line">dispatch_source_set_timer(_timer, dispatch_walltime(NULL, 0), interval * NSEC_PER_SEC, 0);</span><br><span class="line">dispatch_source_set_event_handler(_timer, ^&#123;</span><br><span class="line">    NSLog(@&quot;GCD timer test&quot;);</span><br><span class="line">&#125;);</span><br><span class="line">dispatch_resume(_timer);</span><br></pre></td></tr></table></figure>
+
+<h5 id="mach-absolute-time"><a href="#mach-absolute-time" class="headerlink" title="mach_absolute_time"></a>mach_absolute_time</h5><p>使用mach_absolute_time()来实现更高精度的定时器。<br>iPhone上有这么一个均匀变化的东西来提供给我们作为时间参考，就是CPU的时钟周期数（ticks）。<br>通过mach_absolute_time()获取CPU已运行的tick数量。将tick数经过转换变成秒或者纳秒，从而实现时间的计算。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;mach&#x2F;mach.h&gt;</span><br><span class="line">#include &lt;mach&#x2F;mach_time.h&gt;</span><br><span class="line"> </span><br><span class="line">static const uint64_t NANOS_PER_USEC &#x3D; 1000ULL;</span><br><span class="line">static const uint64_t NANOS_PER_MILLISEC &#x3D; 1000ULL * NANOS_PER_USEC;</span><br><span class="line">static const uint64_t NANOS_PER_SEC &#x3D; 1000ULL * NANOS_PER_MILLISEC;</span><br><span class="line"> </span><br><span class="line">static mach_timebase_info_data_t timebase_info;</span><br><span class="line"></span><br><span class="line">static uint64_t nanos_to_abs(uint64_t nanos) &#123;</span><br><span class="line">    return nanos * timebase_info.denom &#x2F; timebase_info.numer;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void waitSeconds(int seconds) &#123;</span><br><span class="line">    mach_timebase_info(&amp;timebase_info);</span><br><span class="line">    uint64_t time_to_wait &#x3D; nanos_to_abs(seconds * NANOS_PER_SEC);</span><br><span class="line">    uint64_t now &#x3D; mach_absolute_time();</span><br><span class="line">    mach_wait_until(now + time_to_wait);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>理论上这是iPhone上最精准的定时器，可以达到纳秒级别的精度</code></p>
+<p>21、performselector在一个子线程执行,是会自动执行的吗？</p>
+<p>performSelector原理是：设置一个timer，添加到当前线程Runloop，默认是NSDefaultRunLoopMode；通过NSTimer的 scheduledTimerWithTimeIntervaly创建的定时器，也是自动被添加到当前RunLoop中，默认是NSDefaultRunLoopMode；</p>
+<p>在子线程中，因为默认没有RunLoop，所以他们不执行；想要执行，需要创建并启动Runloop</p>
+<p>手动开启：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">- (void)viewDidLoad</span><br><span class="line">&#123;</span><br><span class="line">    [super viewDidLoad];</span><br><span class="line">    </span><br><span class="line">    [self threadInfo:@&quot;UI&quot;];</span><br><span class="line">    </span><br><span class="line">    _isNewThreadAborted &#x3D; NO;</span><br><span class="line">    _thread &#x3D; [[NSThread alloc] initWithTarget:self selector:@selector(newThread:) object:nil];</span><br><span class="line">    &#x2F;&#x2F;开始线程</span><br><span class="line">    [_thread start];</span><br><span class="line">    &#x2F;&#x2F;在另一个线程中的Run Loop中执行Selector</span><br><span class="line">    [self performSelector:@selector(test:) onThread:_thread withObject:nil waitUntilDone:NO];    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;在新线程中创建并开始一个NSRunLoop</span><br><span class="line">- (void)newThread:(id)obj</span><br><span class="line">&#123;</span><br><span class="line">    @autoreleasepool</span><br><span class="line">    &#123;</span><br><span class="line">        NSRunLoop *currentRunLoop &#x3D; [NSRunLoop currentRunLoop];</span><br><span class="line">        while (!_isNewThreadAborted)</span><br><span class="line">        &#123;</span><br><span class="line">            [currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];</span><br><span class="line">        &#125;</span><br><span class="line">        NSLog(@&quot;线程停止&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;Selector执行</span><br><span class="line">- (void)test:(id)obj</span><br><span class="line">&#123;</span><br><span class="line">    [self threadInfo:@&quot;test&quot;];</span><br><span class="line">    _isNewThreadAborted &#x3D; YES;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)threadInfo:(NSString*)category</span><br><span class="line">&#123;</span><br><span class="line">    NSLog(@&quot;%@ - %@&quot;, category, [NSThread currentThread]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="GCD-队列和线程是什么关系？"><a href="#GCD-队列和线程是什么关系？" class="headerlink" title="GCD 队列和线程是什么关系？"></a>GCD 队列和线程是什么关系？</h3><h4 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h4><ul>
+<li>主队列</li>
+<li>串行队列</li>
+<li>并发队列</li>
+<li>全局队列</li>
+</ul>
+<h4 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h4><ul>
+<li>同步执行</li>
+<li>异步执行 </li>
+</ul>
+<h4 id="交叉出现的情况"><a href="#交叉出现的情况" class="headerlink" title="交叉出现的情况"></a>交叉出现的情况</h4><h5 id="串行队列，同步执行"><a href="#串行队列，同步执行" class="headerlink" title="串行队列，同步执行"></a>串行队列，同步执行</h5><p>不会开线程，顺序执行</p>
+<h5 id="串行队列，异步执行"><a href="#串行队列，异步执行" class="headerlink" title="串行队列，异步执行"></a>串行队列，异步执行</h5><p>会开线程(1条)，顺序执行</p>
+<h5 id="并发队列，异步执行"><a href="#并发队列，异步执行" class="headerlink" title="并发队列，异步执行"></a>并发队列，异步执行</h5><p>会开线程，不会顺序执行，具体开几条线程取决于队列</p>
+<h5 id="并发队列，同步执行"><a href="#并发队列，同步执行" class="headerlink" title="并发队列，同步执行"></a>并发队列，同步执行</h5><p>和串行队列同步执行效果一样</p>
+<h5 id="主队列，异步执行"><a href="#主队列，异步执行" class="headerlink" title="主队列，异步执行"></a>主队列，异步执行</h5><p>不开线程，异步任务必须等待主线程上的任务完成之后才会被调用</p>
+<h5 id="主队列、同步执行"><a href="#主队列、同步执行" class="headerlink" title="主队列、同步执行"></a>主队列、同步执行</h5><p>会发生死锁，因为，同步任务要求必须顺序执行，但是同步任务必须等待主队列中没有任务可以被调用的时候才会被执行，因此这两方会造成死锁的情况</p>
+<h5 id="同步任务的特点"><a href="#同步任务的特点" class="headerlink" title="同步任务的特点"></a>同步任务的特点</h5><p>可以再多个异步任务调度前，指定一个同步任务，让所有的异步任务，等待同步任务执行完成，这就是所谓的依赖关系</p>
+<h5 id="全局队列"><a href="#全局队列" class="headerlink" title="全局队列"></a>全局队列</h5><p>系统提供给程序员，方便程序员使用的全局队列，有关服务质量的问题，使用下面的代码能够做到IOS7&amp;IOS8的适配，全局队列本质上就是一个异步队列</p>
+<h3 id="一个队列可以管理多少线程？"><a href="#一个队列可以管理多少线程？" class="headerlink" title="一个队列可以管理多少线程？"></a>一个队列可以管理多少线程？</h3><p>并发队列可以分配多个线程，同时处理不同的任务；效率虽然提升了，但是多线程的并发是用时间片轮转方法实现的，线程创建、销毁、上下文切换等会消耗CPU 资源。</p>
+<p>目前iPhone的处理器是多核（2个、4个），适当的并发可以提高效率，但是无节制地并发，如将大量任务不加思索就用并发队列来执行，这只会大量增加线程数，抢占CPU资源，甚至会挤占掉主线程的 CPU 资源（极端情况）。</p>
+<p>可以使用 NSOperationQueue 设置maxConcurrentOperationCount 最大并发数</p>
+<h4 id="串行队列中的所有任务都会在一条线程中执行吗"><a href="#串行队列中的所有任务都会在一条线程中执行吗" class="headerlink" title="串行队列中的所有任务都会在一条线程中执行吗"></a>串行队列中的所有任务都会在一条线程中执行吗</h4><pre><code>串行队列中的任务不会开多条线程,回一个一个执行,但是每一个任务所在的线程不一定是一个,但同时只会存在一条线程</code></pre>
+<h3 id="白板画线-如何在点之间连线-用什么去重绘的"><a href="#白板画线-如何在点之间连线-用什么去重绘的" class="headerlink" title="白板画线(如何在点之间连线)  用什么去重绘的"></a>白板画线(如何在点之间连线)  用什么去重绘的</h3><p>利用贝塞尔曲线</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">-(<span class="built_in">UIBezierPath</span>*)drawSigleLine:(<span class="built_in">NSArray</span>*)line needStroke:(<span class="built_in">BOOL</span>)needStroke</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSUInteger</span> pointsCount = line.count;</span><br><span class="line">    </span><br><span class="line">    ArtWhiteBoardPoint *firstPoint = [line objectAtIndex:<span class="number">0</span>];</span><br><span class="line">    <span class="built_in">UIBezierPath</span> *path = [[<span class="built_in">UIBezierPath</span> alloc] init];</span><br><span class="line">    path.lineWidth = [<span class="keyword">self</span> getDrawWidth:firstPoint.penStyle.lineWidth];</span><br><span class="line">    path.lineJoinStyle = kCGLineJoinRound;</span><br><span class="line">    path.lineCapStyle = kCGLineCapRound;</span><br><span class="line">    <span class="built_in">UIColor</span> *lineColor;</span><br><span class="line">    <span class="keyword">if</span> (firstPoint.penStyle.isEarser) &#123;</span><br><span class="line">        lineColor = [<span class="built_in">UIColor</span> clearColor];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        lineColor = [<span class="built_in">UIColor</span> colorWithHexString:firstPoint.penStyle.colorString alpha:<span class="number">1.0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (lineColor == [<span class="built_in">UIColor</span> clearColor]) &#123;</span><br><span class="line">        path.lineCapStyle = kCGLineCapSquare;</span><br><span class="line">        path.lineWidth = [<span class="keyword">self</span> getDrawWidth:[<span class="keyword">self</span>.dataSource earserWidth:firstPoint.penStyle.isLargeEarser]];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">NSUInteger</span> j = <span class="number">0</span> ; j &lt; pointsCount; j ++) &#123;</span><br><span class="line">        ArtWhiteBoardPoint *point = [line objectAtIndex:j];</span><br><span class="line">        <span class="built_in">CGPoint</span> p;</span><br><span class="line">        p = <span class="built_in">CGPointMake</span>(point.xScale * <span class="keyword">self</span>.frame.size.width ,  point.yScale * <span class="keyword">self</span>.frame.size.height);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (j == <span class="number">0</span>) &#123;</span><br><span class="line">            [path moveToPoint:p];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">self</span>.controlP1.x==p.x&amp;&amp;<span class="keyword">self</span>.controlP1.y==p.y) &#123;</span><br><span class="line">                </span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                [path addQuadCurveToPoint:<span class="built_in">CGPointMake</span>((<span class="keyword">self</span>.controlP1.x+p.x)/<span class="number">2</span>, (<span class="keyword">self</span>.controlP1.y+p.y)/<span class="number">2</span>) controlPoint:<span class="keyword">self</span>.controlP1];</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">self</span>.controlP1 = p;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (needStroke) &#123;</span><br><span class="line">        [lineColor setStroke];</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (lineColor == [<span class="built_in">UIColor</span> clearColor]) &#123;</span><br><span class="line">            [path strokeWithBlendMode:kCGBlendModeCopy alpha:<span class="number">1.0</span>];</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            [path strokeWithBlendMode:kCGBlendModeNormal alpha:<span class="number">1.0</span>];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> path;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1018499">iOS开发之画图板(贝塞尔曲线)</a></p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a target="_blank" rel="noopener" href="https://hit-alibaba.github.io/interview/basic/algo/Hash-Table.html">面试基础-哈希表</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%9C-%E7%AE%97%E6%B3%95-%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" rel="tag"># 数据结果 算法 计算机基础</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/04/12/ios-try-catch/" rel="prev" title="ios异常处理之try-catch-finally">
+                  <i class="fa fa-chevron-left"></i> ios异常处理之try-catch-finally
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/04/25/what-did-block-do/" rel="next" title="__Block 到底做了什么">
+                  __Block 到底做了什么 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : '5fe6b96e300ebc45a5f5b5f8390706d4',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

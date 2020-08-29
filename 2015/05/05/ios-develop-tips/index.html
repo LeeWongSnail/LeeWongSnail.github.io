@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="这篇文章主要总结了一部分iOS开发中的小技巧，有些方法对系统有依赖(iOS 8.0以上才可以使用)，一个复杂的问题，通过使用一些小技巧就可以很简单的实现。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS开发中的小技巧">
+<meta property="og:url" content="https://www.leewong.cn/2015/05/05/ios-develop-tips/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="这篇文章主要总结了一部分iOS开发中的小技巧，有些方法对系统有依赖(iOS 8.0以上才可以使用)，一个复杂的问题，通过使用一些小技巧就可以很简单的实现。">
+<meta property="og:locale">
+<meta property="og:image" content="https://pic4.zhimg.com/e844607cdaa057885b84142de2e3c297_b.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/bmiddle/cb8a22eagw1eys7l6nzz5j20gb07ajsw.jpg">
+<meta property="og:image" content="http://s6.51cto.com/wyfs02/M01/6E/F4/wKiom1WMuObjSUiVABLXImYoZ_o796.gif">
+<meta property="article:published_time" content="2015-05-05T13:46:14.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:08:22.680Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="Objective-C">
+<meta property="article:tag" content="tips">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic4.zhimg.com/e844607cdaa057885b84142de2e3c297_b.jpg">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2015/05/05/ios-develop-tips/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>iOS开发中的小技巧 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2015/05/05/ios-develop-tips/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS开发中的小技巧
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2015-05-05 21:46:14" itemprop="dateCreated datePublished" datetime="2015-05-05T21:46:14+08:00">2015-05-05</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:08:22" itemprop="dateModified" datetime="2020-07-19T22:08:22+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/iOS%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">iOS基础</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2015/05/05/ios-develop-tips/" class="post-meta-item leancloud_visitors" data-flag-title="iOS开发中的小技巧" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>这篇文章主要总结了一部分iOS开发中的小技巧，有些方法对系统有依赖(iOS 8.0以上才可以使用)，一个复杂的问题，通过使用一些小技巧就可以很简单的实现。</p>
+<a id="more"></a>
+
+
+<p>1、<br>用 Property() 这个 macro 在编译时检查一个 class 是否包含一个 property，并取到那个 property 的名字（一个 NSString），配合 Core Data 使用非常方便。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#define Property(Class, PropertyName) @(((void)(NO &amp;&amp; ((void)[Class nilObject].PropertyName, NO)), # PropertyName))</span><br></pre></td></tr></table></figure>
+
+<p>2、设置透明的导航栏</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[self.navigationController.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];</span><br><span class="line">&#x2F;&#x2F;导航栏底部线清楚</span><br><span class="line">self.navigationController.navigationBar.barStyle &#x3D; UIBarStyleBlack;</span><br><span class="line">self.navigationController.navigationBar.translucent &#x3D; YES;[self.navigationController.navigationBar setShadowImage:[UIImage new]];</span><br><span class="line">self.navigationBar.translucent &#x3D; YES;</span><br></pre></td></tr></table></figure>
+<p><img src="https://pic4.zhimg.com/e844607cdaa057885b84142de2e3c297_b.jpg" alt="icon"></p>
+<p>3、iOS8 以上 侧滑多按钮</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- (nullable NSArray</span><br><span class="line">*)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath</span><br><span class="line"></span><br><span class="line">返回一个UITableViewRowAction数组，每一个&quot;Action&quot;代表一个侧滑删除的Button。这样侧滑每一行Cell可以有更多按钮提供给用户交互。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>4、设置banner中的图片的时候 一般情况下对图片进行的设置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1、aspect fill 让图片填充</span><br><span class="line">2、clip subviews 如果有图片宽度过宽裁剪超出部分（超出部分不会自动裁剪） </span><br></pre></td></tr></table></figure>
+
+<p>5、使用tableviewcell的时候 最好采用注册-使用的方式不要</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if( cell &#x3D;&#x3D; nil )</span><br></pre></td></tr></table></figure>
+<p>太low</p>
+<p>6、最好不要再用#define定义常量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">原因：1、宏只是进行字符串替换   2  如果作为一个第三方的容易和现有的宏冲突 如果非要用 必须加上 if define</span><br><span class="line"></span><br><span class="line">如何定义常量</span><br><span class="line">static NSString const kImageWidth&#x3D; 80.f</span><br><span class="line">使用这种方式定义</span><br></pre></td></tr></table></figure>
+
+<p>7、手动调用一个按钮的点击事件（适合于使用RAC或者block的情况）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[cell.callTeacherBtn sendActionsForControlEvents:UIControlEventTouchUpInside];</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>8、控制台输出 想要的数据</p>
+<p><img src="http://ww1.sinaimg.cn/bmiddle/cb8a22eagw1eys7l6nzz5j20gb07ajsw.jpg" alt="icon"></p>
+<p>这个略叼啊！！！！</p>
+<p>9、tableview 动态计算行高</p>
+<p>方法1：传入这个cell对应的模型，然后一次进行计算<br>方法2：传入模型，根据模型更新约束会改变的控件的约束，刷新界面，获取最下面的空间的最大高度</p>
+<p>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;在表格cell中 计算出高度</span><br><span class="line">-(CGFloat)rowHeightWithCellModel:(HomeModel *)homeModel</span><br><span class="line">&#123;</span><br><span class="line">    _homeModel&#x3D;homeModel;</span><br><span class="line">    __weak __typeof(&amp;*self)weakSelf &#x3D; self;</span><br><span class="line">    &#x2F;&#x2F;设置标签的高度</span><br><span class="line">    [self.content mas_makeConstraints:^(MASConstraintMaker *make) &#123;</span><br><span class="line">        &#x2F;&#x2F; weakSelf.contentLabelH  这个会调用下面的懒加载方法</span><br><span class="line">        make.height.mas_equalTo(weakSelf.contentLabelH);</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    &#x2F;&#x2F; 2. 更新约束</span><br><span class="line">    [self layoutIfNeeded];</span><br><span class="line">    </span><br><span class="line">    &#x2F;&#x2F;3.  视图的最大 Y 值</span><br><span class="line">    CGFloat h&#x3D; CGRectGetMaxY(self.content.frame);</span><br><span class="line">   </span><br><span class="line">    return h+marginW; &#x2F;&#x2F;最大的高度+10</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>方法2的优化版：</p>
+<pre><code>缓存行高，可以通过在这个cell对应的模型中增加一个属性，在第二次计算的事后，判断这个值是否为0如果不为0，就是用这个值</code></pre>
+<p>方法3：预估行高</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">思路1：使用tableview代理方法estimatedHeightForRowAtIndexPath 给一个预估的行高，这样可以大量的减少行高的计算，但是在实际应用中，如果给出的这个预估的行高和真是的行高差别较大的时候 会出现cell窜动的现象</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="http://s6.51cto.com/wyfs02/M01/6E/F4/wKiom1WMuObjSUiVABLXImYoZ_o796.gif" alt="icon"></p>
+<p>因此对于，tableview中cell有不同的样式的时候不要采用这个方法。</p>
+<p>iOS8新特性方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">self.tableView.estimatedRowHeight &#x3D; 50.0f; </span><br><span class="line">self.tableView.rowHeight &#x3D; UITableViewAutomaticDimension; </span><br></pre></td></tr></table></figure>
+<p>使用这种方法 苹果会帮你把行高都计算了</p>
+<p>10、获取CollectionView当前cell的indexPath</p>
+<p>注意：仅适用于 一个界面只显示一个cell，但是 [self.collectionView indexPathsForVisibleItems] 返回的有时候个数不只是一个 所以第三种方法是最安全的（前两种方法适用于一般的情况，不适用于二级联动的情况）</p>
+<p>方法1：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- (void)collectionView:(UICollectionView *)collectionView</span><br><span class="line">  didEndDisplayingCell:(UICollectionViewCell *)cell</span><br><span class="line">    forItemAtIndexPath:(NSIndexPath *)indexPath &#123;</span><br><span class="line">    &#x2F;&#x2F; 获取当前显示的cell的下标</span><br><span class="line">    NSIndexPath *firstIndexPath &#x3D; [[self.collectionView indexPathsForVisibleItems] firstObject]; &#x2F;&#x2F;一定要第一个</span><br><span class="line">    &#x2F;&#x2F; 赋值给记录当前坐标的变量</span><br><span class="line">    self.currentIndexPath &#x3D; firstIndexPath;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>方法2：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView &#123;</span><br><span class="line">    &#x2F;&#x2F; 获取当前显示的cell的下标</span><br><span class="line">    NSIndexPath *firstIndexPath &#x3D; [[self.collectionView indexPathsForVisibleItems] firstObject];</span><br><span class="line">    &#x2F;&#x2F; 赋值给记录当前坐标的变量</span><br><span class="line">    self.currentIndexPath &#x3D; firstIndexPath;</span><br><span class="line">    &#x2F;&#x2F; 更新底部的数据 </span><br><span class="line">    &#x2F;&#x2F; ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>方法3：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView &#123;</span><br><span class="line">    &#x2F;&#x2F; 将collectionView在控制器view的中心点转化成collectionView上的坐标</span><br><span class="line">    CGPoint pInView &#x3D; [self.view convertPoint:self.collectionView.center toView:self.collectionView];</span><br><span class="line">    &#x2F;&#x2F; 获取这一点的indexPath</span><br><span class="line">    NSIndexPath *indexPathNow &#x3D; [self.collectionView indexPathForItemAtPoint:pInView];</span><br><span class="line">    &#x2F;&#x2F; 赋值给记录当前坐标的变量</span><br><span class="line">    self.currentIndexPath &#x3D; indexPathNow;</span><br><span class="line">    &#x2F;&#x2F; 更新底部的数据 </span><br><span class="line">    &#x2F;&#x2F; ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>11、rangeOfString:&amp;rangeOfString:option:<br>在平时的使用中大家都比较习惯使用，下面这种方式！</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NSString *str &#x3D; @&quot;:&#x2F;lalalal&quot;;</span><br><span class="line"></span><br><span class="line">NSRange range &#x3D; [str rangeOfString:@&quot;:&quot;];</span><br></pre></td></tr></table></figure>
+<p>但是，这里的range.lenght = 0;<br>跟重要的是 len = str.length; 结果len = 0; </p>
+<p>原因：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Unicode对于组成有两种形式：合成形式与分解形式。</span><br><span class="line">而NSString的rangeOfString，这个api对此的支持是这样的。rangeOfString，默认不是按照码元来查找的，也就是不是按照literalSearch.虽然它里面包含&quot;:&quot;，但是，这两个字符可以合成另一个与其等价的字符，所以就找不到了。</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<p>12、获取launchImage的方法</p>
+<pre><code>launchimage程序启动过程中加载的那张图片，加载完毕就会消失，但有时候我们不希望他那么快的消失，比如需要添加广告页的时候，这时候 我们就需要获取到这张图片，把他作为背景图</code></pre>
+<p>获取这张图片的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1 为不同分辨率的屏幕设置不同的图片名称，使用的时候通过拼接图片名称的方式获取，但是这种方式比较依赖于图片的命名，一旦屏幕分辨率改变了 就需要改动</span><br><span class="line"></span><br><span class="line">2、通过下面的代码 从bundle中读取，前提是 图片通过Asset.xcassets设置</span><br><span class="line"></span><br><span class="line">&#96;&#96;&#96;&#96;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<pre><code>NSArray* imagesDict = [[[NSBundle mainBundle] infoDictionary] valueForKey:@&quot;UILaunchImages&quot;];
+for (NSDictionary* dict in imagesDict)
+&#123;
+    CGSize imageSize = CGSizeFromString(dict[@&quot;UILaunchImageSize&quot;]);
+
+    if (CGSizeEqualToSize(imageSize, viewSize) &amp;&amp; [viewOrientation isEqualToString:dict[@&quot;UILaunchImageOrientation&quot;]])
+    &#123;
+        launchImage = dict[@&quot;UILaunchImageName&quot;];
+    &#125;
+&#125;</code></pre>
+<p>   launchImage 就是这张图片的名称</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line">13、设置tableviewcell的分割线左对齐</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>if ([[[UIDevice currentDevice] systemVersion] floatValue] &gt;= 7) {</p>
+<p>self.tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);</p>
+<p>}</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">查看更多的设置方法：</span><br><span class="line">[分割线左对齐](http:&#x2F;&#x2F;www.skyfox.org&#x2F;ios7-tableview-separatorinset-ajust.html)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">14、去掉tableview中section的headerview粘性</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>(void)scrollViewDidScroll:(UIScrollView *)scrollView<br>{<br>  CGFloat sectionHeaderHeight = 40;<br>  if (scrollView.contentOffset.y&lt;=sectionHeaderHeight&amp;&amp;scrollView.contentOffset.y&gt;=0) {  <pre><code>  scrollView.contentInset = UIEdgeInsetsMake(-scrollView.contentOffset.y, 0, 0, 0);  </code></pre>
+  }<br>  else if (scrollView.contentOffset.y&gt;=sectionHeaderHeight) {  <pre><code>  scrollView.contentInset = UIEdgeInsetsMake(-sectionHeaderHeight, 0, 0, 0);  </code></pre>
+  }<br>}</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">15、纯手码布局的好帮手</span><br><span class="line"></span><br><span class="line">	使用下面的这个宏，在你做界面布局的时候，有些控件通常要根据屏幕的尺寸设置，使用这个宏就可以以6P为基准，直接拿到你想要的转换之后的数值了</span><br><span class="line">	</span><br><span class="line">	#define SYRealValue(value) ((value)&#x2F;414.0f*[UIScreen mainScreen].bounds.size.width)</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">16、如何隐藏tableview中的某一行</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>(CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:<br>(NSIndexPath *)indexPath {<br>  return indexPath.row == 3 ? 0 : 40;<br>}</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">这样未必有效果吧，有时可能会出现：</span><br><span class="line">![图片超出喽](http:&#x2F;&#x2F;upload-images.jianshu.io&#x2F;upload_images&#x2F;139317-120fc766b0282440.png?imageMogr2&#x2F;auto-orient&#x2F;strip%7CimageView2&#x2F;2&#x2F;w&#x2F;1240)</span><br><span class="line"></span><br><span class="line">所以还需要另外一句</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {<br>  cell.clipsToBounds = YES;<br>}</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">17、如何改变UITextfield的placeholder的颜色</span><br><span class="line">集成UITextfield重写这个方法</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>(void) drawPlaceholderInRect:(CGRect)rect {<br>  [[UIColor blueColor] setFill];<br>  [self.placeholder drawInRect:rect withFont:self.font lineBreakMode:UILineBreakModeTailTruncation alignment:self.textAlignment];<br>}</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">也可以使用KVC</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>[textField setValue:[UIColor blueColor] forKeyPath:@”_placeholderLabel.textColor”]</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">18、本来我的statusbar是lightcontent的，结果用UIImagePickerController会导致我的statusbar的样式变成黑色，怎么办？</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>(void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated<br>{<br>  [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];<br>}</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">19、如何修改tableviewcell中选中符号的颜色</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>_mTableView.tintColor = [UIColor redColor];</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">20、ScrollView莫名其妙不能在viewController划到顶怎么办?</span><br><span class="line"></span><br><span class="line">这个可能是设置了导航栏的背景图片导致的</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>self.automaticallyAdjustsScrollViewInsets = NO;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">21、怎么点击self.view就让键盘收起,需要添加一个tapGestures么</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event<br>{<br> [self.view endEditing:YES];<br>}</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">22、怎么像safari一样滑动的时候隐藏navigationbar?</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>navigationController.hidesBarsOnSwipe = Yes</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">23、打印app中的所有windows</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>UIWindow 的私有类方法<br>+allWindowsIncludingInternalWindows: onlyVisibleWindows:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">![icon](http:&#x2F;&#x2F;ww1.sinaimg.cn&#x2F;mw690&#x2F;92172277jw1f2e25kp8ihj20mn06xjti.jpg)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">24、收起键盘的几种方式</span><br><span class="line"></span><br><span class="line">1、点击return 收起键盘</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>首先，设置键盘的return键，同事设置UITextFieldDelegate为self<br>然后，实现代理方法textFieldShouldReturn，在这个方法中让textField放弃第一响应者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">2、点击背景后收起键盘</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>(void)touchesBegan:(NSSet&lt;UITouch *&gt; *)touches<br>withEvent:(UIEvent *)event{<br>   //实现该方法是需要注意view需要是继承UIControl而来的<br>  [self.view endEditing:YES];<br>}</li>
+</ul>
+<p>这里也可以添加一个手势UITapGestureRecognizer</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">3、不用view实现endEditing方法</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>如果比较难获得viewController的view时，可以采用这个方法</p>
+<p>[[[UIApplication sharedApplication] keyWindow]<br>endEditing:YES];</p>
+<p>或者</p>
+<p>[[UIApplication sharedApplication] sendAction:@selector(resignFirstResponder) to:nil from:nil forEvent:nil];</p>
+<pre><code>
+
+25、导出沙盒文件
+
+plist文件中加入
+Application supports iTunes file sharing
+YES
+在iTunes中就可以看到沙盒文件了
+
+、、、、、、未完待续、、、、、、
+</code></pre>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Objective-C/" rel="tag"># Objective-C</a>
+              <a href="/tags/tips/" rel="tag"># tips</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2014/12/11/ios-base-animation/" rel="prev" title="iOS基础动画">
+                  <i class="fa fa-chevron-left"></i> iOS基础动画
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/07/23/interview-note/" rel="next" title="iOS面试笔记 （上）">
+                  iOS面试笔记 （上） <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : 'cdbf3b1758f5c7792b20adccad7dfbfc',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

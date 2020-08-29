@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="本文是 看了github上 《招聘一个靠谱的iOS程序员》提供的面试题之后做的一些总结，内容大多为其中的一些摘抄。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面试题——ChenYilong-总结">
+<meta property="og:url" content="https://www.leewong.cn/2015/08/13/interview-note-2/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="本文是 看了github上 《招聘一个靠谱的iOS程序员》提供的面试题之后做的一些总结，内容大多为其中的一些摘抄。">
+<meta property="og:locale">
+<meta property="og:image" content="https://camo.githubusercontent.com/c06953c83cf1fd56eff670b88e4c3e0cc739c62d/687474703a2f2f692e696d6775722e636f6d2f556a626d5676422e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/c5d6a506acdf37eefcb090e3f7911d85186623f4/687474703a2f2f692e696d6775722e636f6d2f414145527a31542e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/56f8ea718f47679e7771d247d8f6f820de2e0ab5/687474703a2f2f6936312e74696e797069632e636f6d2f32386b6f6477702e6a7067">
+<meta property="og:image" content="https://camo.githubusercontent.com/1e77679169328e5128722b3268bf9a488fc00ae2/687474703a2f2f6936302e74696e797069632e636f6d2f31356d666a31312e6a7067">
+<meta property="og:image" content="https://camo.githubusercontent.com/9517b0d78961b5f32cf3392b99964f2e1f79fb35/687474703a2f2f6936322e74696e797069632e636f6d2f7379353775722e6a7067">
+<meta property="article:published_time" content="2015-08-13T03:27:30.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:07:32.865Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="靠谱的iOS程序员">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://camo.githubusercontent.com/c06953c83cf1fd56eff670b88e4c3e0cc739c62d/687474703a2f2f692e696d6775722e636f6d2f556a626d5676422e706e67">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2015/08/13/interview-note-2/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>面试题——ChenYilong-总结 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81-objc-msgForward%E5%87%BD%E6%95%B0%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84%EF%BC%8C%E7%9B%B4%E6%8E%A5%E8%B0%83%E7%94%A8%E5%AE%83%E5%B0%86%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">1、_objc_msgForward函数是做什么的，直接调用它将会发生什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81runtime%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0weak%E5%8F%98%E9%87%8F%E7%9A%84%E8%87%AA%E5%8A%A8%E7%BD%AEnil%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">2、runtime如何实现weak变量的自动置nil？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81objc-initWeak%E5%92%8Cobjc-destroyWeak%E8%A7%A3%E9%87%8A"><span class="nav-number">3.</span> <span class="nav-text">3、objc_initWeak和objc_destroyWeak解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E8%83%BD%E5%90%A6%E5%90%91%E7%BC%96%E8%AF%91%E5%90%8E%E5%BE%97%E5%88%B0%E7%9A%84%E7%B1%BB%E4%B8%AD%E5%A2%9E%E5%8A%A0%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%EF%BC%9F%E8%83%BD%E5%90%A6%E5%90%91%E8%BF%90%E8%A1%8C%E6%97%B6%E5%88%9B%E5%BB%BA%E7%9A%84%E7%B1%BB%E4%B8%AD%E6%B7%BB%E5%8A%A0%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">4.</span> <span class="nav-text">4、能否向编译后得到的类中增加实例变量？能否向运行时创建的类中添加实例变量？为什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5%E3%80%81runloop%E5%92%8C%E7%BA%BF%E7%A8%8B%E6%9C%89%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB"><span class="nav-number">5.</span> <span class="nav-text">5、runloop和线程有什么关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6%E3%80%81%E4%B8%8D%E6%89%8B%E5%8A%A8%E6%8C%87%E5%AE%9Aautoreleasepool%E7%9A%84%E5%89%8D%E6%8F%90%E4%B8%8B%EF%BC%8C%E4%B8%80%E4%B8%AAautorealese%E5%AF%B9%E8%B1%A1%E5%9C%A8%E4%BB%80%E4%B9%88%E6%97%B6%E5%88%BB%E9%87%8A%E6%94%BE%EF%BC%9F%EF%BC%88%E6%AF%94%E5%A6%82%E5%9C%A8%E4%B8%80%E4%B8%AAvc%E7%9A%84viewDidLoad%E4%B8%AD%E5%88%9B%E5%BB%BA%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">6、不手动指定autoreleasepool的前提下，一个autorealese对象在什么时刻释放？（比如在一个vc的viewDidLoad中创建）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7%E3%80%81BAD-ACCESS%E5%9C%A8%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E5%87%BA%E7%8E%B0%EF%BC%9F"><span class="nav-number">7.</span> <span class="nav-text">7、BAD_ACCESS在什么情况下出现？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8%E3%80%81%E8%8B%B9%E6%9E%9C%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0autoreleasepool%E7%9A%84%EF%BC%9F"><span class="nav-number">8.</span> <span class="nav-text">8、苹果是如何实现autoreleasepool的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9%E3%80%81-%E5%A6%82%E4%BD%95%E7%94%A8GCD%E5%90%8C%E6%AD%A5%E8%8B%A5%E5%B9%B2%E4%B8%AA%E5%BC%82%E6%AD%A5%E8%B0%83%E7%94%A8%EF%BC%9F%EF%BC%88%E5%A6%82%E6%A0%B9%E6%8D%AE%E8%8B%A5%E5%B9%B2%E4%B8%AAurl%E5%BC%82%E6%AD%A5%E5%8A%A0%E8%BD%BD%E5%A4%9A%E5%BC%A0%E5%9B%BE%E7%89%87%EF%BC%8C%E7%84%B6%E5%90%8E%E5%9C%A8%E9%83%BD%E4%B8%8B%E8%BD%BD%E5%AE%8C%E6%88%90%E5%90%8E%E5%90%88%E6%88%90%E4%B8%80%E5%BC%A0%E6%95%B4%E5%9B%BE"><span class="nav-number">9.</span> <span class="nav-text">9、 如何用GCD同步若干个异步调用？（如根据若干个url异步加载多张图片，然后在都下载完成后合成一张整图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10%E3%80%81apple%E7%94%A8%E4%BB%80%E4%B9%88%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%AF%B9%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1%E7%9A%84KVO%EF%BC%9F"><span class="nav-number">10.</span> <span class="nav-text">10、apple用什么方式实现对一个对象的KVO？</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2015/08/13/interview-note-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          面试题——ChenYilong-总结
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2015-08-13 11:27:30" itemprop="dateCreated datePublished" datetime="2015-08-13T11:27:30+08:00">2015-08-13</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:07:32" itemprop="dateModified" datetime="2020-07-19T22:07:32+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E9%9D%A2%E8%AF%95/" itemprop="url" rel="index"><span itemprop="name">面试</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2015/08/13/interview-note-2/" class="post-meta-item leancloud_visitors" data-flag-title="面试题——ChenYilong-总结" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>本文是 看了github上 《招聘一个靠谱的iOS程序员》提供的面试题之后做的一些总结，内容大多为其中的一些摘抄。</p>
+<a id="more"></a>
+
+<h3 id="1、-objc-msgForward函数是做什么的，直接调用它将会发生什么？"><a href="#1、-objc-msgForward函数是做什么的，直接调用它将会发生什么？" class="headerlink" title="1、_objc_msgForward函数是做什么的，直接调用它将会发生什么？"></a>1、_objc_msgForward函数是做什么的，直接调用它将会发生什么？</h3><pre><code>_objc_msgForward是 IMP 类型，用于消息转发的：当向一个对象发送一条消息，但它并没有实现的时候，_objc_msgForward会尝试做消息转发。
+
+在上篇中的《objc中向一个对象发送消息[obj foo]和objc_msgSend()函数之间有什么关系？》曾提到objc_msgSend在“消息传递”中的作用。在“消息传递”过程中，objc_msgSend的动作比较清晰：首先在 Class 中的缓存查找 IMP （没缓存则初始化缓存），如果没找到，则向父类的 Class 查找。如果一直查找到根类仍旧没有实现，则用_objc_msgForward函数指针代替 IMP 。最后，执行这个 IMP 。
+
+为了展示消息转发的具体动作，这里尝试向一个对象发送一条错误的消息，并查看一下_objc_msgForward是如何进行转发的。</code></pre>
+<p><img src="https://camo.githubusercontent.com/c06953c83cf1fd56eff670b88e4c3e0cc739c62d/687474703a2f2f692e696d6775722e636f6d2f556a626d5676422e706e67" alt="icon"></p>
+<p>操作过程：<br><img src="https://camo.githubusercontent.com/c5d6a506acdf37eefcb090e3f7911d85186623f4/687474703a2f2f692e696d6775722e636f6d2f414145527a31542e706e67" alt="icon"><br>    结合《NSObject官方文档》，排除掉 NSObject 做的事，剩下的就是_objc_msgForward消息转发做的几件事：</p>
+<pre><code>调用resolveInstanceMethod:方法 (或 resolveClassMethod:)。允许用户在此时为该 Class 动态添加实现。如果有实现了，则调用并返回YES，那么重新开始objc_msgSend流程。这一次对象会响应这个选择器，一般是因为它已经调用过class_addMethod。如果仍没实现，继续下面的动作。
+
+调用forwardingTargetForSelector:方法，尝试找到一个能响应该消息的对象。如果获取到，则直接把消息转发给它，返回非 nil 对象。否则返回 nil ，继续下面的动作。注意，这里不要返回 self ，否则会形成死循环。
+
+调用methodSignatureForSelector:方法，尝试获得一个方法签名。如果获取不到，则直接调用doesNotRecognizeSelector抛出异常。如果能获取，则返回非nil：创建一个 NSlnvocation 并传给forwardInvocation:。
+
+调用forwardInvocation:方法，将第3步获取到的方法签名包装成 Invocation 传入，如何处理就在这里面了，并返回非ni。
+
+调用doesNotRecognizeSelector: ，默认的实现是抛出异常。如果第3步没能获得一个方法签名，执行该步骤。</code></pre>
+<p>下面回答下第二个问题“直接_objc_msgForward调用它将会发生什么？”</p>
+<p>_objc_msgForward 方法解析</p>
+<table>
+<thead>
+<tr>
+<th align="left">–</th>
+<th align="center">_objc_msgForward参数</th>
+<th align="right">类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">1</td>
+<td align="center">所属对象</td>
+<td align="right">id类型</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="center">方法名</td>
+<td align="right">SEL类型</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="center">可变参数</td>
+<td align="right">可变参数类型</td>
+</tr>
+</tbody></table>
+<p>为了直观，我们可以通过如下方式定义一个 IMP类型 ：</p>
+<pre><code>typedef void (*voidIMP)(id, SEL, ...)
+
+一旦调用_objc_msgForward，将跳过查找 IMP 的过程，直接触发“消息转发”，
+如果调用了_objc_msgForward，即使这个对象确实已经实现了这个方法，你也会告诉objc_msgSend：
+“我没有在这个对象里找到这个方法的实现”
+有哪些场景需要直接调用_objc_msgForward？最常见的场景是：你想获取某方法所对应的NSInvocation对象。举例说明：
+JSPatch （Github 链接）就是直接调用_objc_msgForward来实现其核心功能的：
+
+JSPatch（） 以小巧的体积做到了让JS调用/替换任意OC方法，让iOS APP具备热更新的能力、
+作者的博文《JSPatch实现原理详解》详细记录了实现原理，有兴趣可以看下。</code></pre>
+<h3 id="2、runtime如何实现weak变量的自动置nil？"><a href="#2、runtime如何实现weak变量的自动置nil？" class="headerlink" title="2、runtime如何实现weak变量的自动置nil？"></a>2、runtime如何实现weak变量的自动置nil？</h3><pre><code>runtime 对注册的类， 会进行布局，对于 weak 对象会放入一个 hash 表中。 用 weak 指向的对象内存地址作为 key，当此对象的引用计数为0的时候会 dealloc，假如 weak 指向的对象内存地址是a，那么就会以a为键， 在这个 weak 表中搜索，找到所有以a为键的 weak 对象，从而设置为 nil。
+我们可以设计一个函数（伪代码）来表示上述机制：
+objc_storeWeak(&amp;a, b)函数：
+objc_storeWeak函数把第二个参数--赋值对象（b）的内存地址作为键值key，将第一个参数--weak修饰的属性变量（a）的内存地址（&amp;a）作为value，注册到 weak 表中。如果第二个参数（b）为0（nil），那么把变量（a）的内存地址（&amp;a）从weak表中删除，
+你可以把objc_storeWeak(&amp;a, b)理解为：objc_storeWeak(value, key)，并且当key变nil，将value置nil。</code></pre>
+<p>注意：</p>
+<pre><code>在b非nil时，a和b指向同一个内存地址，在b变nil时，a变nil。此时向a发送消息不会崩溃：在Objective-C中向nil发送消息是安全的。
+
+而如果a是由assign修饰的，则： 在b非nil时，a和b指向同一个内存地址，在b变nil时，a还是指向该内存地址，变野指针。此时向a发送消息极易崩溃。
+原因：第一种情况a适用weak修饰 在b被置为nil的时候会遍历所有指向这块内存地址的指针 将这些指针置为ni 
+    第二种情况a适用assign修饰，在b被置为nil的时候 不会将a指向的对象置为nil，所以默认a仍然指向原来的地址 但是这块地址被释放或者重新利用之后 现存的数据类型和原来的可能不一样了，所以可能出现野指针的问题</code></pre>
+<h3 id="3、objc-initWeak和objc-destroyWeak解释"><a href="#3、objc-initWeak和objc-destroyWeak解释" class="headerlink" title="3、objc_initWeak和objc_destroyWeak解释"></a>3、objc_initWeak和objc_destroyWeak解释</h3><pre><code> 通过objc_initWeak函数初始化“附有weak修饰符的变量（obj1）”，在变量作用域结束时通过objc_destoryWeak函数释放该变量（obj1）。</code></pre>
+<p>方法的内部实现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">objc_initWeak函数的实现是这样的：在将“附有weak修饰符的变量（obj1）”初始化为0（nil）后，会将“赋值对象”（obj）作为参数，调用objc_storeWeak函数。</span><br><span class="line"></span><br><span class="line">	obj1 &#x3D; 0；</span><br><span class="line">	obj_storeWeak(&amp;obj1, obj)</span><br></pre></td></tr></table></figure>
+
+<p>weak 修饰的指针默认值是 nil （在Objective-C中向nil发送消息是安全的）<br>然后obj_destroyWeak函数将0（nil）作为参数，调用objc_storeWeak函数<br>objc_storeWeak(&amp;obj1, 0);</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">id obj1;</span><br><span class="line">obj1 &#x3D; 0;</span><br><span class="line">objc_storeWeak(&amp;obj1, obj);</span><br><span class="line">&#x2F;* ... obj的引用计数变为0，被置nil ... *&#x2F;</span><br><span class="line">objc_storeWeak(&amp;obj1, 0);</span><br></pre></td></tr></table></figure>
+<p>objc_storeWeak函数把第二个参数–赋值对象（obj）的内存地址作为键值，将第一个参数–weak修饰的属性变量（obj1）的内存地址注册到 weak 表中。如果第二个参数（obj）为0（nil），那么把变量（obj1）的地址从weak表中删除</p>
+<h3 id="4、能否向编译后得到的类中增加实例变量？能否向运行时创建的类中添加实例变量？为什么？"><a href="#4、能否向编译后得到的类中增加实例变量？能否向运行时创建的类中添加实例变量？为什么？" class="headerlink" title="4、能否向编译后得到的类中增加实例变量？能否向运行时创建的类中添加实例变量？为什么？"></a>4、能否向编译后得到的类中增加实例变量？能否向运行时创建的类中添加实例变量？为什么？</h3><pre><code>不能向编译后得到的类中增加实例变量；</code></pre>
+<p>能向运行时创建的类中添加实例变量；<br>解释下：</p>
+<pre><code>因为编译后的类已经注册在 runtime 中，类结构体中的 objc_ivar_list 实例变量的链表 和 instance_size 实例变量的内存大小已经确定，同时runtime 会调用 class_setIvarLayout 或 class_setWeakIvarLayout 来处理 strong weak 引用。所以不能向存在的类中添加实例变量；
+
+运行时创建的类是可以添加实例变量，调用 class_addIvar 函数。但是得在调用 objc_allocateClassPair 之后，objc_registerClassPair 之前，原因同上。</code></pre>
+<h3 id="5、runloop和线程有什么关系"><a href="#5、runloop和线程有什么关系" class="headerlink" title="5、runloop和线程有什么关系"></a>5、runloop和线程有什么关系</h3><p>1、主线程的run loop默认是启动的。<br>    iOS的应用程序里面，程序启动后会有一个如下的main()函数</p>
+<pre><code>int main(int argc, char * argv[]) &#123;
+@autoreleasepool &#123;
+    return UIApplicationMain(argc, argv, nil,     NSStringFromClass([AppDelegate class]));
+&#125;
+&#125;
+重点是UIApplicationMain()函数，这个方法会为main thread设置一个NSRunLoop对象，这就解释了：为什么我们的应用可以在无人操作的时候休息，需要让它干活的时候又能立马响应。
+对其它线程来说，run loop默认是没有启动的，如果你需要更多的线程交互则可以手动配置和启动，如果线程只是去执行一个长时间的已确定的任务则不需要。
+在任何一个 Cocoa 程序的线程中，都可以通过以下代码来获取到当前线程的 run loop 。
+NSRunLoop *runloop = [NSRunLoop currentRunLoop];</code></pre>
+<p><a target="_blank" rel="noopener" href="http://blog.csdn.net/wzzvictory/article/details/9237973">《Objective-C之run loop详解》</a></p>
+<h3 id="6、不手动指定autoreleasepool的前提下，一个autorealese对象在什么时刻释放？（比如在一个vc的viewDidLoad中创建）"><a href="#6、不手动指定autoreleasepool的前提下，一个autorealese对象在什么时刻释放？（比如在一个vc的viewDidLoad中创建）" class="headerlink" title="6、不手动指定autoreleasepool的前提下，一个autorealese对象在什么时刻释放？（比如在一个vc的viewDidLoad中创建）"></a>6、不手动指定autoreleasepool的前提下，一个autorealese对象在什么时刻释放？（比如在一个vc的viewDidLoad中创建）</h3><pre><code>分两种情况：手动干预释放时机、系统自动去释放。
+
+手动干预释放时机--指定autoreleasepool 就是所谓的：当前作用域大括号结束时释放。
+系统自动去释放--不手动指定autoreleasepool
+
+Autorelease对象出了作用域之后，会被添加到最近一次创建的自动释放池中，并会在当前的 runloop 迭代结束时释放。</code></pre>
+<p><img src="https://camo.githubusercontent.com/56f8ea718f47679e7771d247d8f6f820de2e0ab5/687474703a2f2f6936312e74696e797069632e636f6d2f32386b6f6477702e6a7067" alt="icon"></p>
+<pre><code>我们都是知道： 所有 autorelease 的对象，在出了作用域之后，会被自动添加到最近创建的自动释放池中。
+
+但是如果每次都放进应用程序的 main.m 中的 autoreleasepool 中，迟早有被撑满的一刻。这个过程中必定有一个释放的动作。何时？
+
+在一次完整的运行循环结束之前，会被销毁。
+
+那什么时间会创建自动释放池？运行循环检测到事件并启动后，就会创建自动释放池。
+
+子线程的 runloop 默认是不工作，无法主动创建，必须手动创建。
+@autoreleasepool 当自动释放池被销毁或者耗尽时，会向自动释放池中的所有对象发送 release 消息，释放自动释放池中的所有对象。
+如果在一个vc的viewDidLoad中创建一个 Autorelease对象，那么该对象会在 viewDidAppear 方法执行前就被销毁了。
+如果在一个vc的viewDidLoad中创建一个 Autorelease对象，那么该对象会在 viewDidAppear 方法执行前就被销毁了。</code></pre>
+<p><a target="_blank" rel="noopener" href="http://blog.sunnyxx.com/2014/10/15/behind-autorelease/">《黑幕背后的Autorelease》</a></p>
+<h3 id="7、BAD-ACCESS在什么情况下出现？"><a href="#7、BAD-ACCESS在什么情况下出现？" class="headerlink" title="7、BAD_ACCESS在什么情况下出现？"></a>7、BAD_ACCESS在什么情况下出现？</h3><pre><code>访问了野指针，比如对一个已经释放的对象执行了release、访问已经释放对象的成员变量或者发消息。 死循环</code></pre>
+<h3 id="8、苹果是如何实现autoreleasepool的？"><a href="#8、苹果是如何实现autoreleasepool的？" class="headerlink" title="8、苹果是如何实现autoreleasepool的？"></a>8、苹果是如何实现autoreleasepool的？</h3><pre><code>autoreleasepool 以一个队列数组的形式实现,主要通过下列三个函数完成.
+
+objc_autoreleasepoolPush
+objc_autoreleasepoolPop
+objc_autorelease
+看函数名就可以知道，对 autorelease 分别执行 push，和 pop 操作。销毁对象时执行release操作。</code></pre>
+<p><img src="https://camo.githubusercontent.com/1e77679169328e5128722b3268bf9a488fc00ae2/687474703a2f2f6936302e74696e797069632e636f6d2f31356d666a31312e6a7067" alt="icon"></p>
+<h3 id="9、-如何用GCD同步若干个异步调用？（如根据若干个url异步加载多张图片，然后在都下载完成后合成一张整图"><a href="#9、-如何用GCD同步若干个异步调用？（如根据若干个url异步加载多张图片，然后在都下载完成后合成一张整图" class="headerlink" title="9、 如何用GCD同步若干个异步调用？（如根据若干个url异步加载多张图片，然后在都下载完成后合成一张整图"></a>9、 如何用GCD同步若干个异步调用？（如根据若干个url异步加载多张图片，然后在都下载完成后合成一张整图</h3><pre><code>dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+dispatch_group_t group = dispatch_group_create();
+dispatch_group_async(group, queue, ^&#123; /*加载图片1 */ &#125;);
+dispatch_group_async(group, queue, ^&#123; /*加载图片2 */ &#125;);
+dispatch_group_async(group, queue, ^&#123; /*加载图片3 */ &#125;); 
+dispatch_group_notify(group, dispatch_get_main_queue(),     ^&#123;
+        // 合并图片
+&#125;);</code></pre>
+<h3 id="10、apple用什么方式实现对一个对象的KVO？"><a href="#10、apple用什么方式实现对一个对象的KVO？" class="headerlink" title="10、apple用什么方式实现对一个对象的KVO？"></a>10、apple用什么方式实现对一个对象的KVO？</h3><pre><code>当你观察一个对象时，一个新的类会被动态创建。这个类继承自该对象的原本的类，并重写了被观察属性的 setter 方法。重写的 setter 方法会负责在调用原 setter 方法之前和之后，通知所有观察对象：值的更改。最后通过 isa 混写（isa-swizzling） 把这个对象的 isa 指针 ( isa 指针告诉 Runtime 系统这个对象的类是什么 ) 指向这个新创建的子类，对象就神奇的变成了新创建的子类的实例</code></pre>
+<p><img src="https://camo.githubusercontent.com/9517b0d78961b5f32cf3392b99964f2e1f79fb35/687474703a2f2f6936322e74696e797069632e636f6d2f7379353775722e6a7067" alt="icon"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A0%E8%B0%B1%E7%9A%84iOS%E7%A8%8B%E5%BA%8F%E5%91%98/" rel="tag"># 靠谱的iOS程序员</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015/07/23/interview-note/" rel="prev" title="iOS面试笔记 （上）">
+                  <i class="fa fa-chevron-left"></i> iOS面试笔记 （上）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/10/16/useful-article/" rel="next" title="有用的文章积累">
+                  有用的文章积累 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : '4f32380ff9028ec026cad7d7799f8fba',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="这篇文章主要是记录了，我在学习多线程过程中觉得比较重要概念，在这里做一下总结。 文章还会陆续的增加内容，需要持续的更新……">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多线程 相关概念">
+<meta property="og:url" content="https://www.leewong.cn/2016/03/17/multThread-concept/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="这篇文章主要是记录了，我在学习多线程过程中觉得比较重要概念，在这里做一下总结。 文章还会陆续的增加内容，需要持续的更新……">
+<meta property="og:locale">
+<meta property="og:image" content="http://i.niupic.com/images/2016/03/21/kFsujE.png">
+<meta property="og:image" content="http://i.niupic.com/images/2016/03/21/0uKCZP.png">
+<meta property="article:published_time" content="2016-03-16T22:19:41.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:12:21.643Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="自动释放池，运行循环，响应者链条，通知">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://i.niupic.com/images/2016/03/21/kFsujE.png">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2016/03/17/multThread-concept/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>多线程 相关概念 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E8%87%AA%E5%8A%A8%E9%87%8A%E6%94%BE%E6%B1%A0"><span class="nav-number">1.</span> <span class="nav-text">1、自动释放池</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E5%9F%BA%E6%9C%AC%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.</span> <span class="nav-text">1、基本定义</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81%E5%9B%BE%E7%89%87%E7%A4%BA%E6%84%8F"><span class="nav-number">1.2.</span> <span class="nav-text">2、图片示意</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E8%BF%90%E8%A1%8C%E5%BE%AA%E7%8E%AF"><span class="nav-number">2.</span> <span class="nav-text">2、运行循环</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E4%BD%9C%E7%94%A8%E5%92%8C%E7%89%B9%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">1、作用和特性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81%E5%BC%80%E5%90%AF%E4%B8%80%E4%B8%AA%E8%BF%90%E8%A1%8C%E5%BE%AA%E7%8E%AF%E7%9A%84%E4%B8%A4%E7%A7%8D%E7%A7%8D%E6%96%B9%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">2、开启一个运行循环的两种种方法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E7%AE%80%E8%BF%B0retain%E3%80%81strong%E3%80%81assign%E3%80%81weak%E3%80%81copy%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">3、简述retain、strong、assign、weak、copy有什么区别？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E5%93%8D%E5%BA%94%E8%80%85%E9%93%BE%E6%9D%A1"><span class="nav-number">4.</span> <span class="nav-text">4、响应者链条</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81TCP%E5%92%8CUDP%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">5.</span> <span class="nav-text">5、TCP和UDP的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6%E3%80%81%E9%80%9A%E7%9F%A5"><span class="nav-number">6.</span> <span class="nav-text">6、通知</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2016/03/17/multThread-concept/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          多线程 相关概念
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2016-03-17 06:19:41" itemprop="dateCreated datePublished" datetime="2016-03-17T06:19:41+08:00">2016-03-17</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:12:21" itemprop="dateModified" datetime="2020-07-19T22:12:21+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/iOS%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">iOS基础</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2016/03/17/multThread-concept/" class="post-meta-item leancloud_visitors" data-flag-title="多线程 相关概念" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>这篇文章主要是记录了，我在学习多线程过程中觉得比较重要概念，在这里做一下总结。</p>
+<p>文章还会陆续的增加内容，需要持续的更新……</p>
+<a id="more"></a>
+
+<h4 id="1、自动释放池"><a href="#1、自动释放池" class="headerlink" title="1、自动释放池"></a>1、自动释放池</h4><h5 id="1、基本定义"><a href="#1、基本定义" class="headerlink" title="1、基本定义"></a>1、基本定义</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">工作原理：自动释放池被销毁或耗尽时会向池中所有对象发送release消息，释放所有的autorelease对象</span><br><span class="line"></span><br><span class="line">创建和销毁：每一次运行循环启动会后会自动创建自动释放池</span><br><span class="line"></span><br><span class="line">程序执行过程中，所有autorelease对象在出了作用域之后，会被添加到最近创建的自动释放池中</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h5 id="2、图片示意"><a href="#2、图片示意" class="headerlink" title="2、图片示意"></a>2、图片示意</h5><p><img src="http://i.niupic.com/images/2016/03/21/kFsujE.png" alt="autoreleasepool"></p>
+<h4 id="2、运行循环"><a href="#2、运行循环" class="headerlink" title="2、运行循环"></a>2、运行循环</h4><h5 id="1、作用和特性"><a href="#1、作用和特性" class="headerlink" title="1、作用和特性"></a>1、作用和特性</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">作用：保证程序不退出，监听所有时间（手势触摸、时钟触发）</span><br><span class="line"></span><br><span class="line">特性：没有事件时，会休眠，一旦监听到事件，就会立即响应</span><br><span class="line"></span><br><span class="line">每一个线程都有一个runloop 但是主线程的runloop会默认启动（其他线程的runloop默认是关闭的）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h5 id="2、开启一个运行循环的两种种方法"><a href="#2、开启一个运行循环的两种种方法" class="headerlink" title="2、开启一个运行循环的两种种方法"></a>2、开启一个运行循环的两种种方法</h5><ul>
+<li>1、 [[NSRunLoop currentRunLoop] run]</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">这种方法一旦开启了运行循环就再也关不了了，也就是说这之后的程序都无法执行了</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>2、间隔主动调用</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">每隔一段时间，主动调用一次运行循环并且持续一段时间（这就可以响应这段时间内发生的事件），主动调用可以通过设置标志的方法实现 </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="http://i.niupic.com/images/2016/03/21/0uKCZP.png" alt="runloop"></p>
+<h4 id="3、简述retain、strong、assign、weak、copy有什么区别？"><a href="#3、简述retain、strong、assign、weak、copy有什么区别？" class="headerlink" title="3、简述retain、strong、assign、weak、copy有什么区别？"></a>3、简述retain、strong、assign、weak、copy有什么区别？</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">-retain：是MRC，在设置数值的时候，会对引用计数器+1</span><br><span class="line">-strong：是ARC,与retain等效</span><br><span class="line">-assign:是ARC&#x2F;MRC都有，在设置数值时不会做任何的附加操作</span><br><span class="line">    	-MRC中如果不需要引用，就直接使用assign</span><br><span class="line">    	-ARC中通常是用来保存基本数据类型</span><br><span class="line">-weak是ARC的，用来保存不需要强引用的对象</span><br><span class="line">-weak和assign的区别</span><br><span class="line">    -assign 指向的对象如果被释放，地址不会有任何变化，效率高，但是风险大，容易造成野指针错误</span><br><span class="line">    -weak 指向的对象如果被释放，地址会立即变为nil ,但是在OC中向nil（空指针）发送消息的时候不会报错</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="4、响应者链条"><a href="#4、响应者链条" class="headerlink" title="4、响应者链条"></a>4、响应者链条</h4><p>说一下点击了按钮之后，按钮响应点击事件的原理</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">程序启动之后，会创建一个程序的代理（AppDelegate）,didFinishLaunchingWithOptions之后创建一个主运</span><br><span class="line">行循环（主运行循环的作用是可以保证程序不退出、负责监听所有事件）当按钮</span><br><span class="line">被点击的时候，事件会通过按钮传递给视图（view）进而传递给控制器，然后依</span><br><span class="line">次上传到UIWindow，最后到达运行循环，告诉运行循环，btn被点击了，这时</span><br><span class="line">候运行循环就会给控制器发消息，告诉控制器按钮被点击了，然后在从上向下的</span><br><span class="line">传递过程中，会一次寻找最合适的响应者，而寻找最合适相应者的过程中是通过</span><br><span class="line">hitTest方法递归的一层一层的去寻找（主要用到的方法是：hitTest,pointInside方法）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="5、TCP和UDP的区别"><a href="#5、TCP和UDP的区别" class="headerlink" title="5、TCP和UDP的区别"></a>5、TCP和UDP的区别</h4> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line">UDP:(用户数据报协议)---前身是电报</span><br><span class="line"></span><br><span class="line">		-只管发送，不确认对方是否接收到</span><br><span class="line">		-将数据及源和目的封装成数据包中，不需要建立连接</span><br><span class="line">		-每个数据报的大小限制在64K之内</span><br><span class="line">		-因为无需连接，因此是不可靠协议</span><br><span class="line">		-不需要建立连接，速度快</span><br><span class="line">		-应用：多媒体教室、流媒体视频、广播 实际开发中用的少</span><br><span class="line">		</span><br><span class="line">TCP:(传输控制协议)</span><br><span class="line"></span><br><span class="line">		-建立连接，行程传输数据的通道</span><br><span class="line">		-在连接中进行大数据传输（数据大小不受限制）</span><br><span class="line">		-通过三次握手完成连接，是可靠协议，安全送达</span><br><span class="line">		-必须建立连接，效率会稍低</span><br><span class="line">		-建立连接时的三次握（1老师在吗？ 2我在啊 3我可以问你一个问题吗？）</span><br><span class="line">		-断开连接四次握手（1老师我没有问题了，2恩好的，3没有问题我下线了，4好的老师）</span><br><span class="line">		</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<h4 id="6、通知"><a href="#6、通知" class="headerlink" title="6、通知"></a>6、通知</h4><ul>
+<li>1、通知中心是同步的还是异步的？ </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">同步的</span><br><span class="line"></span><br><span class="line">原因：发生事件，通知中心广播，有可能有多个监听者，设计上使用同步的方式，能保证所有的监听者都对通知做出响应，不会发生遗漏</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>2、通知执行的三个步骤</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1、发送字符串给通知中心</span><br><span class="line">2、通知中心广播</span><br><span class="line">3、所有的通知监听方法执行完毕后，才继续执行代码</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>3、通知里到底有什么</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-name : 通知的名称的字符串，通知中心本质上就是监听这个字符串</span><br><span class="line">-object：发布通知的时候，希望传递给监听者的对象</span><br><span class="line">-userInfo：发布通知的时候，希望传递给监听者的附加信息字典</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>4、通知和代理有什么区别？</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">- 代理是一对一的，设置delegate属性，在需要的时候，通过delegate调用</span><br><span class="line">	selector方法</span><br><span class="line">	</span><br><span class="line">- 通知是一对多的，只要发生事件，就会以广播的形式，通知所有的监听者</span><br><span class="line">		</span><br><span class="line">- 通知中心&#x2F;发布通知的对象不需要知道谁是监听者，发布对象和监听者之间的	耦合度很低</span><br><span class="line"></span><br><span class="line">- 监听者需要知道通知的名称字符串，如果发布者还需要传递userInfo字典，</span><br><span class="line">	监听者同时需要知道字典的键名</span><br><span class="line">	</span><br><span class="line">技巧：在OC框架中，如果定义通知，通常通知的名字包含Notification字样，同时key会和通知定义在一起</span><br><span class="line">		</span><br><span class="line">- 通知监听方法不能有返回值</span><br><span class="line"></span><br><span class="line">- 代理可以有返回值</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%87%AA%E5%8A%A8%E9%87%8A%E6%94%BE%E6%B1%A0%EF%BC%8C%E8%BF%90%E8%A1%8C%E5%BE%AA%E7%8E%AF%EF%BC%8C%E5%93%8D%E5%BA%94%E8%80%85%E9%93%BE%E6%9D%A1%EF%BC%8C%E9%80%9A%E7%9F%A5/" rel="tag"># 自动释放池，运行循环，响应者链条，通知</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2016/03/16/multithread/" rel="prev" title="多线程">
+                  <i class="fa fa-chevron-left"></i> 多线程
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2016/03/21/networking/" rel="next" title="NSURLRequest 详解">
+                  NSURLRequest 详解 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : 'ff0299c633332e7b9dc2e2b8174fdcd5',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

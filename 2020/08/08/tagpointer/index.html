@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="iOS开发者对引用计数这个名词肯定不陌生,引用计数是苹果为了方便开发者管理内存而引入的一个概念,当引用计数为0时，对象就会被释放。但是，真的是所有对象都是这样吗？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内存管理之Tagged pointer">
+<meta property="og:url" content="https://www.leewong.cn/2020/08/08/tagpointer/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="iOS开发者对引用计数这个名词肯定不陌生,引用计数是苹果为了方便开发者管理内存而引入的一个概念,当引用计数为0时，对象就会被释放。但是，真的是所有对象都是这样吗？">
+<meta property="og:locale">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ghjbitqd60j30cn09ljrw.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ghjdbgf38nj31el0u0afd.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghki3kum3kj30cw04ljss.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghki3v25qqj30fa02iq3q.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghjtmvzlxwj30w20j9tas.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfjfbyu0j30fe0dogmb.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfvyc4tkj30fe0dot9f.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfxt2qagj30fe0doq3n.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfzqpmq2j30fe0doq3n.jpg">
+<meta property="article:published_time" content="2020-08-08T04:46:49.000Z">
+<meta property="article:modified_time" content="2020-08-13T16:11:25.685Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1ghjbitqd60j30cn09ljrw.jpg">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2020/08/08/tagpointer/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>内存管理之Tagged pointer | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D"><span class="nav-number">1.</span> <span class="nav-text">内存分配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%BC%95%E5%85%A5tagged-pointer"><span class="nav-number">2.</span> <span class="nav-text">如何引入tagged pointer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSTaggedPointer"><span class="nav-number">3.</span> <span class="nav-text">NSTaggedPointer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#NSTaggedPointer%E6%A0%87%E5%BF%97%E4%BD%8D"><span class="nav-number">3.1.</span> <span class="nav-text">NSTaggedPointer标志位</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.2.</span> <span class="nav-text">对象类型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#objc4-723%E4%B9%8B%E5%89%8D"><span class="nav-number">3.2.1.</span> <span class="nav-text">objc4-723之前</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#objc4-750%E4%B9%8B%E5%90%8E"><span class="nav-number">3.2.2.</span> <span class="nav-text">objc4-750之后</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NSCFNumber"><span class="nav-number">3.3.</span> <span class="nav-text">NSCFNumber</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96TaggedPointer%E7%9A%84%E5%80%BC"><span class="nav-number">3.4.</span> <span class="nav-text">获取TaggedPointer的值</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#objc4-723%E4%B9%8B%E5%89%8D-1"><span class="nav-number">3.4.1.</span> <span class="nav-text">objc4-723之前</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#objc4-750%E4%B9%8B%E5%90%8E-1"><span class="nav-number">3.4.2.</span> <span class="nav-text">objc4-750之后</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#isa-%E6%8C%87%E9%92%88-NONPOINTER-ISA"><span class="nav-number">4.</span> <span class="nav-text">isa 指针(NONPOINTER_ISA)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#struct"><span class="nav-number">4.1.</span> <span class="nav-text">struct</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%87%E5%BF%97%E4%BD%8D%E8%AF%B4%E6%98%8E"><span class="nav-number">4.2.</span> <span class="nav-text">标志位说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0"><span class="nav-number">4.3.</span> <span class="nav-text">引用计数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#weakly-referenced"><span class="nav-number">4.4.</span> <span class="nav-text">weakly_referenced</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#has-assoc"><span class="nav-number">4.5.</span> <span class="nav-text">has_assoc</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">6.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/08/08/tagpointer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          内存管理之Tagged pointer
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-08-08 12:46:49" itemprop="dateCreated datePublished" datetime="2020-08-08T12:46:49+08:00">2020-08-08</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-08-14 00:11:25" itemprop="dateModified" datetime="2020-08-14T00:11:25+08:00">2020-08-14</time>
+      </span>
+
+  
+    <span id="/2020/08/08/tagpointer/" class="post-meta-item leancloud_visitors" data-flag-title="内存管理之Tagged pointer" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>iOS开发者对<code>引用计数</code>这个名词肯定不陌生,引用计数是苹果为了方便开发者管理内存而引入的一个概念,当引用计数为0时，对象就会被释放。但是，真的是所有对象都是这样吗？</p>
+<a id="more"></a>
+
+<h3 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h3><p>iOS将虚拟内存按照地址由低到高划分为如下五个区：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ghjbitqd60j30cn09ljrw.jpg"></p>
+<p>在程序运行时，代码区，常量区以及全局静态区的大小是固定的，会变化的只有栈和堆的大小。而栈的内存是有操作系统自动释放的，我们平常说所的iOS内存引用计数，其实是就堆上的对象来说的。</p>
+<h3 id="如何引入tagged-pointer"><a href="#如何引入tagged-pointer" class="headerlink" title="如何引入tagged pointer"></a>如何引入tagged pointer</h3><p>自2013年苹果推出iphone5s之后，iOS的寻址空间扩大到了64位。我们可以用63位来表示一个数字(一位做符号位)。那么这个数字的范围是2^63 ,很明显我们一般不会用到这么大的数字，那么在我们定义一个数字时<code>NSNumber *num = @100</code>,实际上内存中浪费了很多的内存空间。</p>
+<p>当然苹果肯定也认识到了这个问题，于是就引入了<code>tagged pointer</code>,<code>tagged pointer</code>是一种特殊的“指针”，其特殊在于，其实它存储的并不是地址，而是真实的数据和一些附加的信息。</p>
+<p>我们可以在WWDC2013的《Session 404 Advanced in Objective-C》视频中，看到苹果对于Tagged Pointer特点的介绍：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ghjdbgf38nj31el0u0afd.jpg"></p>
+<ul>
+<li>Tagged Pointer专门用来存储小的对象，例如NSNumber, NSDate, NSString。</li>
+<li>Tagged Pointer指针的值不再是地址了，而是真正的值。所以，实际上它不再是一个对象了，它只是一个披着对象皮的普通变量而已。所以，它的内存并不存储在堆中，也不需要malloc和free。</li>
+<li>在内存读取上有着3倍的效率，创建时比以前快106倍。</li>
+</ul>
+<h3 id="NSTaggedPointer"><a href="#NSTaggedPointer" class="headerlink" title="NSTaggedPointer"></a>NSTaggedPointer</h3><p>我们先看下下面这段代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSMutableString</span> *mutableStr = [<span class="built_in">NSMutableString</span> string];</span><br><span class="line"><span class="built_in">NSString</span> *immutable = <span class="literal">nil</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _OBJC_TAG_MASK (1UL&lt;&lt;63)</span></span><br><span class="line"><span class="keyword">char</span> c = <span class="string">&#x27;a&#x27;</span>;</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    [mutableStr appendFormat:<span class="string">@&quot;%c&quot;</span>, c++];</span><br><span class="line">    immutable = [mutableStr <span class="keyword">copy</span>];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;%p %@ %@&quot;</span>, immutable, immutable, immutable.class);</span><br><span class="line">&#125;<span class="keyword">while</span>(((uintptr_t)immutable &amp; _OBJC_TAG_MASK) == _OBJC_TAG_MASK);</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">2020-08-08 14:15:54.480862+0800 TaggedPointerDemo[55468:2078125] 0xdc5050684e86e57c a NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.481719+0800 TaggedPointerDemo[55468:2078125] 0xdc5050684e80c57f ab NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.482480+0800 TaggedPointerDemo[55468:2078125] 0xdc50506848b0c57e abc NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.483342+0800 TaggedPointerDemo[55468:2078125] 0xdc50506e08b0c579 abcd NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.483950+0800 TaggedPointerDemo[55468:2078125] 0xdc50563e08b0c578 abcde NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.484246+0800 TaggedPointerDemo[55468:2078125] 0xdc56363e08b0c57b abcdef NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.484800+0800 TaggedPointerDemo[55468:2078125] 0xda26363e08b0c57a abcdefg NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.485200+0800 TaggedPointerDemo[55468:2078125] 0xdc527050ee978a35 abcdefgh NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.485644+0800 TaggedPointerDemo[55468:2078125] 0xdcd85e404adcb774 abcdefghi NSTaggedPointerString</span><br><span class="line">2020-08-08 14:15:54.486003+0800 TaggedPointerDemo[55468:2078125] 0x28334c2c0 abcdefghij __NSCFString</span><br></pre></td></tr></table></figure>
+<p>上图我们可以看到，当字符串的长度为10个以内时，字符串的类型都是<code>NSTaggedPointerString</code>类型，当超过10个时，字符串的类型才是<code>__NSCFString</code></p>
+<p>打印结果分析：</p>
+<h4 id="NSTaggedPointer标志位"><a href="#NSTaggedPointer标志位" class="headerlink" title="NSTaggedPointer标志位"></a>NSTaggedPointer标志位</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">bool</span> </span><br><span class="line">_objc_isTaggedPointer(<span class="keyword">const</span> <span class="keyword">void</span> * _Nullable ptr)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> ((uintptr_t)ptr &amp; _OBJC_TAG_MASK) == _OBJC_TAG_MASK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面这个方法我们看到，判断一个对象类型是否为<code>NSTaggedPointerString</code>类型实际上是讲对象的地址与<code>_OBJC_TAG_MASK</code>进行按位与操作,结果在跟<code>_OBJC_TAG_MASK</code>进行对比,我们在看下<code>_OBJC_TAG_MASK</code>的定义:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">if</span> OBJC_MSB_TAGGED_POINTERS</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> _OBJC_TAG_MASK (1UL&lt;&lt;63)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> _OBJC_TAG_MASK 1UL</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>我们都知道一个对象地址为64位二进制，它表明如果64位数据中，最高位是1的话，则表明当前是一个<code>tagged pointer</code>类型。</p>
+<p>那么我们在看下上面打印出的地址，所有<code>NSTaggedPointerString</code>地址都是<code>0xd</code>开头，d转换为二进制<code>1110</code>，根据上面的结论，我们看到首位为1表示为<code>NSTaggedPointerString</code>类型。在这里得到验证。</p>
+<p><code>注意</code>:<code>TaggedPointer</code>类型在iOS和MacOS中标志位是不同的iOS为最高位而MacOS为最低位</p>
+<h4 id="对象类型"><a href="#对象类型" class="headerlink" title="对象类型"></a>对象类型</h4><p>正常情况下一个对象的类型，是通过这个对象的ISA指针来判断的，那么对于<code>NSTaggedPointer</code>类型我们如何通过地址判断对应数据是什么类型的呢？</p>
+<h5 id="objc4-723之前"><a href="#objc4-723之前" class="headerlink" title="objc4-723之前"></a>objc4-723之前</h5><p>在objc4-723之前，我们可以通过与判断<code>TaggedPointer</code>标志位一样根据地址来判断，而类型的标志位就是对象地址的61-63位,比如对象地址为<code>0xa</code>开头，那么转换成二进制位<code>1010</code>,那么去掉最高位标志位后，剩余为<code>010</code>,即10进制中的2。</p>
+<p>接着我们看下runtime源码objc-internal.h中有关于标志位的定义如下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">if</span> __has_feature(objc_fixed_enum)  ||  __cplusplus &gt;= 201103L</span></span><br><span class="line"><span class="keyword">enum</span> objc_tag_index_t : uint16_t</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="keyword">typedef</span> uint16_t objc_tag_index_t;</span><br><span class="line"><span class="keyword">enum</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 60-bit payloads</span></span><br><span class="line">    OBJC_TAG_NSAtom            = <span class="number">0</span>, </span><br><span class="line">    OBJC_TAG_1                 = <span class="number">1</span>, </span><br><span class="line">    OBJC_TAG_NSString          = <span class="number">2</span>, </span><br><span class="line">    OBJC_TAG_NSNumber          = <span class="number">3</span>, </span><br><span class="line">    OBJC_TAG_NSIndexPath       = <span class="number">4</span>, </span><br><span class="line">    OBJC_TAG_NSManagedObjectID = <span class="number">5</span>, </span><br><span class="line">    OBJC_TAG_NSDate            = <span class="number">6</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 60-bit reserved</span></span><br><span class="line">    OBJC_TAG_RESERVED_7        = <span class="number">7</span>, </span><br><span class="line"></span><br><span class="line">    <span class="comment">// 52-bit payloads</span></span><br><span class="line">    OBJC_TAG_Photos_1          = <span class="number">8</span>,</span><br><span class="line">    OBJC_TAG_Photos_2          = <span class="number">9</span>,</span><br><span class="line">    OBJC_TAG_Photos_3          = <span class="number">10</span>,</span><br><span class="line">    OBJC_TAG_Photos_4          = <span class="number">11</span>,</span><br><span class="line">    OBJC_TAG_XPC_1             = <span class="number">12</span>,</span><br><span class="line">    OBJC_TAG_XPC_2             = <span class="number">13</span>,</span><br><span class="line">    OBJC_TAG_XPC_3             = <span class="number">14</span>,</span><br><span class="line">    OBJC_TAG_XPC_4             = <span class="number">15</span>,</span><br><span class="line"></span><br><span class="line">    OBJC_TAG_First60BitPayload = <span class="number">0</span>, </span><br><span class="line">    OBJC_TAG_Last60BitPayload  = <span class="number">6</span>, </span><br><span class="line">    OBJC_TAG_First52BitPayload = <span class="number">8</span>, </span><br><span class="line">    OBJC_TAG_Last52BitPayload  = <span class="number">263</span>, </span><br><span class="line"></span><br><span class="line">    OBJC_TAG_RESERVED_264      = <span class="number">264</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> __has_feature(objc_fixed_enum)  &amp;&amp;  !defined(__cplusplus)</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">enum</span> objc_tag_index_t objc_tag_index_t;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>那么我们知道2表示的<code>OBJC_TAG_NSString</code>即字符串类型。因为目前已经无法验证这种情况了 所以我们不做其他类型验证。</p>
+<h5 id="objc4-750之后"><a href="#objc4-750之后" class="headerlink" title="objc4-750之后"></a>objc4-750之后</h5><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Returns a pointer to the class&#x27;s storage in the tagged class arrays.</span></span><br><span class="line"><span class="comment">// Assumes the tag is a valid basic tag.</span></span><br><span class="line"><span class="keyword">static</span> Class *</span><br><span class="line">classSlotForBasicTagIndex(objc_tag_index_t tag)</span><br><span class="line">&#123;</span><br><span class="line">    uintptr_t tagObfuscator = ((objc_debug_taggedpointer_obfuscator</span><br><span class="line">                                &gt;&gt; _OBJC_TAG_INDEX_SHIFT)</span><br><span class="line">                               &amp; _OBJC_TAG_INDEX_MASK);</span><br><span class="line">    uintptr_t obfuscatedTag = tag ^ tagObfuscator;</span><br><span class="line">    <span class="comment">// Array index in objc_tag_classes includes the tagged bit itself</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> SUPPORT_MSB_TAGGED_POINTERS <span class="comment">////高位优先</span></span></span><br><span class="line">    <span class="keyword">return</span> &amp;objc_tag_classes[<span class="number">0x8</span> | obfuscatedTag];</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    <span class="keyword">return</span> &amp;objc_tag_classes[(obfuscatedTag &lt;&lt; <span class="number">1</span>) | <span class="number">1</span>];</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>classSlotForBasicTagIndex() 函数的主要功能就是根据指定索引 tag 从数组objc_tag_classes中获取类指针,而下标的计算方法发是根据外部传递的索引tag。比如字符串 tag = 2。当然这并不是简单的从数组中获取某条数据。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"> uint16_t <span class="built_in">NSString_Tag</span> = <span class="number">2</span>;</span><br><span class="line">uint16_t <span class="built_in">NSNumber_Tag</span> = <span class="number">3</span>;</span><br><span class="line"><span class="comment">// 3 = 0011</span></span><br><span class="line"><span class="comment">// _OBJC_TAG_INDEX_MASK = 0x7 = 0111</span></span><br><span class="line">        uintptr_t string_tagObfuscator = ((objc_debug_taggedpointer_obfuscator</span><br><span class="line">                                           &gt;&gt; _OBJC_TAG_INDEX_SHIFT)</span><br><span class="line">                                          &amp; _OBJC_TAG_INDEX_MASK);</span><br><span class="line"></span><br><span class="line">        uintptr_t number_tagObfuscator = ((objc_debug_taggedpointer_obfuscator</span><br><span class="line">                                           &gt;&gt; _OBJC_TAG_INDEX_SHIFT)</span><br><span class="line">                                          &amp; _OBJC_TAG_INDEX_MASK);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异或操作 相同返回0 不同返回1</span></span><br><span class="line"><span class="comment">// 2 ^ 3 = 0010 ^ 0011 = 0001</span></span><br><span class="line"><span class="comment">// 3^ 3 = 0011 ^ 0011 = 0000</span></span><br><span class="line">        uintptr_t string_obfuscatedTag = <span class="built_in">NSString_Tag</span> ^ string_tagObfuscator;</span><br><span class="line">        uintptr_t number_obfuscatedTag = <span class="built_in">NSNumber_Tag</span> ^ number_tagObfuscator;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按位或</span></span><br><span class="line"><span class="comment">// 1000 | 0001 = 1001 = 9</span></span><br><span class="line"><span class="comment">// 1000 | 0000 = 1000 = 8</span></span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, objc_tag_classes[<span class="number">0x8</span> | string_obfuscatedTag]);</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, objc_tag_classes[<span class="number">0x8</span> | number_obfuscatedTag]);</span><br></pre></td></tr></table></figure>
+
+<p>控制台输出为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">TaggedPointer[89420:3027642] NSTaggedPointerString</span><br><span class="line">TaggedPointer[89420:3027642] __NSCFNumber</span><br></pre></td></tr></table></figure>
+
+<p>当我们多次运行时,我们发现实际上每次获取到的<code>string_tagObfuscator</code>和<code>number_obfuscatedTag</code>都不一样，但是每次从<code>objc_tag_classes</code>中取出的类型均是一致的，因此实际上每次运行objc_tag_classes中的内容也是不断变化的。</p>
+<p>如果你想进一步的了解可以参考<a target="_blank" rel="noopener" href="https://jinxuebin.cn/2019/06/Objective-C%E4%B8%AD%E7%9A%84%E4%BC%AA%E6%8C%87%E9%92%88/">Objective-C中伪指针Tagged Pointer</a></p>
+<h4 id="NSCFNumber"><a href="#NSCFNumber" class="headerlink" title="NSCFNumber"></a>NSCFNumber</h4><p>下面我们在看下NSNumber类型</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSNumber</span> *number1 = @(<span class="number">0x1</span>);</span><br><span class="line"><span class="built_in">NSNumber</span> *number2 = @(<span class="number">0x20</span>);</span><br><span class="line"><span class="built_in">NSNumber</span> *number3 = @(<span class="number">0x3F</span>);</span><br><span class="line"><span class="built_in">NSNumber</span> *numberFFFF = @(<span class="number">0xFFFFFFFFFFEFE</span>);</span><br><span class="line"><span class="built_in">NSNumber</span> *maxNum = @(MAXFLOAT);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;number1 pointer is %p class is %@&quot;</span>, number1, number1.class);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;number2 pointer is %p class is %@&quot;</span>, number2, number2.class);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;number3 pointer is %p class is %@&quot;</span>, number3, number3.class);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;numberffff pointer is %p class is %@&quot;</span>, numberFFFF, numberFFFF.class);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;maxNum pointer is %p class is %@&quot;</span>, maxNum, maxNum.class);</span><br></pre></td></tr></table></figure>
+
+<p>我们在看下打印结果:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">TaggedPointerDemo[59218:2167895] number1 pointer is 0xf7cb914ffb51479a class is __NSCFNumber</span><br><span class="line">TaggedPointerDemo[59218:2167895] number2 pointer is 0xf7cb914ffb51458a class is __NSCFNumber</span><br><span class="line">TaggedPointerDemo[59218:2167895] number3 pointer is 0xf7cb914ffb51447a class is __NSCFNumber</span><br><span class="line">TaggedPointerDemo[59218:2167895] numberffff pointer is 0xf7346eb004aea86b class is __NSCFNumber</span><br><span class="line">TaggedPointerDemo[59218:2167895] maxNum pointer is 0x28172a0c0 class is __NSCFNumber</span><br></pre></td></tr></table></figure>
+
+<p>我们发现对于NSNumber，我们打印出来的数据类型均为<code>__NSCFNumber</code>,但是我们发现对于<code>MAXFLOAT</code>打印出的地址显然与其他几项不符，上面几个NSNumber的地址以<code>0xf</code>开头，根据字符串地址的经验我们可以看出<code>f = 1111</code>,首位标记位为1，表示这个数据类型属于<code>TaggedPointer</code>。而MAXFLOAT不是。</p>
+<h4 id="获取TaggedPointer的值"><a href="#获取TaggedPointer的值" class="headerlink" title="获取TaggedPointer的值"></a>获取TaggedPointer的值</h4><h5 id="objc4-723之前-1"><a href="#objc4-723之前-1" class="headerlink" title="objc4-723之前"></a>objc4-723之前</h5><p>字符串：<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghki3kum3kj30cw04ljss.jpg"></p>
+<p>从上图的地址中我们就可以看出,从低位到高位分别表示的就是字符串的值(在ASCII码表中的值)</p>
+<p>数字:<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghki3v25qqj30fa02iq3q.jpg"></p>
+<p>对于数字来说从地址中也是直接读出存储的值，如上图。</p>
+<h5 id="objc4-750之后-1"><a href="#objc4-750之后-1" class="headerlink" title="objc4-750之后"></a>objc4-750之后</h5><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> uintptr_t</span><br><span class="line">_objc_decodeTaggedPointer(<span class="keyword">const</span> <span class="keyword">void</span> * _Nullable ptr)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> (uintptr_t)ptr ^ objc_debug_taggedpointer_obfuscator;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> uintptr_t</span><br><span class="line">_objc_getTaggedPointerValue(<span class="keyword">const</span> <span class="keyword">void</span> * _Nullable ptr) </span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// assert(_objc_isTaggedPointer(ptr));</span></span><br><span class="line">    uintptr_t value = _objc_decodeTaggedPointer(ptr);</span><br><span class="line">    uintptr_t basicTag = (value &gt;&gt; _OBJC_TAG_INDEX_SHIFT) &amp; _OBJC_TAG_INDEX_MASK;</span><br><span class="line">    <span class="keyword">if</span> (basicTag == _OBJC_TAG_INDEX_MASK) &#123;</span><br><span class="line">        <span class="keyword">return</span> (value &lt;&lt; _OBJC_TAG_EXT_PAYLOAD_LSHIFT) &gt;&gt; _OBJC_TAG_EXT_PAYLOAD_RSHIFT;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> (value &lt;&lt; _OBJC_TAG_PAYLOAD_LSHIFT) &gt;&gt; _OBJC_TAG_PAYLOAD_RSHIFT;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> intptr_t</span><br><span class="line">_objc_getTaggedPointerSignedValue(<span class="keyword">const</span> <span class="keyword">void</span> * _Nullable ptr) </span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// assert(_objc_isTaggedPointer(ptr));</span></span><br><span class="line">    uintptr_t value = _objc_decodeTaggedPointer(ptr);</span><br><span class="line">    uintptr_t basicTag = (value &gt;&gt; _OBJC_TAG_INDEX_SHIFT) &amp; _OBJC_TAG_INDEX_MASK;</span><br><span class="line">    <span class="keyword">if</span> (basicTag == _OBJC_TAG_INDEX_MASK) &#123;</span><br><span class="line">        <span class="keyword">return</span> ((intptr_t)value &lt;&lt; _OBJC_TAG_EXT_PAYLOAD_LSHIFT) &gt;&gt; _OBJC_TAG_EXT_PAYLOAD_RSHIFT;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ((intptr_t)value &lt;&lt; _OBJC_TAG_PAYLOAD_LSHIFT) &gt;&gt; _OBJC_TAG_PAYLOAD_RSHIFT;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>示例代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSString</span> *str1 = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;1&quot;</span>];</span><br><span class="line">      <span class="built_in">NSString</span> *str11 = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;11&quot;</span>];</span><br><span class="line">      <span class="built_in">NSString</span> *str2 = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;2&quot;</span>];</span><br><span class="line">      <span class="built_in">NSString</span> *str22 = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;22&quot;</span>];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">      <span class="comment">// 0x31 1 0x32 1</span></span><br><span class="line">      uintptr_t value1 = objc_getTaggedPointerValue((__bridge <span class="keyword">void</span> *)str1);</span><br><span class="line">      uintptr_t value2 = objc_getTaggedPointerValue((__bridge <span class="keyword">void</span> *)str2);</span><br><span class="line">      uintptr_t value11 = objc_getTaggedPointerValue((__bridge <span class="keyword">void</span> *)str11);</span><br><span class="line">      uintptr_t value22 = objc_getTaggedPointerValue((__bridge <span class="keyword">void</span> *)str22);</span><br><span class="line">      <span class="comment">// 以16进制形式输出</span></span><br><span class="line">      <span class="built_in">NSLog</span>(<span class="string">@&quot;%lx&quot;</span>, value1);</span><br><span class="line">      <span class="built_in">NSLog</span>(<span class="string">@&quot;%lx&quot;</span>, value11);</span><br><span class="line">      <span class="built_in">NSLog</span>(<span class="string">@&quot;%lx&quot;</span>, value2);</span><br><span class="line">      <span class="built_in">NSLog</span>(<span class="string">@&quot;%lx&quot;</span>, value22);</span><br></pre></td></tr></table></figure>
+<p>控制台输出:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TaggedPointer[89535:3033433] 311</span><br><span class="line">TaggedPointer[89535:3033433] 31312</span><br><span class="line">TaggedPointer[89535:3033433] 321</span><br><span class="line">TaggedPointer[89535:3033433] 32322</span><br></pre></td></tr></table></figure>
+
+<p>即 “1” = 0x31 1,最后一位表示长度，在ASCII码表中31表示的就是字符1。而且从字符串“11”的结果我们也可以验证上面的说法。</p>
+<h3 id="isa-指针-NONPOINTER-ISA"><a href="#isa-指针-NONPOINTER-ISA" class="headerlink" title="isa 指针(NONPOINTER_ISA)"></a>isa 指针(NONPOINTER_ISA)</h3><p>上面我们说了，对于一个对象的存储，苹果做了优化，那么对于ISA指针呢？</p>
+<p>对象的isa指针，用来表明对象所属的类类型。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">union</span> isa_t &#123;</span><br><span class="line">    isa_t() &#123; &#125;</span><br><span class="line">    isa_t(uintptr_t value) : bits(value) &#123; &#125;</span><br><span class="line"></span><br><span class="line">    Class cls;</span><br><span class="line">    uintptr_t bits;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(ISA_BITFIELD)</span></span><br><span class="line">    <span class="keyword">struct</span> &#123;</span><br><span class="line">        ISA_BITFIELD;  <span class="comment">// defined in isa.h</span></span><br><span class="line">    &#125;;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>同时结合下图，我们可以更清晰的了解isa指针的作用以及类对象的概念。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghjtmvzlxwj30w20j9tas.jpg"></p>
+<p>从图中可以看出，我们所谓的isa指针，最后实际上落脚于isa_t的联合类型。那么何为联合类型呢？<br><code>联合类型是C语言中的一种类型，是一种n选1的关系,联合的作用在于，用更少的空间，表示了更多的可能的类型，虽然这些类型是不能够共存的</code>。比如isa_t 中包含有<code>cls</code>，<code>bits</code>， <code>struct</code>三个变量，它们的内存空间是重叠的。在实际使用时，仅能够使用它们中的一种，你把它当做cls，就不能当bits访问，你把它当bits，就不能用cls来访问。</p>
+<p>对于<code>isa_t</code>联合类型，主要包含了两个构造函数<code>isa_t()</code>,<code>isa_t(uintptr_t value)</code>和三个变量<code>cls</code>,<code>bits</code>,<code>struct</code>,而<code>uintptr_t</code>的定义为<code>typedef unsigned long</code>。         </p>
+<p>当isa_t作为Class cls使用时，这符合了我们之前一贯的认知：isa是一个指向对象所属Class类型的指针。然而，仅让一个64位的指针表示一个类型，显然不划算。</p>
+<p>因此，绝大多数情况下，苹果采用了优化的<code>isa策略</code>，即，<code>isa_t</code>类型并不等同而<code>Class cls</code>, 而是<code>struct</code>。</p>
+<h4 id="struct"><a href="#struct" class="headerlink" title="struct"></a>struct</h4><p>下面我们先来看下struct的结构体</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ISA_BITFIELD定义如下</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">if</span> __arm64__</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> ISA_MASK        0x0000000ffffffff8ULL</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> ISA_MAGIC_MASK  0x000003f000000001ULL</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> ISA_MAGIC_VALUE 0x000001a000000001ULL</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> ISA_BITFIELD                                                      \</span></span><br><span class="line">      uintptr_t nonpointer        : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t has_assoc         : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t has_cxx_dtor      : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t shiftcls          : <span class="number">33</span>; <span class="comment">/*MACH_VM_MAX_ADDRESS 0x1000000000*/</span> \</span><br><span class="line">      uintptr_t magic             : <span class="number">6</span>;                                       \</span><br><span class="line">      uintptr_t weakly_referenced : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t deallocating      : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t has_sidetable_rc  : <span class="number">1</span>;                                       \</span><br><span class="line">      uintptr_t extra_rc          : <span class="number">19</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> RC_ONE   (1ULL&lt;&lt;45)</span></span><br><span class="line"><span class="meta">#   <span class="meta-keyword">define</span> RC_HALF  (1ULL&lt;&lt;18)</span></span><br></pre></td></tr></table></figure>
+
+<p>注意:<code>成员后面的：表明了该成员占用几个bit</code><br>而每个成员的意义如下表</p>
+<h4 id="标志位说明"><a href="#标志位说明" class="headerlink" title="标志位说明"></a>标志位说明</h4><table>
+<thead>
+<tr>
+<th>成员</th>
+<th>bit位</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>nonpointer</td>
+<td>1bit</td>
+<td>标志位。1(奇数)表示开启了isa优化，0(偶数)表示没有启用isa优化。所以，我们可以通过判断isa是否为奇数来判断对象是否启用了isa优化</td>
+</tr>
+<tr>
+<td>has_assoc</td>
+<td>1bit</td>
+<td>标志位。表明对象是否有关联对象。没有关联对象的对象释放的更快。</td>
+</tr>
+<tr>
+<td>has_cxx_dtor</td>
+<td>1bit</td>
+<td>标志位。表明对象是否有C++或ARC析构函数。没有析构函数的对象释放的更快</td>
+</tr>
+<tr>
+<td>shiftcls</td>
+<td>33bit</td>
+<td>类指针的非零位。</td>
+</tr>
+<tr>
+<td>magic</td>
+<td>6bit</td>
+<td>固定为0x1a，用于在调试时区分对象是否已经初始化。</td>
+</tr>
+<tr>
+<td>weakly_referenced</td>
+<td>1bit</td>
+<td>标志位。用于表示该对象是否被别的对象弱引用。没有被弱引用的对象释放的更快。</td>
+</tr>
+<tr>
+<td>deallocating</td>
+<td>1bit</td>
+<td>标志位。用于表示该对象是否正在被释放。</td>
+</tr>
+<tr>
+<td>has_sidetable_rc</td>
+<td>1bit</td>
+<td>标志位。用于标识是否当前的引用计数过大，无法在isa中存储，而需要借用sidetable来存储。（这种情况大多不会发生）</td>
+</tr>
+<tr>
+<td>extra_rc</td>
+<td>19bit</td>
+<td>对象的引用计数减1。比如，一个object对象的引用计数为7，则此时extra_rc的值为6。</td>
+</tr>
+</tbody></table>
+<p>从上表我们发现，<code>extra_rc</code>和<code>has_sidetable_rc</code>是和引用计数相关的标志位，当extra_rc 不够用时，还会借助sidetable来存储计数值，这时，has_sidetable_rc会被标志为1。</p>
+<p>接下来我们来验证下，这些标志位是否真的如表中介绍那样。</p>
+<h4 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h4><p>我们先来看下面这段代码</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)testisa &#123;</span><br><span class="line">    <span class="built_in">NSObject</span> *obj = [[<span class="built_in">NSObject</span> alloc] init];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;1. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>控制台输出结果</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TaggedPointerDemo[59983:2185591] 1. obj isa_t &#x3D; 0x1a1f335beb1</span><br></pre></td></tr></table></figure>
+<p>我们将地址<code>0x1a1f335beb1</code>转换过后：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfjfbyu0j30fe0dogmb.jpg"></p>
+<p>我们看到这时候 对象是<code>nonpointer</code>开启了isa优化，且当前的引用计数器为 extra_rc = 0 + 1 = 1;</p>
+<p>下面我们接着测试</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSObject</span> *obj = [[<span class="built_in">NSObject</span> alloc] init];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;1. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)obj);</span><br><span class="line">_obj1 = obj;</span><br><span class="line"><span class="built_in">NSObject</span> *tmpObj = obj;</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;2. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)obj);</span><br></pre></td></tr></table></figure>
+<p>控制台输出为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">TaggedPointerDemo[63235:2266690] 1. obj isa_t &#x3D; 0x1a1f335beb1</span><br><span class="line">TaggedPointerDemo[63235:2266690] 2. obj isa_t &#x3D; 0x41a1f335beb1</span><br></pre></td></tr></table></figure>
+<p>我们将地址<code>0x41a1f335beb1</code>转换过后：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfvyc4tkj30fe0dot9f.jpg"></p>
+<p>我们看到这时候，我们将obj强引用之后，又实用了一个局部变量对其进行引用，所以这时的引用计数应该为2，当然从图中我们也可以验证这一点。</p>
+<h4 id="weakly-referenced"><a href="#weakly-referenced" class="headerlink" title="weakly_referenced"></a>weakly_referenced</h4><p>我们这次添加一个弱引用来验证</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> _weakRefObj = _obj1;</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;3. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)_obj1);</span><br></pre></td></tr></table></figure>
+
+<p>控制台输出为</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TaggedPointerDemo[<span class="number">63235</span>:<span class="number">2266690</span>] <span class="number">3.</span> obj isa_t = <span class="number">0x45a1f335beb1</span></span><br></pre></td></tr></table></figure>
+
+<p>这时候我们仅仅通过地址进行判断 当添加了<code>_obj2 = _obj1</code>后，地址变为<code>0x61a1f335beb1</code>与之前地址<code>0x41a1f335beb1</code>对比</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfxt2qagj30fe0doq3n.jpg"></p>
+<p>上图我们可以看到<code>weakly_referenced</code>标志位被置为1.表示这个对象有被弱引用。</p>
+<h4 id="has-assoc"><a href="#has-assoc" class="headerlink" title="has_assoc"></a>has_assoc</h4><p>然后我们在添加一个关联属性</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSObject</span> *attachObj = [[<span class="built_in">NSObject</span> alloc] init];</span><br><span class="line">objc_setAssociatedObject(_obj1, <span class="string">&quot;attachKey&quot;</span>, attachObj, OBJC_ASSOCIATION_RETAIN_NONATOMIC);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;4. obj isa_t = %p&quot;</span>, *(<span class="keyword">void</span> **)(__bridge <span class="keyword">void</span>*)_obj1);</span><br></pre></td></tr></table></figure>
+
+<p>控制台输出为:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TaggedPointerDemo[<span class="number">63235</span>:<span class="number">2266690</span>] <span class="number">4.</span> obj isa_t = <span class="number">0x45a1f335beb3</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkfzqpmq2j30fe0doq3n.jpg"></p>
+<p>从上图中我们看到<code>has_assoc</code>标志位被置为1.</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>截止到这里，我们通过观察<code>NSTaggedPointer</code>,相关标志位我们基本了解了NSTaggedPointer是如何存储数据以及标志位的作用。</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://jinxuebin.cn/2019/06/Objective-C%E4%B8%AD%E7%9A%84%E4%BC%AA%E6%8C%87%E9%92%88/">Objective-C中伪指针Tagged Pointer</a></p>
+<p><a target="_blank" rel="noopener" href="https://mikeash.com/pyblog/friday-qa-2015-07-31-tagged-pointer-strings.html">Friday Q&amp;A 2015-07-31: Tagged Pointer Strings</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/08/02/retaincount/" rel="prev" title="retain和release实现探究">
+                  <i class="fa fa-chevron-left"></i> retain和release实现探究
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/08/16/sidetablestructure/" rel="next" title="SideTable结构">
+                  SideTable结构 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : '1ca0cc1dd80ac7134643fd1115f3f065',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

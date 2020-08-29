@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="Google Protocol Buffer(简称Protobuf)是由Google推出的一种轻便高效的结构化数据存储格式，可以用于结构化数据串行化，或者说序列化。它很适合做数据存储或RPC数据交换格式。可用于通讯协议、数据存储等领域的语言无关、平台无关、可扩展的序列化结构数据格式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Protobuf 的使用">
+<meta property="og:url" content="https://www.leewong.cn/2018/03/31/protobuf-research/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="Google Protocol Buffer(简称Protobuf)是由Google推出的一种轻便高效的结构化数据存储格式，可以用于结构化数据串行化，或者说序列化。它很适合做数据存储或RPC数据交换格式。可用于通讯协议、数据存储等领域的语言无关、平台无关、可扩展的序列化结构数据格式">
+<meta property="og:locale">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/18-3-31/6967231.jpg">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/18-3-31/92058883.jpg">
+<meta property="og:image" content="http://og0h689k8.bkt.clouddn.com/18-3-31/739274.jpg">
+<meta property="article:published_time" content="2018-03-31T02:36:43.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:28:02.508Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="Protobuf Google">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://og0h689k8.bkt.clouddn.com/18-3-31/6967231.jpg">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2018/03/31/protobuf-research/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Protobuf 的使用 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Protobuf%E7%9A%84%E5%AE%89%E8%A3%85"><span class="nav-number">1.</span> <span class="nav-text">Protobuf的安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85protobuf"><span class="nav-number">1.1.</span> <span class="nav-text">安装protobuf</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85Protobuf-Compiler"><span class="nav-number">1.2.</span> <span class="nav-text">安装Protobuf Compiler</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Protobuf-%E4%BD%BF%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">Protobuf 使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Protobuf-%E5%AF%BC%E5%85%A5"><span class="nav-number">2.1.</span> <span class="nav-text">Protobuf 导入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E5%86%99%E4%B8%80%E4%B8%AAproto%E6%96%87%E4%BB%B6"><span class="nav-number">2.2.</span> <span class="nav-text">编写一个proto文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E8%BF%99%E4%B8%AAproto%E6%96%87%E4%BB%B6"><span class="nav-number">2.3.</span> <span class="nav-text">编译这个proto文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%86%E7%94%9F%E6%88%90%E7%9A%84%E6%96%87%E4%BB%B6%E6%B7%BB%E5%8A%A0%E5%88%B0%E9%A1%B9%E7%9B%AE%E4%B8%AD"><span class="nav-number">2.4.</span> <span class="nav-text">将生成的文件添加到项目中</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">简单的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Protobuf-%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">Protobuf  基本语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E6%AE%B5%E6%A0%BC%E5%BC%8F%E5%AE%9A%E4%B9%89"><span class="nav-number">4.1.</span> <span class="nav-text">字段格式定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%90%E5%AE%9A%E4%BF%AE%E9%A5%B0%E7%AC%A6"><span class="nav-number">4.2.</span> <span class="nav-text">限定修饰符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">4.3.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E6%AE%B5%E5%90%8D%E7%A7%B0"><span class="nav-number">4.4.</span> <span class="nav-text">字段名称</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E6%AE%B5%E7%BC%96%E7%A0%81%E5%80%BC"><span class="nav-number">4.5.</span> <span class="nav-text">字段编码值</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%85%B3%E4%BA%8Eimport"><span class="nav-number">4.5.0.1.</span> <span class="nav-text">关于import</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%85%B3%E4%BA%8Epackage"><span class="nav-number">4.5.0.2.</span> <span class="nav-text">关于package</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%85%B3%E4%BA%8Emessage"><span class="nav-number">4.5.0.3.</span> <span class="nav-text">关于message</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%85%B3%E4%BA%8Eenum"><span class="nav-number">4.5.0.4.</span> <span class="nav-text">关于enum</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">5.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%BA%E7%82%B9"><span class="nav-number">5.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">6.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2018/03/31/protobuf-research/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Protobuf 的使用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-03-31 10:36:43" itemprop="dateCreated datePublished" datetime="2018-03-31T10:36:43+08:00">2018-03-31</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:28:02" itemprop="dateModified" datetime="2020-07-19T22:28:02+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%B8%89%E6%96%B9%E5%BA%93%E4%BD%BF%E7%94%A8/" itemprop="url" rel="index"><span itemprop="name">三方库使用</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2018/03/31/protobuf-research/" class="post-meta-item leancloud_visitors" data-flag-title="Protobuf 的使用" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>Google Protocol Buffer(简称Protobuf)是由Google推出的一种轻便高效的结构化数据存储格式，可以用于结构化数据串行化，或者说序列化。它很适合做数据存储或RPC数据交换格式。可用于通讯协议、数据存储等领域的语言无关、平台无关、可扩展的序列化结构数据格式</p>
+<a id="more"></a>
+
+<h2 id="Protobuf的安装"><a href="#Protobuf的安装" class="headerlink" title="Protobuf的安装"></a>Protobuf的安装</h2><p>这里推荐使用homebrew安装,如果没有安装,先<a target="_blank" rel="noopener" href="https://brew.sh/index_zh-cn.html">安装</a>吧</p>
+<h3 id="安装protobuf"><a href="#安装protobuf" class="headerlink" title="安装protobuf"></a>安装protobuf</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$brew install protobuf</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装Protobuf-Compiler"><a href="#安装Protobuf-Compiler" class="headerlink" title="安装Protobuf Compiler"></a>安装Protobuf Compiler</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install automake </span><br><span class="line">brew install libtool </span><br><span class="line">brew install protobuf</span><br></pre></td></tr></table></figure>
+
+<h2 id="Protobuf-使用"><a href="#Protobuf-使用" class="headerlink" title="Protobuf 使用"></a>Protobuf 使用</h2><p>安装完成后我们就可以直接使用了！</p>
+<p><code>注意</code>:上面只是安装了编译环境,可以帮我们将.proto文件编译成我们需要的.h和.m环境</p>
+<h3 id="Protobuf-导入"><a href="#Protobuf-导入" class="headerlink" title="Protobuf 导入"></a>Protobuf 导入</h3><p>下面我们就可以新建一个iOS的工程了,然后使用pod方式管理protobuf</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod &#39;Protobuf&#39;, &#39;~&gt; 3.4.0&#39;</span><br></pre></td></tr></table></figure>
+
+<h3 id="编写一个proto文件"><a href="#编写一个proto文件" class="headerlink" title="编写一个proto文件"></a>编写一个proto文件</h3><p>这个proto文件就相当于一个类,不过要使用protobuf的语法来定义</p>
+<p>可以简单的这么写：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line">message ChatMessage &#123;</span><br><span class="line">    <span class="built_in">string</span> title = <span class="number">1</span>;</span><br><span class="line">    <span class="built_in">string</span> body = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：<br><code>使用proto3的时候不需要在变量前面加上required和optional,默认就是optional</code><br>具体的语法规则我们后面介绍</p>
+<h3 id="编译这个proto文件"><a href="#编译这个proto文件" class="headerlink" title="编译这个proto文件"></a>编译这个proto文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">protoc --plugin&#x3D;&#x2F;usr&#x2F;local&#x2F;bin&#x2F;protoc-gen-objc *.proto --objc_out&#x3D;&quot;.&#x2F;*&quot;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>第一个<em>号的地方是你.proto文件所在的位置,<br>第二个</em>所在的地方是你编译完成之后.h和.m要导出的地方</p>
+</blockquote>
+<h3 id="将生成的文件添加到项目中"><a href="#将生成的文件添加到项目中" class="headerlink" title="将生成的文件添加到项目中"></a>将生成的文件添加到项目中</h3><p>直接添加之后,编译一下,肯定是会报错的(除非你还活在远古的MRC)。这时候你需要将编译出来的对象文件标记为MRC<br>Target - BuildPhases - Compile Sources</p>
+<p><img src="http://og0h689k8.bkt.clouddn.com/18-3-31/6967231.jpg"></p>
+<p>然后我们仔细阅读,生成的.h文件会发现中的这一段:</p>
+<p><img src="http://og0h689k8.bkt.clouddn.com/18-3-31/92058883.jpg"></p>
+<p>因为我们是使用pod管理的因此我们这里使用&lt;&gt;导入,因此在</p>
+<p>Target - Build Setting - Preprocessor Macros </p>
+<p>在Debug和Release中都添加</p>
+<p><img src="http://og0h689k8.bkt.clouddn.com/18-3-31/739274.jpg"></p>
+<p>这样我们在编译一下,Done! 这就没什么问题了！ </p>
+<p>到目前为止,我们基本上已经完成了Protobuf的所有配置,下面开始使用Protobuf了。</p>
+<h2 id="简单的使用"><a href="#简单的使用" class="headerlink" title="简单的使用"></a>简单的使用</h2><p>先导入我们生成的.h文件</p>
+<p><code>#import &quot;ProtobufChatmessage.pbobjc.h&quot;</code></p>
+<p>简单的创建一个的对象–序列化成data然后在解析这个data。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">ChatMessage *message = [[ChatMessage alloc] init];</span><br><span class="line">    message.title = <span class="string">@&quot;Lee&quot;</span>;</span><br><span class="line">    message.body = <span class="string">@&quot;Hom&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSData</span> *data = [message data];</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSError</span> *error = <span class="literal">nil</span>;</span><br><span class="line">    ChatMessage *msg = [ChatMessage parseFromData:data error:&amp;error];</span><br><span class="line">    <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;parseData Error %@&quot;</span>,error.localizedDescription);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;parseData Success&quot;</span>);</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;ChatMessage:title=%@ body=%@&quot;</span>,msg.title,msg.body);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2018-03-31 10:31:00.854929+0800 ProtobufDemo[5901:690009] parseData Success</span><br><span class="line">2018-03-31 10:31:00.855157+0800 ProtobufDemo[5901:690009] ChatMessage:title&#x3D;Lee body&#x3D;Hom</span><br></pre></td></tr></table></figure>
+
+<p>至此,我们已经成功的使用到了Protobuf,最直观的感觉就是直接从二进制的NSData转变成了我们想要的模型 Cool!!</p>
+<p>Protocol还有很多高深的内容,网上也有很多关于他的文章,喜欢的可以多看看！</p>
+<h2 id="Protobuf-基本语法"><a href="#Protobuf-基本语法" class="headerlink" title="Protobuf  基本语法"></a>Protobuf  基本语法</h2><h3 id="字段格式定义"><a href="#字段格式定义" class="headerlink" title="字段格式定义"></a>字段格式定义</h3><p>在Protobuf中，协议是由一系列的消息组成的。因此最重要的就是定义通信时使用到的消息格式。协议中个消息格式固定了t通信双方才能理解对象的码流。</p>
+<p><code>限定修饰符① | 数据类型② | 字段名称③ | = | 字段编码值④ | [字段默认值⑤]</code></p>
+<h3 id="限定修饰符"><a href="#限定修饰符" class="headerlink" title="限定修饰符"></a>限定修饰符</h3><p>限定修饰符 主要有required\optional\repeated(required在3.0的时候已经被废除,默认是optional)</p>
+<ul>
+<li><p>Optional：表示是一个可选字段，可选对于发送方，在发送消息时，可以有选择性的设置或者不设置该字段的值。对于接收方，如果能够识别可选字段就进行相应的处理，如果无法识别，则忽略该字段，消息中的其它字段正常处理。因为optional字段的特性，很多接口在升级版本中都把后来添加的字段都统一的设置为optional字段，这样老的版本无需升级程序也可以正常的与新的软件进行通信，只不过新的字段无法识别而已，因为并不是每个节点都需要新的功能，因此可以做到按需升级和平滑过渡。</p>
+</li>
+<li><p>Repeated：表示该字段可以包含0~N个元素。其特性和optional一样，但是每一次可以包含多个值。可以看作是在传递一个数组的值</p>
+</li>
+</ul>
+<h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><p>Protobuf到C++的类型映射</p>
+<table>
+<thead>
+<tr>
+<th>proto Type</th>
+<th>C++ Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>double</td>
+<td>double</td>
+<td></td>
+</tr>
+<tr>
+<td>float</td>
+<td>float</td>
+<td></td>
+</tr>
+<tr>
+<td>int32</td>
+<td>int32</td>
+<td>使用可变长编码方式。编码负数时不够高效——如果你的字段可能含有负数，那么请使用sint32。</td>
+</tr>
+<tr>
+<td>int64</td>
+<td>int64</td>
+<td>使用可变长编码方式。编码负数时不够高效——如果你的字段可能含有负数，那么请使用sint64</td>
+</tr>
+<tr>
+<td>uint32</td>
+<td>uint32</td>
+<td>Uses variable-length encoding</td>
+</tr>
+<tr>
+<td>uint64</td>
+<td>uint64</td>
+<td>Uses variable-length encoding.</td>
+</tr>
+<tr>
+<td>sint32</td>
+<td>int32</td>
+<td>使用可变长编码方式。有符号的整型值。编码时比通常的int32高效。</td>
+</tr>
+<tr>
+<td>sint64</td>
+<td>int64</td>
+<td>使用可变长编码方式。有符号的整型值。编码时比通常的int64高效。</td>
+</tr>
+<tr>
+<td>fixed32</td>
+<td>uint32</td>
+<td>总是4个字节。如果数值总是比总是比228大的话，这个类型会比uint32高效</td>
+</tr>
+<tr>
+<td>fixed64</td>
+<td>uint64</td>
+<td>总是8个字节。如果数值总是比总是比256大的话，这个类型会比uint64高效。</td>
+</tr>
+<tr>
+<td>sfixed32</td>
+<td>int32</td>
+<td>总是4个字节</td>
+</tr>
+<tr>
+<td>sfixed64</td>
+<td>int64</td>
+<td>总是8个字节</td>
+</tr>
+<tr>
+<td>bool</td>
+<td>bool</td>
+<td></td>
+</tr>
+<tr>
+<td>string</td>
+<td>string</td>
+<td>一个字符串必须是UTF-8编码或者7-bit ASCII编码的文本。</td>
+</tr>
+<tr>
+<td>bytes</td>
+<td>string</td>
+<td>可能包含任意顺序的字节数据。</td>
+</tr>
+</tbody></table>
+<h3 id="字段名称"><a href="#字段名称" class="headerlink" title="字段名称"></a>字段名称</h3><p>protobuf建议字段的命名采用以下划线分割的驼峰式。例如 first_name 而不是firstName.</p>
+<h3 id="字段编码值"><a href="#字段编码值" class="headerlink" title="字段编码值"></a>字段编码值</h3><p>有了该值，通信双方才能互相识别对方的字段。当然相同的编码值，其限定修饰符和数据类型必须相同。</p>
+<p>编码值的取值范围为 1~2^32（4294967296）。</p>
+<p>其中 1~15的编码时间和空间效率都是最高的，编码值越大，其编码的时间和空间效率就越低（相对于1-15），当然一般情况下相邻的2个值编码效率的是相同的，除非2个值恰好实在4字节，12字节，20字节等的临界区。比如15和16.</p>
+<p>1900~2000编码值为Google protobuf 系统内部保留值，建议不要在自己的项目中使用。</p>
+<p>protobuf 还建议把经常要传递的值把其字段编码设置为1-15之间的值。</p>
+<p>消息中的字段的编码值无需连续，只要是合法的，并且不能在同一个消息中有字段包含相同的编码值</p>
+<h5 id="关于import"><a href="#关于import" class="headerlink" title="关于import"></a>关于import</h5><p>Protobuf接口文件可以像C语言的h文件一个，分离为多个，在需要的时候通过import导入需要对文件。其行为和C语言的#include或者iOS中的的#import的行为大致相同。</p>
+<h5 id="关于package"><a href="#关于package" class="headerlink" title="关于package"></a>关于package</h5><p>避免名称冲突，可以给每个文件指定一个package名称，对于java解析为java中的包。对于C++则解析为名称空间。</p>
+<h5 id="关于message"><a href="#关于message" class="headerlink" title="关于message"></a>关于message</h5><p>支持嵌套消息，消息可以包含另一个消息作为其字段。也可以在消息内定义一个新的消息。</p>
+<h5 id="关于enum"><a href="#关于enum" class="headerlink" title="关于enum"></a>关于enum</h5><p>枚举的定义和C++相同，但是有一些限制。枚举值必须大于等于0的整数。使用分号(;)分隔枚举变量而不是C++语言中的逗号(,)</p>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1,数据压缩效果好,序列化反序列速度快</span><br><span class="line">2,跨平台,生成一次proto文件,多端使用</span><br></pre></td></tr></table></figure>
+
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1,可读性行差(在代码中)</span><br><span class="line">2,最增加App包体积(生成的类本身就代码很多,而且需要使用第三方库)</span><br><span class="line">3,用的人少(在项目交接时,还需要学习这方面的知识)</span><br></pre></td></tr></table></figure>
+
+<p>本文的Demo,放在<a target="_blank" rel="noopener" href="https://github.com/LeeWongSnail/Blog_Demo/tree/master/ProtobufDemo">这里</a></p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a target="_blank" rel="noopener" href="http://blog.devzeng.com/blog/ios-protobuf.html">iOS中使用Protocol Buffers</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/751aa2b621d5">ProtocolBuffer在iOS中的使用</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Protobuf-Google/" rel="tag"># Protobuf Google</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/03/26/ios%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E4%B8%8E%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="prev" title="ios网络基础与多线程">
+                  <i class="fa fa-chevron-left"></i> ios网络基础与多线程
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/04/12/Userful-SQL/" rel="next" title="常用的SQL语句">
+                  常用的SQL语句 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : '3be2194830bb92cfc440c739fb7145af',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

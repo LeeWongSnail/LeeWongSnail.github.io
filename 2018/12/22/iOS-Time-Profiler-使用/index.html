@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="自从到现在的公司半年一来,业务上一直在不停的迭代。为了维持版本的迭代速度,代码review变得不再像之前那么严苛。导致近期出现了几个比较严重的问题,趁着周末的时间,使用Time Profiler好好的检测一下应用及时发现问题,解决问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Time Profiler 使用">
+<meta property="og:url" content="https://www.leewong.cn/2018/12/22/iOS-Time-Profiler-%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="自从到现在的公司半年一来,业务上一直在不停的迭代。为了维持版本的迭代速度,代码review变得不再像之前那么严苛。导致近期出现了几个比较严重的问题,趁着周末的时间,使用Time Profiler好好的检测一下应用及时发现问题,解决问题。">
+<meta property="og:locale">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwgy1fyfoorfbu7j316s0o0ad5.jpg">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2189300-2ed3883fb57c9abb.jpg">
+<meta property="og:image" content="http://www.samirchen.com/images/use-instruments/time_profiler.png">
+<meta property="og:image" content="http://www.samirchen.com/images/use-instruments/instruments_trace_document_toolbar_target_menus.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20181120232259625.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0hlbGxvX0h3Yw==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwgy1fyfp35i5jjj31240u0n1w.jpg">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20181120232618275.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0hlbGxvX0h3Yw==,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwgy1fyfpef2oycj31l20q2guf.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwgy1fyfpk0wywhj30q00a2agv.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwgy1fyfps8sxaaj312w0f2jvm.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwgy1fyfpuy0druj31bs0m0n52.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwgy1fyfq2ae1ucj30ca074mxw.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwgy1fyfq60dao5j317x0u047h.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwgy1fyfq84bijuj310g08g0ts.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwgy1fyfq98zz4ij31kw0pijyg.jpg">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20181120232517981.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0hlbGxvX0h3Yw==,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2018-12-22T09:52:28.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:09:26.040Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="耗时 主线程 xCode">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/006tNbRwgy1fyfoorfbu7j316s0o0ad5.jpg">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2018/12/22/iOS-Time-Profiler-%E4%BD%BF%E7%94%A8/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Time Profiler 使用 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-关于">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%B0%E7%8A%B6"><span class="nav-number">1.</span> <span class="nav-text">现状</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E6%A3%80%E6%B5%8B%E5%B7%A5%E5%85%B7"><span class="nav-number">2.</span> <span class="nav-text">性能检测工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Time-Profiler"><span class="nav-number">3.</span> <span class="nav-text">Time Profiler</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E6%AD%A3%E7%A1%AE%E7%9A%84%E5%BA%94%E7%94%A8%E5%92%8C%E6%AD%A3%E7%A1%AE%E7%9A%84%E8%AE%BE%E5%A4%87"><span class="nav-number">3.1.</span> <span class="nav-text">选择正确的应用和正确的设备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%A7%8B%E6%A3%80%E6%B5%8B"><span class="nav-number">3.2.</span> <span class="nav-text">开始检测</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%95%8C%E9%9D%A2%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D"><span class="nav-number">3.2.1.</span> <span class="nav-text">界面简单介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E7%BB%93%E6%9E%9C"><span class="nav-number">3.2.2.</span> <span class="nav-text">检测结果</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%AD%A3%E7%A1%AE%E5%B1%95%E7%A4%BA%E6%A3%80%E6%B5%8B%E4%BF%A1%E6%81%AF"><span class="nav-number">3.2.2.1.</span> <span class="nav-text">正确展示检测信息</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%AD%9B%E9%80%89%E6%A3%80%E6%B5%8B%E4%BF%A1%E6%81%AF"><span class="nav-number">3.2.2.2.</span> <span class="nav-text">筛选检测信息</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90"><span class="nav-number">3.2.2.3.</span> <span class="nav-text">结果分析</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%80%97%E6%97%B6%E6%93%8D%E4%BD%9C%E6%A3%80%E6%B5%8B%E5%AE%8C%E6%88%90"><span class="nav-number">3.3.</span> <span class="nav-text">耗时操作检测完成</span></a></li></ol></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2018/12/22/iOS-Time-Profiler-%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Time Profiler 使用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-12-22 17:52:28" itemprop="dateCreated datePublished" datetime="2018-12-22T17:52:28+08:00">2018-12-22</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-07-19 22:09:26" itemprop="dateModified" datetime="2020-07-19T22:09:26+08:00">2020-07-19</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/iOS%E4%BC%98%E5%8C%96/" itemprop="url" rel="index"><span itemprop="name">iOS优化</span></a>
+        </span>
+    </span>
+
+  
+    <span id="/2018/12/22/iOS-Time-Profiler-%E4%BD%BF%E7%94%A8/" class="post-meta-item leancloud_visitors" data-flag-title="Time Profiler 使用" title="Views">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span class="leancloud-visitors-count"></span>
+    </span>
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>自从到现在的公司半年一来,业务上一直在不停的迭代。为了维持版本的迭代速度,代码review变得不再像之前那么严苛。导致近期出现了几个比较严重的问题,趁着周末的时间,使用Time Profiler好好的检测一下应用及时发现问题,解决问题。</p>
+<a id="more"></a>
+
+<h2 id="现状"><a href="#现状" class="headerlink" title="现状"></a>现状</h2><p>近期慢慢开始越来越多的线上用户反馈应用卡的问题,出现问题的页面主要集中在：</p>
+<blockquote>
+<p>1、登录卡住,实际已经登录成功但是一直卡在登录的loading页面<br>2、进入直播间的页面卡住<br>3、进入个人主页卡住</p>
+</blockquote>
+<p>出现问题的机型 基本都集中在iPhone 6上,虽说iPhone 6是属于比较旧的机型了,但是在用户中所占的比重还是挺多的(苹果的不作为导致大家都没有理由去换新手机了)。</p>
+<p>听到用户反馈这个问题,其实第一感觉 对于2.3两个页面我们大概都能知道原因,因为界面比较复杂,而且要预加载部分信息,所以在较旧的设备上卡是正常的。对于登录页面其实我百思不得解。</p>
+<p>现状就说到这里,下面开始干……</p>
+<h2 id="性能检测工具"><a href="#性能检测工具" class="headerlink" title="性能检测工具"></a>性能检测工具</h2><p>对于iOS项目,苹果爸爸其实在Xcode中已经为我们提供了一套性能检测工具：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwgy1fyfoorfbu7j316s0o0ad5.jpg" alt="工具套装"> </p>
+<p>对于这些工具 可以做一个简单的分类：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/2189300-2ed3883fb57c9abb.jpg" alt="工具分类"></p>
+<p>可以根据自己的实际情况 去选择不同的工具,废话不多说,开干！！！</p>
+<h2 id="Time-Profiler"><a href="#Time-Profiler" class="headerlink" title="Time Profiler"></a>Time Profiler</h2><p>根据我们的实际情况,首先是卡顿,所以我要知道 应用中的耗时操作到底在哪里,是否有一些耗时操作放到了主线程,导致应用的卡顿。</p>
+<p>下面我们主要玩玩这个小东西：</p>
+<p><img src="http://www.samirchen.com/images/use-instruments/time_profiler.png" alt="Time Profiler"></p>
+<h3 id="选择正确的应用和正确的设备"><a href="#选择正确的应用和正确的设备" class="headerlink" title="选择正确的应用和正确的设备"></a>选择正确的应用和正确的设备</h3><p><img src="http://www.samirchen.com/images/use-instruments/instruments_trace_document_toolbar_target_menus.png"></p>
+<p>温馨提示:<code>应用必须是已安装的哦</code></p>
+<h3 id="开始检测"><a href="#开始检测" class="headerlink" title="开始检测"></a>开始检测</h3><p>点击红色按钮我们就可以开始对我们选中设备和选中的应用进行检测了。</p>
+<h4 id="界面简单介绍"><a href="#界面简单介绍" class="headerlink" title="界面简单介绍"></a>界面简单介绍</h4><p><img src="https://img-blog.csdnimg.cn/20181120232259625.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0hlbGxvX0h3Yw==,size_16,color_FFFFFF,t_70" alt="界面"></p>
+<ul>
+<li>各个线程的采集数据汇总</li>
+<li>点击1中的某一行，可以看到采集到的堆栈，注意2区域的右上角，可以选择隐藏系统的符号</li>
+<li>可以选择关注的队列/CPU等。</li>
+<li>可以用pinch手势来放大缩小时间范围，鼠标可以拖动选择一段区域</li>
+</ul>
+<h4 id="检测结果"><a href="#检测结果" class="headerlink" title="检测结果"></a>检测结果</h4><p><img src="https://ws1.sinaimg.cn/large/006tNbRwgy1fyfp35i5jjj31240u0n1w.jpg" alt="结果"></p>
+<p>额,顿时有种 裤子都脱了你给我看这个！！(问号脸)</p>
+<h5 id="正确展示检测信息"><a href="#正确展示检测信息" class="headerlink" title="正确展示检测信息"></a>正确展示检测信息</h5><p>遇到这种事,一定要告诉自己:你一定不是第一个遇到这个问题的人。所以呢 谷歌一下 你就知道</p>
+<p><img src="https://img-blog.csdnimg.cn/20181120232618275.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0hlbGxvX0h3Yw==,size_16,color_FFFFFF,t_70" alt="谷歌"></p>
+<p>原因：<code>打包模式没有开启dSYM或者debug symbols</code> 所以 将debug切换到 <code>DWARF with dSYM File</code></p>
+<p>下面 我们重新跑一次！</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwgy1fyfpef2oycj31l20q2guf.jpg" alt="结果"></p>
+<p>好像虽然有一些我比较熟悉的类出现,但是面对这样的提示,我依然是一脸懵逼呀！</p>
+<h5 id="筛选检测信息"><a href="#筛选检测信息" class="headerlink" title="筛选检测信息"></a>筛选检测信息</h5><p><code>Time Profiler</code> 默认将检测的所有信息都返回给我们,所以,如果想快速的定位问题 我们需要正确的筛选这些信息。</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwgy1fyfpk0wywhj30q00a2agv.jpg" alt="小秘密"></p>
+<p>在上图的位置处,Time Profiler 给我们这几个选项,首先来看看这几个选项是什么意思：</p>
+<ul>
+<li>Separate by State：线程分离，状态分开显示 ，例如：Running状态</li>
+<li>Separate by Thread：按线程分开进行分析。容易找出消耗资源的问题线程，特别是对于主线程，因为主线程要处理和渲染所有的接口数据及UI视图，当主线程受到阻塞性操作，一定会造成程序的卡顿，或停止响应。</li>
+<li>Invert Call Tree：反向显示调用树。把调用层级最深的方法显示在最上面，容易找到最耗时的操作。</li>
+<li>Hide System Libraries：隐藏缺失的符号。把干扰信息屏蔽掉，即把列表中因为系统架构，或DSYM文件缺失造成奇怪的十六进制的数值。</li>
+<li>Flatten Recursion：拼合递归。把同一递归函数产生的多条堆栈合并为一条。</li>
+<li>Top Functions：找到最耗时的函数或方法。</li>
+</ul>
+<p>依据我们的情况可以选择 <code>Separate by Thread</code> 和 <code>Hide System Libraries</code> </p>
+<h5 id="结果分析"><a href="#结果分析" class="headerlink" title="结果分析"></a>结果分析</h5><p><img src="https://ws3.sinaimg.cn/large/006tNbRwgy1fyfps8sxaaj312w0f2jvm.jpg"></p>
+<p>筛选之后 我们可以拿到上面的记过,对于卡顿的问题,一般是因为有一些操作应该放在子线程去做的,结果放到了主线程中,因此 我们把重点放在主线程上</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwgy1fyfpuy0druj31bs0m0n52.jpg" alt="主线程"></p>
+<p>在上面这张图中,我们就可以比较清晰的看到 我们在项目中书写的一些方法。每一行的前面,就是这一行代码对应的耗时时间。</p>
+<p>现在我们需要操作一下手机,然后看一下出问题的这段时间,都有哪些耗时操作。</p>
+<p>在分析耗时的时候 我们可以看到前面两列<code>Weight</code>和 <code>Self Weight</code> 这两列表示总的耗时和当前行在总耗时中的比重,因此我们可以直接排除掉<code>Self Weight</code>为0的行。</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwgy1fyfq2ae1ucj30ca074mxw.jpg" alt="比重"></p>
+<p>这样我们一层层的展开就可以找到耗时的具体方法了</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwgy1fyfq60dao5j317x0u047h.jpg" alt="定位具体方法"></p>
+<p>如果层级太深,我们可以双击某一行进入一个新的页面,单独看这一行展开的内容</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwgy1fyfq84bijuj310g08g0ts.jpg"></p>
+<p>在这个页面 如果我们想定位到具体的代码,我们可以直接双击该行,就可以直接打开 对应耗时的那一行代码</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwgy1fyfq98zz4ij31kw0pijyg.jpg"></p>
+<p>这样我们就可以根据实际情况,针对出现问题的代码进行修改和优化！</p>
+<p>另外 我们可以对页面中出现的多个耗时操作进行排序</p>
+<p><img src="https://img-blog.csdnimg.cn/20181120232517981.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0hlbGxvX0h3Yw==,size_16,color_FFFFFF,t_70"></p>
+<h3 id="耗时操作检测完成"><a href="#耗时操作检测完成" class="headerlink" title="耗时操作检测完成"></a>耗时操作检测完成</h3><p>通常很明显的页面卡顿都是因为将某些耗时操作放到了主线程中,解决方法也很简单,将一些复杂计算或者网络请求放到子线程中去执行。</p>
+<p>当然,还有其他的页面会导致页面卡顿,比如,当界面有大量的shadow，mask或者有非常多的View/Layer，GPU渲染纹理和顶点的时候可能会有压力。</p>
+<p>总结一下,页面卡顿的原因主要分为两大类：CPU瓶颈和GPU瓶颈。</p>
+<p>所以<code>Time Profiler</code>能做的只是对于CPU使用率的监控。对于GPU的监控 我们应该去是用<code>Core Animation</code></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%80%97%E6%97%B6-%E4%B8%BB%E7%BA%BF%E7%A8%8B-xCode/" rel="tag"># 耗时 主线程 xCode</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/09/30/xcode-shortcuts/" rel="prev" title="iOS 开发中常用的快捷键">
+                  <i class="fa fa-chevron-left"></i> iOS 开发中常用的快捷键
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/02/24/multiscrollview/" rel="next" title="多级滚动视图联动">
+                  多级滚动视图联动 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 2015 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      const visitors = document.querySelector('.leancloud_visitors');
+      const url = decodeURI(visitors.id);
+      const title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            const counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      const visitors = document.querySelectorAll('.leancloud_visitors');
+      const entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            const target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
+    function fetchData(api_server) {
+      const Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : 'a3a32ba55c6fec7191038159a6b3dcf5',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
