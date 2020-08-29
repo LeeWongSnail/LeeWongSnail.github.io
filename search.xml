@@ -23,29 +23,6 @@
       </tags>
   </entry>
   <entry>
-    <title>App组件化文章收集</title>
-    <url>/2016/06/12/App%E7%BB%84%E4%BB%B6%E5%8C%96%E6%96%87%E7%AB%A0%E6%94%B6%E9%9B%86/</url>
-    <content><![CDATA[<p>公司打算新启一个APP，希望实现组件化，或者说我们几个对组件化毫无所知的人，打算用起来这个牛逼的东西，下面是我搜集的一些文章，以及我对这些文章的理解。</p>
-<a id="more"></a>
-
-
-<h4 id="1、组件的管理"><a href="#1、组件的管理" class="headerlink" title="1、组件的管理"></a>1、组件的管理</h4><p>目前网上找到的主要有三个：</p>
-<p>1、<a href="https://github.com/mogujie/MGJRouter.git">蘑菇街</a></p>
-<p>2、<a href="https://github.com/casatwy/CTMediator.git">casatwy大神</a></p>
-<p>3、<a href="https://github.com/Lede-Inc/LDBusMediator.git">LDBusMediator</a> </p>
-<p>4、<a href="https://github.com/joeldev/JLRoutes">JLRoutes</a></p>
-<p>5、<a href="https://github.com/Huohua/HHRouter">HHRouter</a></p>
-<p>下面我会仔细的看一下这几个架构方面的解析，判断到底该选择哪一个！</p>
-]]></content>
-      <categories>
-        <category>组件化</category>
-      </categories>
-      <tags>
-        <tag>文章收集</tag>
-        <tag>组件化</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>抽象工厂模式</title>
     <url>/2016/09/27/AbstractFactoryPattern/</url>
     <content><![CDATA[<p>在上一篇工厂模式中，我开了一家pizza店，生意非常好哇，然后我就想着在国内多开几家分店。但是，问题来了，我如何确保每个地方pizza原材料的质量呢？接下来 我们可以使用抽象工厂方法来解决这个问题。</p>
@@ -80,41 +57,6 @@
       </categories>
       <tags>
         <tag>工厂设计模式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>工厂模式</title>
-    <url>/2016/09/26/Factory-Pattern/</url>
-    <content><![CDATA[<p>最近买了本设计模式的书Header First 非常喜欢其中的讲解方式。虽然买了有一段时间了但是没有认真的看过。这段时间工作相对没有那么难了，所以抽出点时间看一下这本书，同时，在这里做一下分享，希望可以帮到你！</p>
-<a id="more"></a>
-
-<h4 id="1、定义"><a href="#1、定义" class="headerlink" title="1、定义"></a>1、定义</h4><p>工厂方法模式：定义了一个创建对象的接口，但由子类决定要实例化的类是哪一个。工厂方法让类的实例化推迟到子类。</p>
-<p>所有工厂模式都用来封装对象的创建，工厂方法模式通过让子类决定该创建的对象是什么，来达到将对象创建的过程封装的目的。</p>
-<h4 id="2、使用场景"><a href="#2、使用场景" class="headerlink" title="2、使用场景"></a>2、使用场景</h4><p>假如我有一个披萨店，刚开始没有分店也只是提供了北京口味的pizza。所以我的创建很简单。</p>
-<p><img src="https://i.niupic.com/images/2016/09/26/MZGIaS.png" alt="我的pizza"></p>
-<p>但是后来用户给我反馈，因为他们来自不同的地区所以希望我提供，北京口味、东北口味的披萨。</p>
-<p>OK 那么我在点单的时候让用户自主的去选择order(type);<br>那么我的点单的方法改成了这样</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- (void)order:(NSInteger)aType</span><br><span class="line">&#123;</span><br><span class="line">    Pizza *pizza &#x3D; nil;</span><br><span class="line">    if (type &#x3D;&#x3D; @&quot;东北&quot;) &#123;</span><br><span class="line">        pizza &#x3D; DBPizza();</span><br><span class="line">    &#125; else if (type &#x3D;&#x3D; @&quot;北京&quot;)&#123;</span><br><span class="line">        pizza &#x3D; BJPizza();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>后来生意更好了，全国开了很多分店，就会不断的加入更多的其他口味的pizza，同时也有可能有很多pizza的口味因为不符合要求被下架。所以这可能导致我的点餐方法越来越复杂。</p>
-<p>同时，因为全国都有分店，分店中可能很多同一口味的做法都不同，所以这时候要考虑把这个全国都使用的方法下方到地方，不再做统一的管理。</p>
-<p>首先想到的肯定是把这个方法抽出来，单独放到一个类中。这个类实际上就是一个工厂类。我们将要点餐的type传入之后由这个工厂类决定到底实例化哪一种pizza。</p>
-<h4 id="3、思考"><a href="#3、思考" class="headerlink" title="3、思考"></a>3、思考</h4><p> 1、这么做的好处是什么？还是只是做了简单的代码的分离。</p>
-<p> 我们这里，在这个工厂类中只是提供了这一个方法，之后我们可能还会有其他的工厂方法，都可以放到这个类中，所以这个工厂方法为代码以后的扩展提供了方便，同时如果以后需要修改或者添加可以直接修改这个类就可以了。</p>
-<p>2、对于pizza的工厂方法，我们可能有很多的类型比如BJPizzaFactory,DBPizzaFactory 如果有很多的这种工厂方法，我们如何做统一的管理呢？</p>
-<p>我们可以设置一个基类，这个基类用来控制Pizza的整个制作流程，同时提供一个抽象方法createPizza，我们让BJPizzaFactory,DBPizzaFactory继承自这个类，同时实现createPizza这个抽象方法。</p>
-<h4 id="4、修改思路"><a href="#4、修改思路" class="headerlink" title="4、修改思路"></a>4、修改思路</h4><p>1、客户点单<br>PizzaStore bjPizzaStore = new BJPizzaStore();<br>bjPizzaStore.orderPizza(“cheese”);</p>
-<p>2、制作pizza<br>Pizza pizza = createPizza(“cheese”);</p>
-<p>3、其他流程<br>pizza.bake();<br>pizza.cut();<br>pizza.box();</p>
-<h4 id="5、具体实现"><a href="#5、具体实现" class="headerlink" title="5、具体实现"></a>5、具体实现</h4><p><img src="https://i.niupic.com/images/2016/09/26/6NdcNG.png" alt="流程"></p>
-<p><img src="https://i.niupic.com/images/2016/09/27/5O6pj1.png" alt="结果"></p>
-<p><a href="https://github.com/LeeWongSnail/Head-First-DesignPattern/tree/master/FactoryPattern">代码实现在这里</a></p>
-]]></content>
-      <categories>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>工厂模式</tag>
       </tags>
   </entry>
   <entry>
@@ -164,6 +106,64 @@
       </categories>
       <tags>
         <tag>装饰者模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>App组件化文章收集</title>
+    <url>/2016/06/12/App%E7%BB%84%E4%BB%B6%E5%8C%96%E6%96%87%E7%AB%A0%E6%94%B6%E9%9B%86/</url>
+    <content><![CDATA[<p>公司打算新启一个APP，希望实现组件化，或者说我们几个对组件化毫无所知的人，打算用起来这个牛逼的东西，下面是我搜集的一些文章，以及我对这些文章的理解。</p>
+<a id="more"></a>
+
+
+<h4 id="1、组件的管理"><a href="#1、组件的管理" class="headerlink" title="1、组件的管理"></a>1、组件的管理</h4><p>目前网上找到的主要有三个：</p>
+<p>1、<a href="https://github.com/mogujie/MGJRouter.git">蘑菇街</a></p>
+<p>2、<a href="https://github.com/casatwy/CTMediator.git">casatwy大神</a></p>
+<p>3、<a href="https://github.com/Lede-Inc/LDBusMediator.git">LDBusMediator</a> </p>
+<p>4、<a href="https://github.com/joeldev/JLRoutes">JLRoutes</a></p>
+<p>5、<a href="https://github.com/Huohua/HHRouter">HHRouter</a></p>
+<p>下面我会仔细的看一下这几个架构方面的解析，判断到底该选择哪一个！</p>
+]]></content>
+      <categories>
+        <category>组件化</category>
+      </categories>
+      <tags>
+        <tag>文章收集</tag>
+        <tag>组件化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>工厂模式</title>
+    <url>/2016/09/26/Factory-Pattern/</url>
+    <content><![CDATA[<p>最近买了本设计模式的书Header First 非常喜欢其中的讲解方式。虽然买了有一段时间了但是没有认真的看过。这段时间工作相对没有那么难了，所以抽出点时间看一下这本书，同时，在这里做一下分享，希望可以帮到你！</p>
+<a id="more"></a>
+
+<h4 id="1、定义"><a href="#1、定义" class="headerlink" title="1、定义"></a>1、定义</h4><p>工厂方法模式：定义了一个创建对象的接口，但由子类决定要实例化的类是哪一个。工厂方法让类的实例化推迟到子类。</p>
+<p>所有工厂模式都用来封装对象的创建，工厂方法模式通过让子类决定该创建的对象是什么，来达到将对象创建的过程封装的目的。</p>
+<h4 id="2、使用场景"><a href="#2、使用场景" class="headerlink" title="2、使用场景"></a>2、使用场景</h4><p>假如我有一个披萨店，刚开始没有分店也只是提供了北京口味的pizza。所以我的创建很简单。</p>
+<p><img src="https://i.niupic.com/images/2016/09/26/MZGIaS.png" alt="我的pizza"></p>
+<p>但是后来用户给我反馈，因为他们来自不同的地区所以希望我提供，北京口味、东北口味的披萨。</p>
+<p>OK 那么我在点单的时候让用户自主的去选择order(type);<br>那么我的点单的方法改成了这样</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- (void)order:(NSInteger)aType</span><br><span class="line">&#123;</span><br><span class="line">    Pizza *pizza &#x3D; nil;</span><br><span class="line">    if (type &#x3D;&#x3D; @&quot;东北&quot;) &#123;</span><br><span class="line">        pizza &#x3D; DBPizza();</span><br><span class="line">    &#125; else if (type &#x3D;&#x3D; @&quot;北京&quot;)&#123;</span><br><span class="line">        pizza &#x3D; BJPizza();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>后来生意更好了，全国开了很多分店，就会不断的加入更多的其他口味的pizza，同时也有可能有很多pizza的口味因为不符合要求被下架。所以这可能导致我的点餐方法越来越复杂。</p>
+<p>同时，因为全国都有分店，分店中可能很多同一口味的做法都不同，所以这时候要考虑把这个全国都使用的方法下方到地方，不再做统一的管理。</p>
+<p>首先想到的肯定是把这个方法抽出来，单独放到一个类中。这个类实际上就是一个工厂类。我们将要点餐的type传入之后由这个工厂类决定到底实例化哪一种pizza。</p>
+<h4 id="3、思考"><a href="#3、思考" class="headerlink" title="3、思考"></a>3、思考</h4><p> 1、这么做的好处是什么？还是只是做了简单的代码的分离。</p>
+<p> 我们这里，在这个工厂类中只是提供了这一个方法，之后我们可能还会有其他的工厂方法，都可以放到这个类中，所以这个工厂方法为代码以后的扩展提供了方便，同时如果以后需要修改或者添加可以直接修改这个类就可以了。</p>
+<p>2、对于pizza的工厂方法，我们可能有很多的类型比如BJPizzaFactory,DBPizzaFactory 如果有很多的这种工厂方法，我们如何做统一的管理呢？</p>
+<p>我们可以设置一个基类，这个基类用来控制Pizza的整个制作流程，同时提供一个抽象方法createPizza，我们让BJPizzaFactory,DBPizzaFactory继承自这个类，同时实现createPizza这个抽象方法。</p>
+<h4 id="4、修改思路"><a href="#4、修改思路" class="headerlink" title="4、修改思路"></a>4、修改思路</h4><p>1、客户点单<br>PizzaStore bjPizzaStore = new BJPizzaStore();<br>bjPizzaStore.orderPizza(“cheese”);</p>
+<p>2、制作pizza<br>Pizza pizza = createPizza(“cheese”);</p>
+<p>3、其他流程<br>pizza.bake();<br>pizza.cut();<br>pizza.box();</p>
+<h4 id="5、具体实现"><a href="#5、具体实现" class="headerlink" title="5、具体实现"></a>5、具体实现</h4><p><img src="https://i.niupic.com/images/2016/09/26/6NdcNG.png" alt="流程"></p>
+<p><img src="https://i.niupic.com/images/2016/09/27/5O6pj1.png" alt="结果"></p>
+<p><a href="https://github.com/LeeWongSnail/Head-First-DesignPattern/tree/master/FactoryPattern">代码实现在这里</a></p>
+]]></content>
+      <categories>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>工厂模式</tag>
       </tags>
   </entry>
   <entry>
@@ -469,60 +469,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Swift for stanford</title>
-    <url>/2016/03/04/Swift-for-stanford/</url>
-    <content><![CDATA[<p>最近Swift的发展速度很是迅速，所以决定开始搞一下Swift练练手，第一步打算看一下视频，首选当然是敬爱的白胡子老头的（网易公开课上都可以找到）</p>
-<a id="more"></a>
-
-<p>下面是看视频过程中，写的一些Demo,供大家参考</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">SwiftTest:一个简单的swift的计算器的实现，其中包含了部分方法演变的过程</span><br><span class="line"></span><br><span class="line">SwiftTest-MVC:使用MVC设计模式，同时对于运算做了封装</span><br><span class="line"></span><br><span class="line">Happiness : 使用贝塞尔曲线画出了一个笑脸</span><br><span class="line"></span><br><span class="line">Psychologist : Multi MVC 简单的使用 SplitViewController UINavigationController Popover</span><br><span class="line"></span><br><span class="line">ViewControllerLifeCycle: 控制器的生命周期</span><br><span class="line"></span><br><span class="line">AutoLayout : 简单的AutoLayout布局介绍</span><br><span class="line"></span><br><span class="line">Cassini: UIScrollView的简单介绍</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-<p><code>这是课程中所敲的所有代码 关于UITableView中的代码暂无！！</code></p>
-<p><a href="https://github.com/LeeWongSnail/SwiftTestDemo">我的代码放到这里了</a></p>
-]]></content>
-      <categories>
-        <category>Swift</category>
-      </categories>
-      <tags>
-        <tag>Swift</tag>
-        <tag>Stanford</tag>
-        <tag>基础</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SDWebImage - 图片处理</title>
-    <url>/2016/01/27/SDWebImage-5/</url>
-    <content><![CDATA[<p>本篇文章主要是介绍了，在SDWebImage源码查看过程中的一些对于图片处理的方法，这些方法可能在平时的工作中也会用到，所以单独拿出来一篇文章来介绍这些方法。</p>
-<p>关于图片处理的方法个人本身了解的并不深，初期阶段可能只是简单的介绍一下，添加一些自己的理解，如果有问题，还请大家不吝赐教。</p>
-<a id="more"></a>
-
-
-<h4 id="图片的解码"><a href="#图片的解码" class="headerlink" title="图片的解码"></a>图片的解码</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ (UIImage *)decodedImageWithImage:(UIImage *)image &#123;</span><br><span class="line">    &#x2F;&#x2F; while downloading huge amount of images</span><br><span class="line">    &#x2F;&#x2F; autorelease the bitmap context</span><br><span class="line">    &#x2F;&#x2F; and all vars to help system to free memory</span><br><span class="line">    &#x2F;&#x2F; when there are memory warning.</span><br><span class="line">    &#x2F;&#x2F; on iOS7, do not forget to call</span><br><span class="line">    &#x2F;&#x2F; [[SDImageCache sharedImageCache] clearMemory];</span><br><span class="line">    </span><br><span class="line">    @autoreleasepool&#123;</span><br><span class="line">        &#x2F;&#x2F; do not decode animated images</span><br><span class="line">        if (image.images) &#123; return image; &#125;</span><br><span class="line">    </span><br><span class="line">        CGImageRef imageRef &#x3D; image.CGImage;</span><br><span class="line">    </span><br><span class="line">        CGImageAlphaInfo alpha &#x3D; CGImageGetAlphaInfo(imageRef);</span><br><span class="line">        BOOL anyAlpha &#x3D; (alpha &#x3D;&#x3D; kCGImageAlphaFirst</span><br><span class="line">        	 			||alpha &#x3D;&#x3D; kCGImageAlphaLast</span><br><span class="line">        	 			||alpha &#x3D;&#x3D;kCGImageAlphaPremultipliedFirst</span><br><span class="line">        	 			||alpha&#x3D;&#x3D;kCGImageAlphaPremultipliedLast);</span><br><span class="line">    </span><br><span class="line">        if (anyAlpha) &#123; return image; &#125;</span><br><span class="line">    </span><br><span class="line">        size_t width &#x3D; CGImageGetWidth(imageRef);</span><br><span class="line">        size_t height &#x3D; CGImageGetHeight(imageRef);</span><br><span class="line">    </span><br><span class="line">        &#x2F;&#x2F; current</span><br><span class="line">        CGColorSpaceModel imageColorSpaceModel &#x3D; </span><br><span class="line">        CGColorSpaceGetModel(CGImageGetColorSpace(imageRef));</span><br><span class="line">        </span><br><span class="line">        CGColorSpaceRef colorspaceRef &#x3D; </span><br><span class="line">        						CGImageGetColorSpace(imageRef);</span><br><span class="line">        </span><br><span class="line">        bool unsupportedColorSpace &#x3D; (imageColorSpaceModel &#x3D;&#x3D; 0</span><br><span class="line">         	|| imageColorSpaceModel &#x3D;&#x3D; -1</span><br><span class="line">			|| imageColorSpaceModel &#x3D;&#x3D; kCGColorSpaceModelCMYK </span><br><span class="line">			|| imageColorSpaceModel&#x3D;&#x3D;kCGColorSpaceModelIndexed);</span><br><span class="line">		</span><br><span class="line">        if (unsupportedColorSpace)</span><br><span class="line">            colorspaceRef &#x3D; CGColorSpaceCreateDeviceRGB();</span><br><span class="line">    </span><br><span class="line">        CGContextRef context &#x3D; CGBitmapContextCreate(NULL, </span><br><span class="line">        						width,height,</span><br><span class="line">						CGImageGetBitsPerComponent(imageRef),</span><br><span class="line">                               0,colorspaceRef,</span><br><span class="line">                               kCGBitmapByteOrderDefault | 								kCGImageAlphaPremultipliedFirst);</span><br><span class="line">    </span><br><span class="line">        &#x2F;&#x2F; Draw the image into the context and retrieve the new </span><br><span class="line">        	image, which will now have an alpha layer</span><br><span class="line">        	</span><br><span class="line">        CGContextDrawImage(context, CGRectMake(0, 0, width,</span><br><span class="line">        					 height), imageRef);</span><br><span class="line">        					 </span><br><span class="line">        CGImageRef imageRefWithAlpha &#x3D; </span><br><span class="line">        					CGBitmapContextCreateImage(context);</span><br><span class="line">        					</span><br><span class="line">        UIImage *imageWithAlpha &#x3D; [UIImage </span><br><span class="line">        					imageWithCGImage:imageRefWithAlpha </span><br><span class="line">        					           scale:image.scale </span><br><span class="line">        					orientation:image.imageOrientation];</span><br><span class="line">    </span><br><span class="line">        if (unsupportedColorSpace)</span><br><span class="line">            CGColorSpaceRelease(colorspaceRef);</span><br><span class="line">        </span><br><span class="line">        CGContextRelease(context);</span><br><span class="line">        CGImageRelease(imageRefWithAlpha);</span><br><span class="line">        </span><br><span class="line">        return imageWithAlpha;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-<h4 id="由NSData转换为UIImage"><a href="#由NSData转换为UIImage" class="headerlink" title="由NSData转换为UIImage"></a>由NSData转换为UIImage</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">+ (UIImage *)sd_imageWithData:(NSData *)data &#123;</span><br><span class="line">    if (!data) &#123;</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    UIImage *image;</span><br><span class="line">    NSString *imageContentType &#x3D; [NSData </span><br><span class="line">    						sd_contentTypeForImageData:data];</span><br><span class="line">    						</span><br><span class="line">    if ([imageContentType isEqualToString:@&quot;image&#x2F;gif&quot;]) &#123;</span><br><span class="line">        image &#x3D; [UIImage sd_animatedGIFWithData:data];</span><br><span class="line">    &#125;</span><br><span class="line">#ifdef SD_WEBP</span><br><span class="line">    else if ([imageContentType isEqualToString:@&quot;image&#x2F;webp&quot;])</span><br><span class="line">    &#123;</span><br><span class="line">        image &#x3D; [UIImage sd_imageWithWebPData:data];</span><br><span class="line">    &#125;</span><br><span class="line">#endif</span><br><span class="line">    else &#123;</span><br><span class="line">        image &#x3D; [[UIImage alloc] initWithData:data];</span><br><span class="line">        UIImageOrientation orientation &#x3D; [self </span><br><span class="line">        				sd_imageOrientationFromImageData:data];</span><br><span class="line">        				</span><br><span class="line">        if (orientation !&#x3D; UIImageOrientationUp) &#123;</span><br><span class="line">            image &#x3D; [UIImage imageWithCGImage:image.CGImage</span><br><span class="line">                                        scale:image.scale</span><br><span class="line">                                  orientation:orientation];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    return image;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h4 id="根据图片的NSData判断这个图片的类型"><a href="#根据图片的NSData判断这个图片的类型" class="headerlink" title="根据图片的NSData判断这个图片的类型"></a>根据图片的NSData判断这个图片的类型</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ (NSString *)sd_contentTypeForImageData:(NSData *)data &#123;</span><br><span class="line">    uint8_t c;</span><br><span class="line">    [data getBytes:&amp;c length:1];</span><br><span class="line">    switch (c) &#123;</span><br><span class="line">        case 0xFF:</span><br><span class="line">            return @&quot;image&#x2F;jpeg&quot;;</span><br><span class="line">        case 0x89:</span><br><span class="line">            return @&quot;image&#x2F;png&quot;;</span><br><span class="line">        case 0x47:</span><br><span class="line">            return @&quot;image&#x2F;gif&quot;;</span><br><span class="line">        case 0x49:</span><br><span class="line">        case 0x4D:</span><br><span class="line">            return @&quot;image&#x2F;tiff&quot;;</span><br><span class="line">        case 0x52:</span><br><span class="line">            &#x2F;&#x2F; R as RIFF for WEBP</span><br><span class="line">            if ([data length] &lt; 12) &#123;</span><br><span class="line">                return nil;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            NSString *testString &#x3D; [[NSString alloc] </span><br><span class="line">            initWithData:</span><br><span class="line">            	[data subdataWithRange:NSMakeRange(0, 12)] </span><br><span class="line">            				  encoding:NSASCIIStringEncoding];</span><br><span class="line">            				</span><br><span class="line">            if ([testString hasPrefix:@&quot;RIFF&quot;]</span><br><span class="line">             &amp;&amp; [testString hasSuffix:@&quot;WEBP&quot;]</span><br><span class="line">             )</span><br><span class="line">             &#123;</span><br><span class="line">                return @&quot;image&#x2F;webp&quot;;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            return nil;</span><br><span class="line">    &#125;</span><br><span class="line">    return nil;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h4 id="NSData转Gif"><a href="#NSData转Gif" class="headerlink" title="NSData转Gif"></a>NSData转Gif</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ (UIImage *)sd_animatedGIFWithData:(NSData *)data &#123;</span><br><span class="line">    if (!data) &#123;</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    CGImageSourceRef source &#x3D;</span><br><span class="line">    					 CGImageSourceCreateWithData((__bridge 										CFDataRef)data, NULL);</span><br><span class="line"></span><br><span class="line">    size_t count &#x3D; CGImageSourceGetCount(source);</span><br><span class="line"></span><br><span class="line">    UIImage *animatedImage;</span><br><span class="line"></span><br><span class="line">    if (count &lt;&#x3D; 1) &#123;</span><br><span class="line">        animatedImage &#x3D; [[UIImage alloc] initWithData:data];</span><br><span class="line">    &#125;</span><br><span class="line">    else &#123;</span><br><span class="line">        NSMutableArray *images &#x3D; [NSMutableArray array];</span><br><span class="line"></span><br><span class="line">        NSTimeInterval duration &#x3D; 0.0f;</span><br><span class="line"></span><br><span class="line">        for (size_t i &#x3D; 0; i &lt; count; i++) &#123;</span><br><span class="line">            CGImageRef image &#x3D; </span><br><span class="line">            			CGImageSourceCreateImageAtIndex(source, </span><br><span class="line">            									      i, NULL);</span><br><span class="line"></span><br><span class="line">            duration +&#x3D; [self sd_frameDurationAtIndex:i </span><br><span class="line">            									source:source];</span><br><span class="line"></span><br><span class="line">            [images addObject:[UIImage imageWithCGImage:image </span><br><span class="line">            					scale:[UIScreen mainScreen].scale </span><br><span class="line">            			  orientation:UIImageOrientationUp]];</span><br><span class="line"></span><br><span class="line">            CGImageRelease(image);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (!duration) &#123;</span><br><span class="line">            duration &#x3D; (1.0f &#x2F; 10.0f) * count;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        animatedImage &#x3D; [UIImage animatedImageWithImages:images</span><br><span class="line">        									  duration:duration];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    CFRelease(source);</span><br><span class="line"></span><br><span class="line">    return animatedImage;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h4 id="讲一个webP转换为UIImage"><a href="#讲一个webP转换为UIImage" class="headerlink" title="讲一个webP转换为UIImage"></a>讲一个webP转换为UIImage</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ (UIImage *)sd_imageWithWebPData:(NSData *)data &#123;</span><br><span class="line">    WebPDecoderConfig config;</span><br><span class="line">    if (!WebPInitDecoderConfig(&amp;config)) &#123;</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (WebPGetFeatures(data.bytes, data.length,</span><br><span class="line">    					 &amp;config.input) !&#x3D; VP8_STATUS_OK) &#123;</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    config.output.colorspace &#x3D; config.input.has_alpha ?</span><br><span class="line">    								 MODE_rgbA : MODE_RGB;</span><br><span class="line">    config.options.use_threads &#x3D; 1;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; Decode the WebP image data into a RGBA value array.</span><br><span class="line">    if (WebPDecode(data.bytes, data.length, &amp;config) !&#x3D; </span><br><span class="line">    									VP8_STATUS_OK)</span><br><span class="line">    &#123;</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    int width &#x3D; config.input.width;</span><br><span class="line">    int height &#x3D; config.input.height;</span><br><span class="line">    if (config.options.use_scaling) &#123;</span><br><span class="line">        width &#x3D; config.options.scaled_width;</span><br><span class="line">        height &#x3D; config.options.scaled_height;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; Construct a UIImage from the decoded RGBA value array.</span><br><span class="line">    CGDataProviderRef provider &#x3D;</span><br><span class="line">    CGDataProviderCreateWithData(NULL,</span><br><span class="line">     		config.output.u.RGBA.rgba,</span><br><span class="line">     		 config.output.u.RGBA.size,</span><br><span class="line">     		  FreeImageData);</span><br><span class="line">     		  </span><br><span class="line">    CGColorSpaceRef colorSpaceRef &#x3D; </span><br><span class="line">    							CGColorSpaceCreateDeviceRGB();</span><br><span class="line">    							</span><br><span class="line">    CGBitmapInfo bitmapInfo &#x3D; config.input.has_alpha ? </span><br><span class="line">    kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast</span><br><span class="line">     : 0;</span><br><span class="line">    </span><br><span class="line">    size_t components &#x3D; config.input.has_alpha ? 4 : 3;</span><br><span class="line">    </span><br><span class="line">    CGColorRenderingIntent renderingIntent &#x3D;</span><br><span class="line">    								 kCGRenderingIntentDefault;</span><br><span class="line">    								 </span><br><span class="line">    CGImageRef imageRef &#x3D; CGImageCreate(width, height, 8, components * 8, components * width, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);</span><br><span class="line"></span><br><span class="line">    CGColorSpaceRelease(colorSpaceRef);</span><br><span class="line">    CGDataProviderRelease(provider);</span><br><span class="line"></span><br><span class="line">    UIImage *image &#x3D; [[UIImage alloc] initWithCGImage:imageRef];</span><br><span class="line">    CGImageRelease(imageRef);</span><br><span class="line"></span><br><span class="line">    return image;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h4 id="其他格式"><a href="#其他格式" class="headerlink" title="其他格式"></a>其他格式</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">其他格式的图片的转换比较简单，直接使用</span><br><span class="line">[[UIImage alloc] initWithData:data];</span><br><span class="line">就可以</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-]]></content>
-      <categories>
-        <category>源码分析</category>
-      </categories>
-      <tags>
-        <tag>SDWebImage</tag>
-        <tag>图片解码</tag>
-        <tag>图片格式</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>SDWebImage - 缓存</title>
     <url>/2016/01/27/SDWebImage-3/</url>
     <content><![CDATA[<p>SDWebImage的缓存可以说是这个框架的一个重大的有点，下面我们就来了解一下这个框架的缓存是如何实现的。</p>
@@ -575,6 +521,60 @@
         <tag>SDWebImage</tag>
         <tag>NSCache</tag>
         <tag>SDImageCache</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SDWebImage - 图片处理</title>
+    <url>/2016/01/27/SDWebImage-5/</url>
+    <content><![CDATA[<p>本篇文章主要是介绍了，在SDWebImage源码查看过程中的一些对于图片处理的方法，这些方法可能在平时的工作中也会用到，所以单独拿出来一篇文章来介绍这些方法。</p>
+<p>关于图片处理的方法个人本身了解的并不深，初期阶段可能只是简单的介绍一下，添加一些自己的理解，如果有问题，还请大家不吝赐教。</p>
+<a id="more"></a>
+
+
+<h4 id="图片的解码"><a href="#图片的解码" class="headerlink" title="图片的解码"></a>图片的解码</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ (UIImage *)decodedImageWithImage:(UIImage *)image &#123;</span><br><span class="line">    &#x2F;&#x2F; while downloading huge amount of images</span><br><span class="line">    &#x2F;&#x2F; autorelease the bitmap context</span><br><span class="line">    &#x2F;&#x2F; and all vars to help system to free memory</span><br><span class="line">    &#x2F;&#x2F; when there are memory warning.</span><br><span class="line">    &#x2F;&#x2F; on iOS7, do not forget to call</span><br><span class="line">    &#x2F;&#x2F; [[SDImageCache sharedImageCache] clearMemory];</span><br><span class="line">    </span><br><span class="line">    @autoreleasepool&#123;</span><br><span class="line">        &#x2F;&#x2F; do not decode animated images</span><br><span class="line">        if (image.images) &#123; return image; &#125;</span><br><span class="line">    </span><br><span class="line">        CGImageRef imageRef &#x3D; image.CGImage;</span><br><span class="line">    </span><br><span class="line">        CGImageAlphaInfo alpha &#x3D; CGImageGetAlphaInfo(imageRef);</span><br><span class="line">        BOOL anyAlpha &#x3D; (alpha &#x3D;&#x3D; kCGImageAlphaFirst</span><br><span class="line">        	 			||alpha &#x3D;&#x3D; kCGImageAlphaLast</span><br><span class="line">        	 			||alpha &#x3D;&#x3D;kCGImageAlphaPremultipliedFirst</span><br><span class="line">        	 			||alpha&#x3D;&#x3D;kCGImageAlphaPremultipliedLast);</span><br><span class="line">    </span><br><span class="line">        if (anyAlpha) &#123; return image; &#125;</span><br><span class="line">    </span><br><span class="line">        size_t width &#x3D; CGImageGetWidth(imageRef);</span><br><span class="line">        size_t height &#x3D; CGImageGetHeight(imageRef);</span><br><span class="line">    </span><br><span class="line">        &#x2F;&#x2F; current</span><br><span class="line">        CGColorSpaceModel imageColorSpaceModel &#x3D; </span><br><span class="line">        CGColorSpaceGetModel(CGImageGetColorSpace(imageRef));</span><br><span class="line">        </span><br><span class="line">        CGColorSpaceRef colorspaceRef &#x3D; </span><br><span class="line">        						CGImageGetColorSpace(imageRef);</span><br><span class="line">        </span><br><span class="line">        bool unsupportedColorSpace &#x3D; (imageColorSpaceModel &#x3D;&#x3D; 0</span><br><span class="line">         	|| imageColorSpaceModel &#x3D;&#x3D; -1</span><br><span class="line">			|| imageColorSpaceModel &#x3D;&#x3D; kCGColorSpaceModelCMYK </span><br><span class="line">			|| imageColorSpaceModel&#x3D;&#x3D;kCGColorSpaceModelIndexed);</span><br><span class="line">		</span><br><span class="line">        if (unsupportedColorSpace)</span><br><span class="line">            colorspaceRef &#x3D; CGColorSpaceCreateDeviceRGB();</span><br><span class="line">    </span><br><span class="line">        CGContextRef context &#x3D; CGBitmapContextCreate(NULL, </span><br><span class="line">        						width,height,</span><br><span class="line">						CGImageGetBitsPerComponent(imageRef),</span><br><span class="line">                               0,colorspaceRef,</span><br><span class="line">                               kCGBitmapByteOrderDefault | 								kCGImageAlphaPremultipliedFirst);</span><br><span class="line">    </span><br><span class="line">        &#x2F;&#x2F; Draw the image into the context and retrieve the new </span><br><span class="line">        	image, which will now have an alpha layer</span><br><span class="line">        	</span><br><span class="line">        CGContextDrawImage(context, CGRectMake(0, 0, width,</span><br><span class="line">        					 height), imageRef);</span><br><span class="line">        					 </span><br><span class="line">        CGImageRef imageRefWithAlpha &#x3D; </span><br><span class="line">        					CGBitmapContextCreateImage(context);</span><br><span class="line">        					</span><br><span class="line">        UIImage *imageWithAlpha &#x3D; [UIImage </span><br><span class="line">        					imageWithCGImage:imageRefWithAlpha </span><br><span class="line">        					           scale:image.scale </span><br><span class="line">        					orientation:image.imageOrientation];</span><br><span class="line">    </span><br><span class="line">        if (unsupportedColorSpace)</span><br><span class="line">            CGColorSpaceRelease(colorspaceRef);</span><br><span class="line">        </span><br><span class="line">        CGContextRelease(context);</span><br><span class="line">        CGImageRelease(imageRefWithAlpha);</span><br><span class="line">        </span><br><span class="line">        return imageWithAlpha;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h4 id="由NSData转换为UIImage"><a href="#由NSData转换为UIImage" class="headerlink" title="由NSData转换为UIImage"></a>由NSData转换为UIImage</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">+ (UIImage *)sd_imageWithData:(NSData *)data &#123;</span><br><span class="line">    if (!data) &#123;</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    UIImage *image;</span><br><span class="line">    NSString *imageContentType &#x3D; [NSData </span><br><span class="line">    						sd_contentTypeForImageData:data];</span><br><span class="line">    						</span><br><span class="line">    if ([imageContentType isEqualToString:@&quot;image&#x2F;gif&quot;]) &#123;</span><br><span class="line">        image &#x3D; [UIImage sd_animatedGIFWithData:data];</span><br><span class="line">    &#125;</span><br><span class="line">#ifdef SD_WEBP</span><br><span class="line">    else if ([imageContentType isEqualToString:@&quot;image&#x2F;webp&quot;])</span><br><span class="line">    &#123;</span><br><span class="line">        image &#x3D; [UIImage sd_imageWithWebPData:data];</span><br><span class="line">    &#125;</span><br><span class="line">#endif</span><br><span class="line">    else &#123;</span><br><span class="line">        image &#x3D; [[UIImage alloc] initWithData:data];</span><br><span class="line">        UIImageOrientation orientation &#x3D; [self </span><br><span class="line">        				sd_imageOrientationFromImageData:data];</span><br><span class="line">        				</span><br><span class="line">        if (orientation !&#x3D; UIImageOrientationUp) &#123;</span><br><span class="line">            image &#x3D; [UIImage imageWithCGImage:image.CGImage</span><br><span class="line">                                        scale:image.scale</span><br><span class="line">                                  orientation:orientation];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    return image;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="根据图片的NSData判断这个图片的类型"><a href="#根据图片的NSData判断这个图片的类型" class="headerlink" title="根据图片的NSData判断这个图片的类型"></a>根据图片的NSData判断这个图片的类型</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ (NSString *)sd_contentTypeForImageData:(NSData *)data &#123;</span><br><span class="line">    uint8_t c;</span><br><span class="line">    [data getBytes:&amp;c length:1];</span><br><span class="line">    switch (c) &#123;</span><br><span class="line">        case 0xFF:</span><br><span class="line">            return @&quot;image&#x2F;jpeg&quot;;</span><br><span class="line">        case 0x89:</span><br><span class="line">            return @&quot;image&#x2F;png&quot;;</span><br><span class="line">        case 0x47:</span><br><span class="line">            return @&quot;image&#x2F;gif&quot;;</span><br><span class="line">        case 0x49:</span><br><span class="line">        case 0x4D:</span><br><span class="line">            return @&quot;image&#x2F;tiff&quot;;</span><br><span class="line">        case 0x52:</span><br><span class="line">            &#x2F;&#x2F; R as RIFF for WEBP</span><br><span class="line">            if ([data length] &lt; 12) &#123;</span><br><span class="line">                return nil;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            NSString *testString &#x3D; [[NSString alloc] </span><br><span class="line">            initWithData:</span><br><span class="line">            	[data subdataWithRange:NSMakeRange(0, 12)] </span><br><span class="line">            				  encoding:NSASCIIStringEncoding];</span><br><span class="line">            				</span><br><span class="line">            if ([testString hasPrefix:@&quot;RIFF&quot;]</span><br><span class="line">             &amp;&amp; [testString hasSuffix:@&quot;WEBP&quot;]</span><br><span class="line">             )</span><br><span class="line">             &#123;</span><br><span class="line">                return @&quot;image&#x2F;webp&quot;;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            return nil;</span><br><span class="line">    &#125;</span><br><span class="line">    return nil;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="NSData转Gif"><a href="#NSData转Gif" class="headerlink" title="NSData转Gif"></a>NSData转Gif</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ (UIImage *)sd_animatedGIFWithData:(NSData *)data &#123;</span><br><span class="line">    if (!data) &#123;</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    CGImageSourceRef source &#x3D;</span><br><span class="line">    					 CGImageSourceCreateWithData((__bridge 										CFDataRef)data, NULL);</span><br><span class="line"></span><br><span class="line">    size_t count &#x3D; CGImageSourceGetCount(source);</span><br><span class="line"></span><br><span class="line">    UIImage *animatedImage;</span><br><span class="line"></span><br><span class="line">    if (count &lt;&#x3D; 1) &#123;</span><br><span class="line">        animatedImage &#x3D; [[UIImage alloc] initWithData:data];</span><br><span class="line">    &#125;</span><br><span class="line">    else &#123;</span><br><span class="line">        NSMutableArray *images &#x3D; [NSMutableArray array];</span><br><span class="line"></span><br><span class="line">        NSTimeInterval duration &#x3D; 0.0f;</span><br><span class="line"></span><br><span class="line">        for (size_t i &#x3D; 0; i &lt; count; i++) &#123;</span><br><span class="line">            CGImageRef image &#x3D; </span><br><span class="line">            			CGImageSourceCreateImageAtIndex(source, </span><br><span class="line">            									      i, NULL);</span><br><span class="line"></span><br><span class="line">            duration +&#x3D; [self sd_frameDurationAtIndex:i </span><br><span class="line">            									source:source];</span><br><span class="line"></span><br><span class="line">            [images addObject:[UIImage imageWithCGImage:image </span><br><span class="line">            					scale:[UIScreen mainScreen].scale </span><br><span class="line">            			  orientation:UIImageOrientationUp]];</span><br><span class="line"></span><br><span class="line">            CGImageRelease(image);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (!duration) &#123;</span><br><span class="line">            duration &#x3D; (1.0f &#x2F; 10.0f) * count;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        animatedImage &#x3D; [UIImage animatedImageWithImages:images</span><br><span class="line">        									  duration:duration];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    CFRelease(source);</span><br><span class="line"></span><br><span class="line">    return animatedImage;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="讲一个webP转换为UIImage"><a href="#讲一个webP转换为UIImage" class="headerlink" title="讲一个webP转换为UIImage"></a>讲一个webP转换为UIImage</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">+ (UIImage *)sd_imageWithWebPData:(NSData *)data &#123;</span><br><span class="line">    WebPDecoderConfig config;</span><br><span class="line">    if (!WebPInitDecoderConfig(&amp;config)) &#123;</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (WebPGetFeatures(data.bytes, data.length,</span><br><span class="line">    					 &amp;config.input) !&#x3D; VP8_STATUS_OK) &#123;</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    config.output.colorspace &#x3D; config.input.has_alpha ?</span><br><span class="line">    								 MODE_rgbA : MODE_RGB;</span><br><span class="line">    config.options.use_threads &#x3D; 1;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; Decode the WebP image data into a RGBA value array.</span><br><span class="line">    if (WebPDecode(data.bytes, data.length, &amp;config) !&#x3D; </span><br><span class="line">    									VP8_STATUS_OK)</span><br><span class="line">    &#123;</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    int width &#x3D; config.input.width;</span><br><span class="line">    int height &#x3D; config.input.height;</span><br><span class="line">    if (config.options.use_scaling) &#123;</span><br><span class="line">        width &#x3D; config.options.scaled_width;</span><br><span class="line">        height &#x3D; config.options.scaled_height;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; Construct a UIImage from the decoded RGBA value array.</span><br><span class="line">    CGDataProviderRef provider &#x3D;</span><br><span class="line">    CGDataProviderCreateWithData(NULL,</span><br><span class="line">     		config.output.u.RGBA.rgba,</span><br><span class="line">     		 config.output.u.RGBA.size,</span><br><span class="line">     		  FreeImageData);</span><br><span class="line">     		  </span><br><span class="line">    CGColorSpaceRef colorSpaceRef &#x3D; </span><br><span class="line">    							CGColorSpaceCreateDeviceRGB();</span><br><span class="line">    							</span><br><span class="line">    CGBitmapInfo bitmapInfo &#x3D; config.input.has_alpha ? </span><br><span class="line">    kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast</span><br><span class="line">     : 0;</span><br><span class="line">    </span><br><span class="line">    size_t components &#x3D; config.input.has_alpha ? 4 : 3;</span><br><span class="line">    </span><br><span class="line">    CGColorRenderingIntent renderingIntent &#x3D;</span><br><span class="line">    								 kCGRenderingIntentDefault;</span><br><span class="line">    								 </span><br><span class="line">    CGImageRef imageRef &#x3D; CGImageCreate(width, height, 8, components * 8, components * width, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);</span><br><span class="line"></span><br><span class="line">    CGColorSpaceRelease(colorSpaceRef);</span><br><span class="line">    CGDataProviderRelease(provider);</span><br><span class="line"></span><br><span class="line">    UIImage *image &#x3D; [[UIImage alloc] initWithCGImage:imageRef];</span><br><span class="line">    CGImageRelease(imageRef);</span><br><span class="line"></span><br><span class="line">    return image;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="其他格式"><a href="#其他格式" class="headerlink" title="其他格式"></a>其他格式</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">其他格式的图片的转换比较简单，直接使用</span><br><span class="line">[[UIImage alloc] initWithData:data];</span><br><span class="line">就可以</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+]]></content>
+      <categories>
+        <category>源码分析</category>
+      </categories>
+      <tags>
+        <tag>SDWebImage</tag>
+        <tag>图片解码</tag>
+        <tag>图片格式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Swift for stanford</title>
+    <url>/2016/03/04/Swift-for-stanford/</url>
+    <content><![CDATA[<p>最近Swift的发展速度很是迅速，所以决定开始搞一下Swift练练手，第一步打算看一下视频，首选当然是敬爱的白胡子老头的（网易公开课上都可以找到）</p>
+<a id="more"></a>
+
+<p>下面是看视频过程中，写的一些Demo,供大家参考</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">SwiftTest:一个简单的swift的计算器的实现，其中包含了部分方法演变的过程</span><br><span class="line"></span><br><span class="line">SwiftTest-MVC:使用MVC设计模式，同时对于运算做了封装</span><br><span class="line"></span><br><span class="line">Happiness : 使用贝塞尔曲线画出了一个笑脸</span><br><span class="line"></span><br><span class="line">Psychologist : Multi MVC 简单的使用 SplitViewController UINavigationController Popover</span><br><span class="line"></span><br><span class="line">ViewControllerLifeCycle: 控制器的生命周期</span><br><span class="line"></span><br><span class="line">AutoLayout : 简单的AutoLayout布局介绍</span><br><span class="line"></span><br><span class="line">Cassini: UIScrollView的简单介绍</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p><code>这是课程中所敲的所有代码 关于UITableView中的代码暂无！！</code></p>
+<p><a href="https://github.com/LeeWongSnail/SwiftTestDemo">我的代码放到这里了</a></p>
+]]></content>
+      <categories>
+        <category>Swift</category>
+      </categories>
+      <tags>
+        <tag>Swift</tag>
+        <tag>Stanford</tag>
+        <tag>基础</tag>
       </tags>
   </entry>
   <entry>
@@ -2572,64 +2572,6 @@ YES
       </tags>
   </entry>
   <entry>
-    <title>多线程 相关概念</title>
-    <url>/2016/03/17/multThread-concept/</url>
-    <content><![CDATA[<p>这篇文章主要是记录了，我在学习多线程过程中觉得比较重要概念，在这里做一下总结。</p>
-<p>文章还会陆续的增加内容，需要持续的更新……</p>
-<a id="more"></a>
-
-<h4 id="1、自动释放池"><a href="#1、自动释放池" class="headerlink" title="1、自动释放池"></a>1、自动释放池</h4><h5 id="1、基本定义"><a href="#1、基本定义" class="headerlink" title="1、基本定义"></a>1、基本定义</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">工作原理：自动释放池被销毁或耗尽时会向池中所有对象发送release消息，释放所有的autorelease对象</span><br><span class="line"></span><br><span class="line">创建和销毁：每一次运行循环启动会后会自动创建自动释放池</span><br><span class="line"></span><br><span class="line">程序执行过程中，所有autorelease对象在出了作用域之后，会被添加到最近创建的自动释放池中</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h5 id="2、图片示意"><a href="#2、图片示意" class="headerlink" title="2、图片示意"></a>2、图片示意</h5><p><img src="http://i.niupic.com/images/2016/03/21/kFsujE.png" alt="autoreleasepool"></p>
-<h4 id="2、运行循环"><a href="#2、运行循环" class="headerlink" title="2、运行循环"></a>2、运行循环</h4><h5 id="1、作用和特性"><a href="#1、作用和特性" class="headerlink" title="1、作用和特性"></a>1、作用和特性</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">作用：保证程序不退出，监听所有时间（手势触摸、时钟触发）</span><br><span class="line"></span><br><span class="line">特性：没有事件时，会休眠，一旦监听到事件，就会立即响应</span><br><span class="line"></span><br><span class="line">每一个线程都有一个runloop 但是主线程的runloop会默认启动（其他线程的runloop默认是关闭的）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h5 id="2、开启一个运行循环的两种种方法"><a href="#2、开启一个运行循环的两种种方法" class="headerlink" title="2、开启一个运行循环的两种种方法"></a>2、开启一个运行循环的两种种方法</h5><ul>
-<li>1、 [[NSRunLoop currentRunLoop] run]</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">这种方法一旦开启了运行循环就再也关不了了，也就是说这之后的程序都无法执行了</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>2、间隔主动调用</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">每隔一段时间，主动调用一次运行循环并且持续一段时间（这就可以响应这段时间内发生的事件），主动调用可以通过设置标志的方法实现 </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="http://i.niupic.com/images/2016/03/21/0uKCZP.png" alt="runloop"></p>
-<h4 id="3、简述retain、strong、assign、weak、copy有什么区别？"><a href="#3、简述retain、strong、assign、weak、copy有什么区别？" class="headerlink" title="3、简述retain、strong、assign、weak、copy有什么区别？"></a>3、简述retain、strong、assign、weak、copy有什么区别？</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-retain：是MRC，在设置数值的时候，会对引用计数器+1</span><br><span class="line">-strong：是ARC,与retain等效</span><br><span class="line">-assign:是ARC&#x2F;MRC都有，在设置数值时不会做任何的附加操作</span><br><span class="line">    	-MRC中如果不需要引用，就直接使用assign</span><br><span class="line">    	-ARC中通常是用来保存基本数据类型</span><br><span class="line">-weak是ARC的，用来保存不需要强引用的对象</span><br><span class="line">-weak和assign的区别</span><br><span class="line">    -assign 指向的对象如果被释放，地址不会有任何变化，效率高，但是风险大，容易造成野指针错误</span><br><span class="line">    -weak 指向的对象如果被释放，地址会立即变为nil ,但是在OC中向nil（空指针）发送消息的时候不会报错</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h4 id="4、响应者链条"><a href="#4、响应者链条" class="headerlink" title="4、响应者链条"></a>4、响应者链条</h4><p>说一下点击了按钮之后，按钮响应点击事件的原理</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">程序启动之后，会创建一个程序的代理（AppDelegate）,didFinishLaunchingWithOptions之后创建一个主运</span><br><span class="line">行循环（主运行循环的作用是可以保证程序不退出、负责监听所有事件）当按钮</span><br><span class="line">被点击的时候，事件会通过按钮传递给视图（view）进而传递给控制器，然后依</span><br><span class="line">次上传到UIWindow，最后到达运行循环，告诉运行循环，btn被点击了，这时</span><br><span class="line">候运行循环就会给控制器发消息，告诉控制器按钮被点击了，然后在从上向下的</span><br><span class="line">传递过程中，会一次寻找最合适的响应者，而寻找最合适相应者的过程中是通过</span><br><span class="line">hitTest方法递归的一层一层的去寻找（主要用到的方法是：hitTest,pointInside方法）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h4 id="5、TCP和UDP的区别"><a href="#5、TCP和UDP的区别" class="headerlink" title="5、TCP和UDP的区别"></a>5、TCP和UDP的区别</h4> <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> </span><br><span class="line">UDP:(用户数据报协议)---前身是电报</span><br><span class="line"></span><br><span class="line">		-只管发送，不确认对方是否接收到</span><br><span class="line">		-将数据及源和目的封装成数据包中，不需要建立连接</span><br><span class="line">		-每个数据报的大小限制在64K之内</span><br><span class="line">		-因为无需连接，因此是不可靠协议</span><br><span class="line">		-不需要建立连接，速度快</span><br><span class="line">		-应用：多媒体教室、流媒体视频、广播 实际开发中用的少</span><br><span class="line">		</span><br><span class="line">TCP:(传输控制协议)</span><br><span class="line"></span><br><span class="line">		-建立连接，行程传输数据的通道</span><br><span class="line">		-在连接中进行大数据传输（数据大小不受限制）</span><br><span class="line">		-通过三次握手完成连接，是可靠协议，安全送达</span><br><span class="line">		-必须建立连接，效率会稍低</span><br><span class="line">		-建立连接时的三次握（1老师在吗？ 2我在啊 3我可以问你一个问题吗？）</span><br><span class="line">		-断开连接四次握手（1老师我没有问题了，2恩好的，3没有问题我下线了，4好的老师）</span><br><span class="line">		</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
-
-<h4 id="6、通知"><a href="#6、通知" class="headerlink" title="6、通知"></a>6、通知</h4><ul>
-<li>1、通知中心是同步的还是异步的？ </li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">同步的</span><br><span class="line"></span><br><span class="line">原因：发生事件，通知中心广播，有可能有多个监听者，设计上使用同步的方式，能保证所有的监听者都对通知做出响应，不会发生遗漏</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>2、通知执行的三个步骤</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1、发送字符串给通知中心</span><br><span class="line">2、通知中心广播</span><br><span class="line">3、所有的通知监听方法执行完毕后，才继续执行代码</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>3、通知里到底有什么</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-name : 通知的名称的字符串，通知中心本质上就是监听这个字符串</span><br><span class="line">-object：发布通知的时候，希望传递给监听者的对象</span><br><span class="line">-userInfo：发布通知的时候，希望传递给监听者的附加信息字典</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>4、通知和代理有什么区别？</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- 代理是一对一的，设置delegate属性，在需要的时候，通过delegate调用</span><br><span class="line">	selector方法</span><br><span class="line">	</span><br><span class="line">- 通知是一对多的，只要发生事件，就会以广播的形式，通知所有的监听者</span><br><span class="line">		</span><br><span class="line">- 通知中心&#x2F;发布通知的对象不需要知道谁是监听者，发布对象和监听者之间的	耦合度很低</span><br><span class="line"></span><br><span class="line">- 监听者需要知道通知的名称字符串，如果发布者还需要传递userInfo字典，</span><br><span class="line">	监听者同时需要知道字典的键名</span><br><span class="line">	</span><br><span class="line">技巧：在OC框架中，如果定义通知，通常通知的名字包含Notification字样，同时key会和通知定义在一起</span><br><span class="line">		</span><br><span class="line">- 通知监听方法不能有返回值</span><br><span class="line"></span><br><span class="line">- 代理可以有返回值</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>iOS基础</category>
-      </categories>
-      <tags>
-        <tag>自动释放池，运行循环，响应者链条，通知</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>多级滚动视图联动</title>
     <url>/2019/02/24/multiscrollview/</url>
     <content><![CDATA[<p>好像最近都没怎么写UI,最近公司有一个新的模块需要一个多级的列表联动,主要涉及到多个列表滚动时滚动对象的控制以及多个可滚动列表滑动手势处理。</p>
@@ -2779,6 +2721,64 @@ YES
       </categories>
       <tags>
         <tag>多级联动、scrollView</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>多线程 相关概念</title>
+    <url>/2016/03/17/multThread-concept/</url>
+    <content><![CDATA[<p>这篇文章主要是记录了，我在学习多线程过程中觉得比较重要概念，在这里做一下总结。</p>
+<p>文章还会陆续的增加内容，需要持续的更新……</p>
+<a id="more"></a>
+
+<h4 id="1、自动释放池"><a href="#1、自动释放池" class="headerlink" title="1、自动释放池"></a>1、自动释放池</h4><h5 id="1、基本定义"><a href="#1、基本定义" class="headerlink" title="1、基本定义"></a>1、基本定义</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">工作原理：自动释放池被销毁或耗尽时会向池中所有对象发送release消息，释放所有的autorelease对象</span><br><span class="line"></span><br><span class="line">创建和销毁：每一次运行循环启动会后会自动创建自动释放池</span><br><span class="line"></span><br><span class="line">程序执行过程中，所有autorelease对象在出了作用域之后，会被添加到最近创建的自动释放池中</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h5 id="2、图片示意"><a href="#2、图片示意" class="headerlink" title="2、图片示意"></a>2、图片示意</h5><p><img src="http://i.niupic.com/images/2016/03/21/kFsujE.png" alt="autoreleasepool"></p>
+<h4 id="2、运行循环"><a href="#2、运行循环" class="headerlink" title="2、运行循环"></a>2、运行循环</h4><h5 id="1、作用和特性"><a href="#1、作用和特性" class="headerlink" title="1、作用和特性"></a>1、作用和特性</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">作用：保证程序不退出，监听所有时间（手势触摸、时钟触发）</span><br><span class="line"></span><br><span class="line">特性：没有事件时，会休眠，一旦监听到事件，就会立即响应</span><br><span class="line"></span><br><span class="line">每一个线程都有一个runloop 但是主线程的runloop会默认启动（其他线程的runloop默认是关闭的）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h5 id="2、开启一个运行循环的两种种方法"><a href="#2、开启一个运行循环的两种种方法" class="headerlink" title="2、开启一个运行循环的两种种方法"></a>2、开启一个运行循环的两种种方法</h5><ul>
+<li>1、 [[NSRunLoop currentRunLoop] run]</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">这种方法一旦开启了运行循环就再也关不了了，也就是说这之后的程序都无法执行了</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>2、间隔主动调用</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">每隔一段时间，主动调用一次运行循环并且持续一段时间（这就可以响应这段时间内发生的事件），主动调用可以通过设置标志的方法实现 </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="http://i.niupic.com/images/2016/03/21/0uKCZP.png" alt="runloop"></p>
+<h4 id="3、简述retain、strong、assign、weak、copy有什么区别？"><a href="#3、简述retain、strong、assign、weak、copy有什么区别？" class="headerlink" title="3、简述retain、strong、assign、weak、copy有什么区别？"></a>3、简述retain、strong、assign、weak、copy有什么区别？</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-retain：是MRC，在设置数值的时候，会对引用计数器+1</span><br><span class="line">-strong：是ARC,与retain等效</span><br><span class="line">-assign:是ARC&#x2F;MRC都有，在设置数值时不会做任何的附加操作</span><br><span class="line">    	-MRC中如果不需要引用，就直接使用assign</span><br><span class="line">    	-ARC中通常是用来保存基本数据类型</span><br><span class="line">-weak是ARC的，用来保存不需要强引用的对象</span><br><span class="line">-weak和assign的区别</span><br><span class="line">    -assign 指向的对象如果被释放，地址不会有任何变化，效率高，但是风险大，容易造成野指针错误</span><br><span class="line">    -weak 指向的对象如果被释放，地址会立即变为nil ,但是在OC中向nil（空指针）发送消息的时候不会报错</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="4、响应者链条"><a href="#4、响应者链条" class="headerlink" title="4、响应者链条"></a>4、响应者链条</h4><p>说一下点击了按钮之后，按钮响应点击事件的原理</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">程序启动之后，会创建一个程序的代理（AppDelegate）,didFinishLaunchingWithOptions之后创建一个主运</span><br><span class="line">行循环（主运行循环的作用是可以保证程序不退出、负责监听所有事件）当按钮</span><br><span class="line">被点击的时候，事件会通过按钮传递给视图（view）进而传递给控制器，然后依</span><br><span class="line">次上传到UIWindow，最后到达运行循环，告诉运行循环，btn被点击了，这时</span><br><span class="line">候运行循环就会给控制器发消息，告诉控制器按钮被点击了，然后在从上向下的</span><br><span class="line">传递过程中，会一次寻找最合适的响应者，而寻找最合适相应者的过程中是通过</span><br><span class="line">hitTest方法递归的一层一层的去寻找（主要用到的方法是：hitTest,pointInside方法）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="5、TCP和UDP的区别"><a href="#5、TCP和UDP的区别" class="headerlink" title="5、TCP和UDP的区别"></a>5、TCP和UDP的区别</h4> <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> </span><br><span class="line">UDP:(用户数据报协议)---前身是电报</span><br><span class="line"></span><br><span class="line">		-只管发送，不确认对方是否接收到</span><br><span class="line">		-将数据及源和目的封装成数据包中，不需要建立连接</span><br><span class="line">		-每个数据报的大小限制在64K之内</span><br><span class="line">		-因为无需连接，因此是不可靠协议</span><br><span class="line">		-不需要建立连接，速度快</span><br><span class="line">		-应用：多媒体教室、流媒体视频、广播 实际开发中用的少</span><br><span class="line">		</span><br><span class="line">TCP:(传输控制协议)</span><br><span class="line"></span><br><span class="line">		-建立连接，行程传输数据的通道</span><br><span class="line">		-在连接中进行大数据传输（数据大小不受限制）</span><br><span class="line">		-通过三次握手完成连接，是可靠协议，安全送达</span><br><span class="line">		-必须建立连接，效率会稍低</span><br><span class="line">		-建立连接时的三次握（1老师在吗？ 2我在啊 3我可以问你一个问题吗？）</span><br><span class="line">		-断开连接四次握手（1老师我没有问题了，2恩好的，3没有问题我下线了，4好的老师）</span><br><span class="line">		</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<h4 id="6、通知"><a href="#6、通知" class="headerlink" title="6、通知"></a>6、通知</h4><ul>
+<li>1、通知中心是同步的还是异步的？ </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">同步的</span><br><span class="line"></span><br><span class="line">原因：发生事件，通知中心广播，有可能有多个监听者，设计上使用同步的方式，能保证所有的监听者都对通知做出响应，不会发生遗漏</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>2、通知执行的三个步骤</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1、发送字符串给通知中心</span><br><span class="line">2、通知中心广播</span><br><span class="line">3、所有的通知监听方法执行完毕后，才继续执行代码</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>3、通知里到底有什么</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-name : 通知的名称的字符串，通知中心本质上就是监听这个字符串</span><br><span class="line">-object：发布通知的时候，希望传递给监听者的对象</span><br><span class="line">-userInfo：发布通知的时候，希望传递给监听者的附加信息字典</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>4、通知和代理有什么区别？</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- 代理是一对一的，设置delegate属性，在需要的时候，通过delegate调用</span><br><span class="line">	selector方法</span><br><span class="line">	</span><br><span class="line">- 通知是一对多的，只要发生事件，就会以广播的形式，通知所有的监听者</span><br><span class="line">		</span><br><span class="line">- 通知中心&#x2F;发布通知的对象不需要知道谁是监听者，发布对象和监听者之间的	耦合度很低</span><br><span class="line"></span><br><span class="line">- 监听者需要知道通知的名称字符串，如果发布者还需要传递userInfo字典，</span><br><span class="line">	监听者同时需要知道字典的键名</span><br><span class="line">	</span><br><span class="line">技巧：在OC框架中，如果定义通知，通常通知的名字包含Notification字样，同时key会和通知定义在一起</span><br><span class="line">		</span><br><span class="line">- 通知监听方法不能有返回值</span><br><span class="line"></span><br><span class="line">- 代理可以有返回值</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>iOS基础</category>
+      </categories>
+      <tags>
+        <tag>自动释放池，运行循环，响应者链条，通知</tag>
       </tags>
   </entry>
   <entry>
@@ -3562,48 +3562,6 @@ LLDB的命令其实还有很多，很多命令我也没玩过。就算玩过的�
       </tags>
   </entry>
   <entry>
-    <title>探秘NSProxy</title>
-    <url>/2018/06/02/what-s-nsproxy/</url>
-    <content><![CDATA[<p>之前一直知道有一个与NSObject平级的类存在,但是日常的开发中好像一直都没有用到过。那么他存在的意义究竟是什么呢？这篇文章我们一起来探秘NSProxy。</p>
-<a id="more"></a>
-
-<h3 id="先看代码"><a href="#先看代码" class="headerlink" title="先看代码"></a>先看代码</h3><p>我们先看一下<code>NSProxy</code>这个类的声明</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NSProxy</span> &lt;<span class="title">NSObject</span>&gt; </span>&#123;</span><br><span class="line">    Class	isa;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
-
-<p>这个类遵守了<code>&lt;NSObject&gt;</code>这个协议,我们来看一下这个协议究竟都做了什么呢？</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@protocol</span> <span class="title">NSObject</span></span></span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)isEqual:(<span class="keyword">id</span>)object;</span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">readonly</span>) <span class="built_in">NSUInteger</span> hash;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">readonly</span>) Class superclass;</span><br><span class="line">- (Class)<span class="keyword">class</span> OBJC_SWIFT_UNAVAILABLE(<span class="string">&quot;use &#x27;type(of: anObject)&#x27; instead&quot;</span>);</span><br><span class="line">- (<span class="keyword">instancetype</span>)<span class="keyword">self</span>;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">id</span>)performSelector:(SEL)aSelector;</span><br><span class="line">- (<span class="keyword">id</span>)performSelector:(SEL)aSelector withObject:(<span class="keyword">id</span>)object;</span><br><span class="line">- (<span class="keyword">id</span>)performSelector:(SEL)aSelector withObject:(<span class="keyword">id</span>)object1 withObject:(<span class="keyword">id</span>)object2;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)isProxy;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)isKindOfClass:(Class)aClass;</span><br><span class="line">- (<span class="built_in">BOOL</span>)isMemberOfClass:(Class)aClass;</span><br><span class="line">- (<span class="built_in">BOOL</span>)conformsToProtocol:(Protocol *)aProtocol;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)respondsToSelector:(SEL)aSelector;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">instancetype</span>)<span class="keyword">retain</span> OBJC_ARC_UNAVAILABLE;</span><br><span class="line">- (<span class="keyword">oneway</span> <span class="keyword">void</span>)release OBJC_ARC_UNAVAILABLE;</span><br><span class="line">- (<span class="keyword">instancetype</span>)autorelease OBJC_ARC_UNAVAILABLE;</span><br><span class="line">- (<span class="built_in">NSUInteger</span>)retainCount OBJC_ARC_UNAVAILABLE;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">struct</span> _NSZone *)zone OBJC_ARC_UNAVAILABLE;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">readonly</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *description;</span><br><span class="line"><span class="keyword">@optional</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">readonly</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *debugDescription;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
-
-<p>这个协议主要定义了一些类的一些基本方法。</p>
-<p>这样看 感觉跟NSObject没什么太大的区别。我们在进一步看看这个类中的方法。</p>
-<h4 id="init方法"><a href="#init方法" class="headerlink" title="init方法"></a>init方法</h4><p>在跟NSObject做了简单对比之后发现,<code>NSProxy</code>没有init方法。我们都知道NSObject在alloc方法内申请内存空间 init方法进行初始化。 从这个角度来看的话NSProxy是没有办法被直接创建和初始化的。</p>
-<h4 id="方法调用"><a href="#方法调用" class="headerlink" title="方法调用"></a>方法调用</h4><p>对于class NSObject而言，接收到消息后先去自身的方法列表里找匹配的selector，如果找不到，会沿着继承体系去superclass的方法列表找；如果还找不到，先后会经过<code>+resolveInstanceMethod:</code>和<code>-forwardingTargetForSelector:</code>处理，处理失败后，才会到<code>-methodSignatureForSelector:</code>/<code>-forwardInvocation:</code>进行最后的挣扎。更详细的叙述，详见NSObject的消息转发机制。</p>
-<p>但对于NSProxy，接收unknown selector后，直接回调<code>-methodSignatureForSelector:/-forwardInvocation:</code>，消息转发过程比class NSObject要简单得多。</p>
-<h4 id="API-注释"><a href="#API-注释" class="headerlink" title="API 注释"></a>API 注释</h4><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">//一个抽象的超类,为那些以替身的身份存在的对象或者还没存在的对象定义了一套API。</span></span><br><span class="line">An abstract superclass defining an API <span class="keyword">for</span> objects that act as stand-ins <span class="keyword">for</span></span><br><span class="line"> other objects or <span class="keyword">for</span> objects that don’t exist yet.</span><br><span class="line"></span><br><span class="line"><span class="comment">//通常,向NSProxy发送一条消息会被转发给一个对象或者会让NSProxy去加载一个对象.NSProxy的子类可以用来实现透明的消息分发(例如NSDistantObject) 或者对创建昂贵的对象进行懒加载。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 这里的意思大概是NSProxy的子类可以用来做消息的分发</span></span><br><span class="line">Typically, a message to a proxy is forwarded to the real object or causes the</span><br><span class="line"> proxy to load (or transform itself into) the real object. Subclasses of </span><br><span class="line"> <span class="built_in">NSProxy</span> can be used to implement transparent distributed messaging (<span class="keyword">for</span></span><br><span class="line">  example, <span class="built_in">NSDistantObject</span>) or <span class="keyword">for</span> lazy instantiation of objects that are </span><br><span class="line">  expensive to create.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//NSProxy实现了作为根类的一些基本的方法,包括在NSObject协议中定义的。然而，作为一个抽象类他没有提供一个实例化方法，在接收到任何他没有实现的方法时都会抛出异常。</span></span><br><span class="line"><span class="built_in">NSProxy</span> implements the basic methods required of a root <span class="keyword">class</span>, including those</span><br><span class="line"> defined <span class="keyword">in</span> the <span class="built_in">NSObject</span> protocol. However, as an abstract <span class="keyword">class</span> it doesn’t </span><br><span class="line"> provide an initialization method, and it raises an exception upon receiving </span><br><span class="line"> any message it doesn’t respond to. </span><br><span class="line"></span><br><span class="line"><span class="comment">//因此 一个具体的子类必提供一个实例化方法或者创建方法。并且覆盖`forwardInvocation`方法和`methodSignatureForSelector`方法来处理类本身没有实现的方法。</span></span><br><span class="line">A concrete subclass must therefore provide an initialization or creation </span><br><span class="line">method and override the forwardInvocation: and methodSignatureForSelector: </span><br><span class="line">methods to handle messages that it doesn’t implement itself.</span><br><span class="line"></span><br><span class="line"><span class="comment">//子类中`forwardInvocation`的实现中应该做任何需要的来处理invocation,比如通过网络转发这个invocation，或者加载一个的对象并将这个invocation转发给他。</span></span><br><span class="line"> A subclass’s implementation of forwardInvocation: should <span class="keyword">do</span> whatever is</span><br><span class="line">  needed to process the invocation, such as forwarding the invocation over the</span><br><span class="line">   network or loading the real object and passing it the invocation. </span><br><span class="line"> </span><br><span class="line"><span class="comment">//`methodSignatureForSelector`是用来获取给定消息的参数类型；在子类的实现中可以获取这个将要被转发的消息的参数类型。同时应该创建一个相对应的NSMethodSignature对象。</span></span><br><span class="line">methodSignatureForSelector: is required to provide argument type information </span><br><span class="line"><span class="keyword">for</span> a given message; a subclass’s implementation should be able to determine</span><br><span class="line"> the argument types <span class="keyword">for</span> the messages it needs to forward and should construct</span><br><span class="line">  an <span class="built_in">NSMethodSignature</span> object accordingly. See the <span class="built_in">NSDistantObject</span>, </span><br><span class="line">  <span class="built_in">NSInvocation</span>, and <span class="built_in">NSMethodSignature</span> <span class="keyword">class</span> specifications <span class="keyword">for</span> more </span><br><span class="line">  information.</span><br></pre></td></tr></table></figure>
-
-<p>通过上面的这段解释,我们能大概的了解到NSProxy的作用:</p>
-<p>因为NSProxy没有init方法,因此所有的操作必须是通过子类实现,而且 因为子类也同样没有init方法,那就决定了NSProxy以及子类都无法直接去相应某一个方法。因此NSProxy的子类一般是讲调用的方法转发给对应的某些对象。因此其扮演的实际上是一个分发者的角色。</p>
-<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><p>为了对比他和NSObject的区别 我们这里创建两个类分别继承自NSObject和NSProxy.</p>
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">ProxyObject</span> : <span class="title">NSProxy</span></span></span><br><span class="line">- (<span class="keyword">instancetype</span>)initWithObject:(<span class="keyword">id</span>)object;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NormalObject</span> : <span class="title">NSObject</span></span></span><br><span class="line">- (<span class="keyword">instancetype</span>)initWithObject:(<span class="keyword">id</span>)object;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
-
-<p>我们在这两个类中都创建了一个对象.当当前类对象没有实现对应方法的时候,统一转发给这个对象。</p>
-<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ul>
-<li>1、<a href="https://zhangbuhuai.com/nsproxy/">NSProxy</a></li>
-<li>2、<a href="https://blog.sunnyxx.com/2014/08/24/objc-duck/">objc与鸭子对象</a></li>
-<li>3、<a href="http://www.tanhao.me/code/160702.html/">使用NSProxy和NSObject设计代理类的差异</a></li>
-<li>4、<a href="https://www.jianshu.com/p/a7187e014c03">用 NSProxy 实现面向切面编程</a></li>
-<li>5、<a href="https://www.jianshu.com/p/8e700673202b">NSProxy——少见却神奇的类</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>iOS优化</category>
-      </categories>
-      <tags>
-        <tag>NSProxy</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>iOS webP.framework制作</title>
     <url>/2020/02/20/webpframework/</url>
     <content><![CDATA[<p>相信目前大部分APP都已经支持了WebP格式的图片,下面我们通过这种图片简单介绍下WebP格式图片的优点。</p>
@@ -3648,6 +3606,48 @@ LLDB的命令其实还有很多，很多命令我也没玩过。就算玩过的�
       </categories>
       <tags>
         <tag>webP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>探秘NSProxy</title>
+    <url>/2018/06/02/what-s-nsproxy/</url>
+    <content><![CDATA[<p>之前一直知道有一个与NSObject平级的类存在,但是日常的开发中好像一直都没有用到过。那么他存在的意义究竟是什么呢？这篇文章我们一起来探秘NSProxy。</p>
+<a id="more"></a>
+
+<h3 id="先看代码"><a href="#先看代码" class="headerlink" title="先看代码"></a>先看代码</h3><p>我们先看一下<code>NSProxy</code>这个类的声明</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NSProxy</span> &lt;<span class="title">NSObject</span>&gt; </span>&#123;</span><br><span class="line">    Class	isa;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+
+<p>这个类遵守了<code>&lt;NSObject&gt;</code>这个协议,我们来看一下这个协议究竟都做了什么呢？</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@protocol</span> <span class="title">NSObject</span></span></span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)isEqual:(<span class="keyword">id</span>)object;</span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">readonly</span>) <span class="built_in">NSUInteger</span> hash;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">readonly</span>) Class superclass;</span><br><span class="line">- (Class)<span class="keyword">class</span> OBJC_SWIFT_UNAVAILABLE(<span class="string">&quot;use &#x27;type(of: anObject)&#x27; instead&quot;</span>);</span><br><span class="line">- (<span class="keyword">instancetype</span>)<span class="keyword">self</span>;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">id</span>)performSelector:(SEL)aSelector;</span><br><span class="line">- (<span class="keyword">id</span>)performSelector:(SEL)aSelector withObject:(<span class="keyword">id</span>)object;</span><br><span class="line">- (<span class="keyword">id</span>)performSelector:(SEL)aSelector withObject:(<span class="keyword">id</span>)object1 withObject:(<span class="keyword">id</span>)object2;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)isProxy;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)isKindOfClass:(Class)aClass;</span><br><span class="line">- (<span class="built_in">BOOL</span>)isMemberOfClass:(Class)aClass;</span><br><span class="line">- (<span class="built_in">BOOL</span>)conformsToProtocol:(Protocol *)aProtocol;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)respondsToSelector:(SEL)aSelector;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">instancetype</span>)<span class="keyword">retain</span> OBJC_ARC_UNAVAILABLE;</span><br><span class="line">- (<span class="keyword">oneway</span> <span class="keyword">void</span>)release OBJC_ARC_UNAVAILABLE;</span><br><span class="line">- (<span class="keyword">instancetype</span>)autorelease OBJC_ARC_UNAVAILABLE;</span><br><span class="line">- (<span class="built_in">NSUInteger</span>)retainCount OBJC_ARC_UNAVAILABLE;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">struct</span> _NSZone *)zone OBJC_ARC_UNAVAILABLE;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">readonly</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *description;</span><br><span class="line"><span class="keyword">@optional</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">readonly</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *debugDescription;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+
+<p>这个协议主要定义了一些类的一些基本方法。</p>
+<p>这样看 感觉跟NSObject没什么太大的区别。我们在进一步看看这个类中的方法。</p>
+<h4 id="init方法"><a href="#init方法" class="headerlink" title="init方法"></a>init方法</h4><p>在跟NSObject做了简单对比之后发现,<code>NSProxy</code>没有init方法。我们都知道NSObject在alloc方法内申请内存空间 init方法进行初始化。 从这个角度来看的话NSProxy是没有办法被直接创建和初始化的。</p>
+<h4 id="方法调用"><a href="#方法调用" class="headerlink" title="方法调用"></a>方法调用</h4><p>对于class NSObject而言，接收到消息后先去自身的方法列表里找匹配的selector，如果找不到，会沿着继承体系去superclass的方法列表找；如果还找不到，先后会经过<code>+resolveInstanceMethod:</code>和<code>-forwardingTargetForSelector:</code>处理，处理失败后，才会到<code>-methodSignatureForSelector:</code>/<code>-forwardInvocation:</code>进行最后的挣扎。更详细的叙述，详见NSObject的消息转发机制。</p>
+<p>但对于NSProxy，接收unknown selector后，直接回调<code>-methodSignatureForSelector:/-forwardInvocation:</code>，消息转发过程比class NSObject要简单得多。</p>
+<h4 id="API-注释"><a href="#API-注释" class="headerlink" title="API 注释"></a>API 注释</h4><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">//一个抽象的超类,为那些以替身的身份存在的对象或者还没存在的对象定义了一套API。</span></span><br><span class="line">An abstract superclass defining an API <span class="keyword">for</span> objects that act as stand-ins <span class="keyword">for</span></span><br><span class="line"> other objects or <span class="keyword">for</span> objects that don’t exist yet.</span><br><span class="line"></span><br><span class="line"><span class="comment">//通常,向NSProxy发送一条消息会被转发给一个对象或者会让NSProxy去加载一个对象.NSProxy的子类可以用来实现透明的消息分发(例如NSDistantObject) 或者对创建昂贵的对象进行懒加载。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 这里的意思大概是NSProxy的子类可以用来做消息的分发</span></span><br><span class="line">Typically, a message to a proxy is forwarded to the real object or causes the</span><br><span class="line"> proxy to load (or transform itself into) the real object. Subclasses of </span><br><span class="line"> <span class="built_in">NSProxy</span> can be used to implement transparent distributed messaging (<span class="keyword">for</span></span><br><span class="line">  example, <span class="built_in">NSDistantObject</span>) or <span class="keyword">for</span> lazy instantiation of objects that are </span><br><span class="line">  expensive to create.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//NSProxy实现了作为根类的一些基本的方法,包括在NSObject协议中定义的。然而，作为一个抽象类他没有提供一个实例化方法，在接收到任何他没有实现的方法时都会抛出异常。</span></span><br><span class="line"><span class="built_in">NSProxy</span> implements the basic methods required of a root <span class="keyword">class</span>, including those</span><br><span class="line"> defined <span class="keyword">in</span> the <span class="built_in">NSObject</span> protocol. However, as an abstract <span class="keyword">class</span> it doesn’t </span><br><span class="line"> provide an initialization method, and it raises an exception upon receiving </span><br><span class="line"> any message it doesn’t respond to. </span><br><span class="line"></span><br><span class="line"><span class="comment">//因此 一个具体的子类必提供一个实例化方法或者创建方法。并且覆盖`forwardInvocation`方法和`methodSignatureForSelector`方法来处理类本身没有实现的方法。</span></span><br><span class="line">A concrete subclass must therefore provide an initialization or creation </span><br><span class="line">method and override the forwardInvocation: and methodSignatureForSelector: </span><br><span class="line">methods to handle messages that it doesn’t implement itself.</span><br><span class="line"></span><br><span class="line"><span class="comment">//子类中`forwardInvocation`的实现中应该做任何需要的来处理invocation,比如通过网络转发这个invocation，或者加载一个的对象并将这个invocation转发给他。</span></span><br><span class="line"> A subclass’s implementation of forwardInvocation: should <span class="keyword">do</span> whatever is</span><br><span class="line">  needed to process the invocation, such as forwarding the invocation over the</span><br><span class="line">   network or loading the real object and passing it the invocation. </span><br><span class="line"> </span><br><span class="line"><span class="comment">//`methodSignatureForSelector`是用来获取给定消息的参数类型；在子类的实现中可以获取这个将要被转发的消息的参数类型。同时应该创建一个相对应的NSMethodSignature对象。</span></span><br><span class="line">methodSignatureForSelector: is required to provide argument type information </span><br><span class="line"><span class="keyword">for</span> a given message; a subclass’s implementation should be able to determine</span><br><span class="line"> the argument types <span class="keyword">for</span> the messages it needs to forward and should construct</span><br><span class="line">  an <span class="built_in">NSMethodSignature</span> object accordingly. See the <span class="built_in">NSDistantObject</span>, </span><br><span class="line">  <span class="built_in">NSInvocation</span>, and <span class="built_in">NSMethodSignature</span> <span class="keyword">class</span> specifications <span class="keyword">for</span> more </span><br><span class="line">  information.</span><br></pre></td></tr></table></figure>
+
+<p>通过上面的这段解释,我们能大概的了解到NSProxy的作用:</p>
+<p>因为NSProxy没有init方法,因此所有的操作必须是通过子类实现,而且 因为子类也同样没有init方法,那就决定了NSProxy以及子类都无法直接去相应某一个方法。因此NSProxy的子类一般是讲调用的方法转发给对应的某些对象。因此其扮演的实际上是一个分发者的角色。</p>
+<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><p>为了对比他和NSObject的区别 我们这里创建两个类分别继承自NSObject和NSProxy.</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">ProxyObject</span> : <span class="title">NSProxy</span></span></span><br><span class="line">- (<span class="keyword">instancetype</span>)initWithObject:(<span class="keyword">id</span>)object;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NormalObject</span> : <span class="title">NSObject</span></span></span><br><span class="line">- (<span class="keyword">instancetype</span>)initWithObject:(<span class="keyword">id</span>)object;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+
+<p>我们在这两个类中都创建了一个对象.当当前类对象没有实现对应方法的时候,统一转发给这个对象。</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ul>
+<li>1、<a href="https://zhangbuhuai.com/nsproxy/">NSProxy</a></li>
+<li>2、<a href="https://blog.sunnyxx.com/2014/08/24/objc-duck/">objc与鸭子对象</a></li>
+<li>3、<a href="http://www.tanhao.me/code/160702.html/">使用NSProxy和NSObject设计代理类的差异</a></li>
+<li>4、<a href="https://www.jianshu.com/p/a7187e014c03">用 NSProxy 实现面向切面编程</a></li>
+<li>5、<a href="https://www.jianshu.com/p/8e700673202b">NSProxy——少见却神奇的类</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>iOS优化</category>
+      </categories>
+      <tags>
+        <tag>NSProxy</tag>
       </tags>
   </entry>
   <entry>
