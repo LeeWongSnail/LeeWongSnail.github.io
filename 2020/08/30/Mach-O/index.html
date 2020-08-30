@@ -22,32 +22,51 @@
     var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
   </script>
 
-  <meta name="description" content="What is Life But One Chanllege After Another">
-<meta property="og:type" content="website">
-<meta property="og:title" content="LeeWong">
-<meta property="og:url" content="https://www.leewong.cn/index.html">
+  <meta name="description" content="Mach-O为Mach Object文件格式的缩写，它是一种用于可执行文件，目标代码，动态库，内核转储的文件格式。作为a.out格式的替代，Mach-O提供了更强的扩展性，并提升了符号表中信息的访问速度。Mach-O格式为大部分基于Mach内核的操作系统所使用的，包括NeXTSTEP, Mac OS X和iOS，它们都以Mach-O格式作为其可执行文件，动态库，目标代码的文件格式。 Mach-O简">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mach-O 探究">
+<meta property="og:url" content="https://www.leewong.cn/2020/08/30/Mach-O/index.html">
 <meta property="og:site_name" content="LeeWong">
-<meta property="og:description" content="What is Life But One Chanllege After Another">
+<meta property="og:description" content="Mach-O为Mach Object文件格式的缩写，它是一种用于可执行文件，目标代码，动态库，内核转储的文件格式。作为a.out格式的替代，Mach-O提供了更强的扩展性，并提升了符号表中信息的访问速度。Mach-O格式为大部分基于Mach内核的操作系统所使用的，包括NeXTSTEP, Mac OS X和iOS，它们都以Mach-O格式作为其可执行文件，动态库，目标代码的文件格式。 Mach-O简">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xlznb88j30fm0keajq.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xow8jvoj30s40duwhk.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xfafmakj30yq0hqah8.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8xv47qi7j31fg0sc44j.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8yhakxzbj30b50but9m.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8yllkqyyj30ju1000y2.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8xxtz5kij31fa0g6dkw.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8zwcgxxfj31py0s645r.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi90jod69hj30i808ewfe.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi90uyqf0ij314k0c8n0z.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi914f1x7fj31240ie0vn.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi91bdekm9j31j80u0gy7.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gi939ehxldj31vk0mu7ef.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gi93d875bdj31r60imtgw.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi91tzgretj31oq0j247e.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi91z90xhnj31og0fo43z.jpg">
+<meta property="article:published_time" content="2020-08-30T08:20:39.000Z">
+<meta property="article:modified_time" content="2020-08-30T12:42:48.860Z">
 <meta property="article:author" content="LeeWong">
 <meta property="article:tag" content="iOS">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xlznb88j30fm0keajq.jpg">
 
 
-<link rel="canonical" href="https://www.leewong.cn/">
+<link rel="canonical" href="https://www.leewong.cn/2020/08/30/Mach-O/">
 
 
 <script class="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>LeeWong</title>
+  <title>Mach-O 探究 | LeeWong</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
     <script>
@@ -186,7 +205,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -198,6 +217,7 @@
 
       <!--noindex-->
       <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Mach-O%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">Mach-O简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mach-O%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">Mach-O结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mach64-Header"><span class="nav-number">3.</span> <span class="nav-text">Mach64 Header</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Magic-Number"><span class="nav-number">3.1.</span> <span class="nav-text">Magic Number</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CPU-Type-CPU-SubType"><span class="nav-number">3.2.</span> <span class="nav-text">CPU Type ,CPU SubType</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#File-Type"><span class="nav-number">3.3.</span> <span class="nav-text">File Type</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ncmds-Number-of-Load-Commands"><span class="nav-number">3.4.</span> <span class="nav-text">ncmds(Number of Load Commands)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#sizeofcmds-Size-of-Load-Commands"><span class="nav-number">3.5.</span> <span class="nav-text">sizeofcmds(Size of Load Commands)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Flags"><span class="nav-number">3.6.</span> <span class="nav-text">Flags</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Load-Commands"><span class="nav-number">4.</span> <span class="nav-text">Load Commands</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Segment"><span class="nav-number">4.1.</span> <span class="nav-text">Segment</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Section"><span class="nav-number">4.2.</span> <span class="nav-text">Section</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DATA-%E6%95%B0%E6%8D%AE"><span class="nav-number">5.</span> <span class="nav-text">DATA(数据)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#TEXT%E6%AE%B5"><span class="nav-number">5.1.</span> <span class="nav-text">__TEXT段</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#cstring"><span class="nav-number">5.1.1.</span> <span class="nav-text">cstring</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#objc-methname"><span class="nav-number">5.1.2.</span> <span class="nav-text">objc_methname</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#classname"><span class="nav-number">5.1.3.</span> <span class="nav-text">classname</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DATA"><span class="nav-number">6.</span> <span class="nav-text">_DATA</span></a></li></ol></div>
       </section>
       <!--/noindex-->
 
@@ -259,11 +279,12 @@
 </noscript>
 
 
-    <div class="main-inner index posts-expand">
+    <div class="main-inner post posts-expand">
       
 
       
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -282,10 +303,9 @@
     
     
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/30/Mach-O/" class="post-title-link" itemprop="url">Mach-O 探究</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          Mach-O 探究
+        </h1>
 
         <div class="post-meta-container">
           <div class="post-meta">
@@ -300,6 +320,13 @@
     </span>
 
   
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
 </div>
 
         </div>
@@ -309,7 +336,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p><code>Mach-O</code>为<code>Mach Object</code>文件格式的缩写，它是一种用于可执行文件，目标代码，动态库，内核转储的文件格式。作为a.out格式的替代，Mach-O提供了更强的扩展性，并提升了符号表中信息的访问速度。<br><code>Mach-O</code>格式为大部分基于<code>Mach</code>内核的操作系统所使用的，包括<code>NeXTSTEP</code>, <code>Mac OS X</code>和<code>iOS</code>，它们都以<code>Mach-O</code>格式作为其可执行文件，动态库，目标代码的文件格式。</p>
+        <p><code>Mach-O</code>为<code>Mach Object</code>文件格式的缩写，它是一种用于可执行文件，目标代码，动态库，内核转储的文件格式。作为a.out格式的替代，Mach-O提供了更强的扩展性，并提升了符号表中信息的访问速度。<br><code>Mach-O</code>格式为大部分基于<code>Mach</code>内核的操作系统所使用的，包括<code>NeXTSTEP</code>, <code>Mac OS X</code>和<code>iOS</code>，它们都以<code>Mach-O</code>格式作为其可执行文件，动态库，目标代码的文件格式。</p>
 <h3 id="Mach-O简介"><a href="#Mach-O简介" class="headerlink" title="Mach-O简介"></a>Mach-O简介</h3><p>在iOS开发中，我们的代码在编译后会生成一个.app的文件(Product文件夹下),而.app文件我们可以把它看做是一个文件夹,内部存放了APP正常运行所需要的文件，通常比较容易识别的是一些资源文件。如图：</p>
 <p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xlznb88j30fm0keajq.jpg"></p>
 <p>我们通过显示包内容看下.app文件夹内都有什么：</p>
@@ -586,7 +613,6 @@
 <h3 id="DATA"><a href="#DATA" class="headerlink" title="_DATA"></a>_DATA</h3><p>__DATA段用于存储程序中所定义的数据，可读写。__DATA段下常见的sectin有：</p>
 <p>未完待续….</p>
 
-      
     </div>
 
     
@@ -594,749 +620,18 @@
     
 
     <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-  
-  
-  
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/08/22/runtimecategory/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
-      <meta itemprop="name" content="LeeWong">
-      <meta itemprop="description" content="What is Life But One Chanllege After Another">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LeeWong">
-    </span>
-
-    
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/22/runtimecategory/" class="post-title-link" itemprop="url">RunTime解析--Category(分类)实现</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-08-22 16:52:29" itemprop="dateCreated datePublished" datetime="2020-08-22T16:52:29+08:00">2020-08-22</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-08-23 22:26:34" itemprop="dateModified" datetime="2020-08-23T22:26:34+08:00">2020-08-23</time>
-      </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>  在日常的开发中，我们经常用到分类，用来给一个类添加扩展，包括对象方法、类方法、当然我们还可以通过关联对象的方式给分类添属性。但是这中间的过程是如何实现的呢？下面我们来做一个详细的解释。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/08/22/runtimecategory/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
-    </div>
 
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/08/16/sidetablestructure/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
-      <meta itemprop="name" content="LeeWong">
-      <meta itemprop="description" content="What is Life But One Chanllege After Another">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LeeWong">
-    </span>
-
-    
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/16/sidetablestructure/" class="post-title-link" itemprop="url">SideTable结构</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-08-16 12:38:50" itemprop="dateCreated datePublished" datetime="2020-08-16T12:38:50+08:00">2020-08-16</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-08-19 00:22:06" itemprop="dateModified" datetime="2020-08-19T00:22:06+08:00">2020-08-19</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/iOS%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index"><span itemprop="name">iOS进阶</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>  iOS开发者都知道，当一个对象被释放时，所有对这个对象弱引用的指针都会释放并置为nil，那么系统是如何存储这些弱引用对象的呢？又是如何在一个对象释放时，将这些指向即将释放对象的弱引用的指针置为nil的呢？下面我们通过分析<code>SideTable</code>的结构来进一步了解内存管理的弱引用存储细节。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/08/16/sidetablestructure/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/08/22/runtimecategory/" rel="prev" title="RunTime解析--Category(分类)实现">
+                  <i class="fa fa-chevron-left"></i> RunTime解析--Category(分类)实现
+                </a>
             </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/08/08/tagpointer/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
-      <meta itemprop="name" content="LeeWong">
-      <meta itemprop="description" content="What is Life But One Chanllege After Another">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LeeWong">
-    </span>
-
-    
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/08/tagpointer/" class="post-title-link" itemprop="url">内存管理之Tagged pointer</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-08-08 12:46:49" itemprop="dateCreated datePublished" datetime="2020-08-08T12:46:49+08:00">2020-08-08</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-08-14 00:11:25" itemprop="dateModified" datetime="2020-08-14T00:11:25+08:00">2020-08-14</time>
-      </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>iOS开发者对<code>引用计数</code>这个名词肯定不陌生,引用计数是苹果为了方便开发者管理内存而引入的一个概念,当引用计数为0时，对象就会被释放。但是，真的是所有对象都是这样吗？</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/08/08/tagpointer/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
+            <div class="post-nav-item">
             </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/08/02/retaincount/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
-      <meta itemprop="name" content="LeeWong">
-      <meta itemprop="description" content="What is Life But One Chanllege After Another">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LeeWong">
-    </span>
-
-    
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/02/retaincount/" class="post-title-link" itemprop="url">retain和release实现探究</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-08-02 13:35:34" itemprop="dateCreated datePublished" datetime="2020-08-02T13:35:34+08:00">2020-08-02</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-08-16 00:58:19" itemprop="dateModified" datetime="2020-08-16T00:58:19+08:00">2020-08-16</time>
-      </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>前面一篇文章，我们讲到了系统为了优化数字字符串等类型的数据存储新增了一种<code>NSTaggedPointer</code>类型，同时我们还发现，<code>isa</code>指针在经过优化后，提供了19个bit位用来存储引用计数的个数。但是如果超出了这个限制呢？</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/08/02/retaincount/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/07/25/howtousexcodebreakpoint/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
-      <meta itemprop="name" content="LeeWong">
-      <meta itemprop="description" content="What is Life But One Chanllege After Another">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LeeWong">
-    </span>
-
-    
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/25/howtousexcodebreakpoint/" class="post-title-link" itemprop="url">Xcode之断点调试</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-07-25 23:59:34" itemprop="dateCreated datePublished" datetime="2020-07-25T23:59:34+08:00">2020-07-25</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-08-02 22:33:09" itemprop="dateModified" datetime="2020-08-02T22:33:09+08:00">2020-08-02</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/iOS%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index"><span itemprop="name">iOS进阶</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>Xcode这个开发工具的使用相信每一个iOS开发者都已经可以熟练使用，但是要说到所有功能都详细了解，想必人数不多，这篇文章主要介绍xcode的断点调试功能。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/07/25/howtousexcodebreakpoint/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/07/25/appmodule/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
-      <meta itemprop="name" content="LeeWong">
-      <meta itemprop="description" content="What is Life But One Chanllege After Another">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LeeWong">
-    </span>
-
-    
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/25/appmodule/" class="post-title-link" itemprop="url">组件化设计方案</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2020-07-25 10:27:37 / 修改时间：10:52:36" itemprop="dateCreated datePublished" datetime="2020-07-25T10:27:37+08:00">2020-07-25</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BB%84%E4%BB%B6%E5%8C%96/" itemprop="url" rel="index"><span itemprop="name">组件化</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>随着多个功能需要在多个业务线短时间内实现功能同步，我们需要将新增功能模块和已有的功能模块逐步组件化，以达到多个业务线间可快速同步的效果</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/07/25/appmodule/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/07/02/responsechainevent/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
-      <meta itemprop="name" content="LeeWong">
-      <meta itemprop="description" content="What is Life But One Chanllege After Another">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LeeWong">
-    </span>
-
-    
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/02/responsechainevent/" class="post-title-link" itemprop="url">基于响应者链条的事件传递方式</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-07-02 15:55:08" itemprop="dateCreated datePublished" datetime="2020-07-02T15:55:08+08:00">2020-07-02</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-07-19 22:01:50" itemprop="dateModified" datetime="2020-07-19T22:01:50+08:00">2020-07-19</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E7%BB%84%E4%BB%B6%E5%8C%96/" itemprop="url" rel="index"><span itemprop="name">组件化</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>随着业务越来越负责，APP中的页面也变得越来越负责，层级变的越来越深，不论项目是MVC还是MVVM架构，我们都倾向于将事件的处理放到控制器中。随着层级越来越复杂，事件处理方法越来越多，为此我们的解决方案一般都是将部分处理事件放到viewmodel中或者给控制器添加分类。但这些方法都不能避免事件一层层的传递。那么有没有更好的方法呢？</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/07/02/responsechainevent/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/02/20/webpframework/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
-      <meta itemprop="name" content="LeeWong">
-      <meta itemprop="description" content="What is Life But One Chanllege After Another">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LeeWong">
-    </span>
-
-    
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/20/webpframework/" class="post-title-link" itemprop="url">iOS webP.framework制作</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-02-20 20:00:51" itemprop="dateCreated datePublished" datetime="2020-02-20T20:00:51+08:00">2020-02-20</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-07-19 22:19:16" itemprop="dateModified" datetime="2020-07-19T22:19:16+08:00">2020-07-19</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/iOS%E4%BC%98%E5%8C%96/" itemprop="url" rel="index"><span itemprop="name">iOS优化</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>相信目前大部分APP都已经支持了WebP格式的图片,下面我们通过这种图片简单介绍下WebP格式图片的优点。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/02/20/webpframework/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2019/12/20/recyclescrollview/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
-      <meta itemprop="name" content="LeeWong">
-      <meta itemprop="description" content="What is Life But One Chanllege After Another">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LeeWong">
-    </span>
-
-    
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/12/20/recyclescrollview/" class="post-title-link" itemprop="url">无线循环的滚动视图方案</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2019-12-20 19:56:47" itemprop="dateCreated datePublished" datetime="2019-12-20T19:56:47+08:00">2019-12-20</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-07-19 22:13:59" itemprop="dateModified" datetime="2020-07-19T22:13:59+08:00">2020-07-19</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/UI/" itemprop="url" rel="index"><span itemprop="name">UI</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>我们近期的项目中有两种场景分别是视频流和直播间,由于项目初期直播间或者视频量较少。因此在用户滑动切换直播间或者视频时需要我们做到可以循环滑动。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/12/20/recyclescrollview/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
+          </div>
     </footer>
   </article>
   
@@ -1344,14 +639,9 @@
   
 
 
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
-  </nav>
-
-
 
       
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -1451,6 +741,25 @@
 
   
 
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : '7d1ba9b0985d701484d21ecc54494eb7',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
 
 </body>
 </html>

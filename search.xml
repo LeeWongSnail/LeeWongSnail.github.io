@@ -7253,4 +7253,285 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
         <tag>Runloop</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Mach-O 探究</title>
+    <url>/2020/08/30/Mach-O/</url>
+    <content><![CDATA[<p><code>Mach-O</code>为<code>Mach Object</code>文件格式的缩写，它是一种用于可执行文件，目标代码，动态库，内核转储的文件格式。作为a.out格式的替代，Mach-O提供了更强的扩展性，并提升了符号表中信息的访问速度。<br><code>Mach-O</code>格式为大部分基于<code>Mach</code>内核的操作系统所使用的，包括<code>NeXTSTEP</code>, <code>Mac OS X</code>和<code>iOS</code>，它们都以<code>Mach-O</code>格式作为其可执行文件，动态库，目标代码的文件格式。</p>
+<h3 id="Mach-O简介"><a href="#Mach-O简介" class="headerlink" title="Mach-O简介"></a>Mach-O简介</h3><p>在iOS开发中，我们的代码在编译后会生成一个.app的文件(Product文件夹下),而.app文件我们可以把它看做是一个文件夹,内部存放了APP正常运行所需要的文件，通常比较容易识别的是一些资源文件。如图：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xlznb88j30fm0keajq.jpg"></p>
+<p>我们通过显示包内容看下.app文件夹内都有什么：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xow8jvoj30s40duwhk.jpg"></p>
+<p>当然我们这片文章的主角也在这个文件夹内：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xfafmakj30yq0hqah8.jpg"></p>
+<p>系统识别Mach-O(这个名字是项目的名字)为可执行文件(Mach-O是一种可执行文件格式)，我们来看下这个文件,Mach-O文件是无法直接打开或者查看包内容，这里我们需要借助MachOView工具来查看，工具是开源的如果你想看具体的实现，你可以看<a href="https://github.com/gdbinit/MachOView">工具的源码</a>，当然你可以直接<a href="http://sourceforge.net/projects/machoview/">下载</a>使用。</p>
+<p>打开后的页面是这样的：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8xv47qi7j31fg0sc44j.jpg"></p>
+<h3 id="Mach-O结构"><a href="#Mach-O结构" class="headerlink" title="Mach-O结构"></a>Mach-O结构</h3><p>实际上我们从使用MachOView打开后的文件目录也可以看出，Mach-O的文件结构分为三大部分:<code>Header</code>,<code>Load Commands</code>,<code>Data</code>。</p>
+<p>下面是官方提供的一张结构图：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8yhakxzbj30b50but9m.jpg"></p>
+<p>根据上图，我们将我们看到的目录大致划分为：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8yllkqyyj30ju1000y2.jpg"></p>
+<ul>
+<li>Mach-O 头（Mach Header）：这里描述了 Mach-O 的 CPU 架构、文件类型以及加载命令等信息；</li>
+<li>加载命令（Load Command）：当系统加载Mach-O文件时，load command会指导苹果的动态加载器(dyld)h或内核，该如何加载文件的Data数据。</li>
+<li>数据区（Data）：Mach-O文件的数据区，包含代码和数据。其中包含若干Segment块，每个Segment块中包含0个或多个seciton。Segment根据对应的load command被dyld加载入内存中。</li>
+</ul>
+<p><code>注意</code>：通过对比我们发现实际上官网给出的结构并不准确，在实际结果中还包含了<code>Dynamic Loader Info</code>,<code>Function Starts</code>,<code>Symbol Table</code>,<code>Data In Code Entries</code>,<code>Dynamic Symbol Table</code>,<code>String Table</code>,<code>Code Signature</code>等。</p>
+<p>下面我们来详细看下每部分的内容</p>
+<h3 id="Mach64-Header"><a href="#Mach64-Header" class="headerlink" title="Mach64 Header"></a>Mach64 Header</h3><p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8xxtz5kij31fa0g6dkw.jpg"></p>
+<p>这里我们可以和苹果开源的Darwin源码一起看方便理解,源码在<a href="https://opensource.apple.com/source/xnu/xnu-1456.1.26/EXTERNAL_HEADERS/mach-o/loader.h">这里</a>。</p>
+<p>32位</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * The 32-bit mach header appears at the very beginning of the object file for</span></span><br><span class="line"><span class="comment"> * 32-bit architectures.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mach_header</span> &#123;</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	magic;		<span class="comment">/* mach magic number identifier */</span></span><br><span class="line">	<span class="keyword">cpu_type_t</span>	cputype;	<span class="comment">/* cpu specifier */</span></span><br><span class="line">	<span class="keyword">cpu_subtype_t</span>	cpusubtype;	<span class="comment">/* machine specifier */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	filetype;	<span class="comment">/* type of file */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	ncmds;		<span class="comment">/* number of load commands */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	sizeofcmds;	<span class="comment">/* the size of all the load commands */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	flags;		<span class="comment">/* flags */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>64位:</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * The 64-bit mach header appears at the very beginning of object files for</span></span><br><span class="line"><span class="comment"> * 64-bit architectures.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mach_header_64</span> &#123;</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	magic;		<span class="comment">/* mach magic number identifier */</span></span><br><span class="line">	<span class="keyword">cpu_type_t</span>	cputype;	<span class="comment">/* cpu specifier */</span></span><br><span class="line">	<span class="keyword">cpu_subtype_t</span>	cpusubtype;	<span class="comment">/* machine specifier */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	filetype;	<span class="comment">/* type of file */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	ncmds;		<span class="comment">/* number of load commands */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	sizeofcmds;	<span class="comment">/* the size of all the load commands */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	flags;		<span class="comment">/* flags */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	reserved;	<span class="comment">/* reserved */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我们看到32位和64位的<code>mach_header</code>基本是一致的，只是在64位中新增了<code>reserved</code>字段，下面我们来看下其中每个字段所表示的意义。</p>
+<h4 id="Magic-Number"><a href="#Magic-Number" class="headerlink" title="Magic Number"></a>Magic Number</h4><table>
+<thead>
+<tr>
+<th>offset</th>
+<th>data</th>
+<th>description</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00000000</td>
+<td>FEEDFACF</td>
+<td>Magic Number</td>
+<td>MH_MAGIC_64</td>
+</tr>
+</tbody></table>
+<p>我们可以将其直译为<code>魔数</code>，他的值(Value)有两个:</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span>	MH_MAGIC	0xfeedface	<span class="comment">/* the mach magic number */</span> 32位</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MH_MAGIC_64 0xfeedfacf <span class="comment">/* the 64-bit mach magic number */</span> 64位</span></span><br></pre></td></tr></table></figure>
+<p>用于这个Mach-O文件的标识，有32位和64位两个值。由此可以看出我们的示例是一个64位的Mach-O文件。</p>
+<h4 id="CPU-Type-CPU-SubType"><a href="#CPU-Type-CPU-SubType" class="headerlink" title="CPU Type ,CPU SubType"></a>CPU Type ,CPU SubType</h4><table>
+<thead>
+<tr>
+<th>offset</th>
+<th>data</th>
+<th>description</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00000004</td>
+<td>0100000C</td>
+<td>CPU Type</td>
+<td>CPU_TYPE_64</td>
+</tr>
+<tr>
+<td>00000008</td>
+<td>00000000</td>
+<td>CPU SubType</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>00000000</td>
+<td>CPU_SubType_ARM64_ALL</td>
+</tr>
+</tbody></table>
+<p>CPU Type和CPU SubType 表示支持的CUP架构类型和子类型，如ARM。而具体的类型有哪些我们可以通过查询<code>/mach/machine.h.</code>中的定义查看这里不做过多的扩展,具体可以看<a href="https://opensource.apple.com/source/xnu/xnu-4570.41.2/osfmk/mach/machine.h.auto.html">这里</a><br>我们的示例中，APP是支持所有arm64的机型的:CUP_SUBTYPE_ARM64_ALL。</p>
+<h4 id="File-Type"><a href="#File-Type" class="headerlink" title="File Type"></a>File Type</h4><table>
+<thead>
+<tr>
+<th>offset</th>
+<th>data</th>
+<th>description</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0000000C</td>
+<td>00000002</td>
+<td>File Type</td>
+<td>MH_EXECUTE</td>
+</tr>
+</tbody></table>
+<p>File Type 表示 Mach-O的文件类型。包括</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#define	MH_OBJECT	0x1		&#x2F;* Target 文件：编译器对源码编译后得到的中间结果 *&#x2F;</span><br><span class="line">#define	MH_EXECUTE	0x2		&#x2F;* 可执行二进制文件 *&#x2F;</span><br><span class="line">#define	MH_FVMLIB	0x3		&#x2F;* VM 共享库文件（还不清楚是什么东西） *&#x2F;</span><br><span class="line">#define	MH_CORE		0x4		&#x2F;* Core 文件，一般在 App Crash 产生 *&#x2F;</span><br><span class="line">#define	MH_PRELOAD	0x5		&#x2F;* preloaded executable file *&#x2F;</span><br><span class="line">#define	MH_DYLIB	0x6		   &#x2F;* 动态库 *&#x2F;</span><br><span class="line">#define	MH_DYLINKER	0x7		&#x2F;* 动态连接器 &#x2F;usr&#x2F;lib&#x2F;dyld *&#x2F;</span><br><span class="line">#define	MH_BUNDLE	0x8		&#x2F;* 非独立的二进制文件，往往通过 gcc-bundle 生成 *&#x2F;</span><br><span class="line">#define	MH_DYLIB_STUB	0x9	&#x2F;* 静态链接文件（还不清楚是什么东西） *&#x2F;</span><br><span class="line">#define	MH_DSYM		0xa		&#x2F;* 符号文件以及调试信息，在解析堆栈符号中常用 *&#x2F;</span><br><span class="line">#define	MH_KEXT_BUNDLE	0xb	&#x2F;* x86_64 内核扩展 *&#x2F;</span><br></pre></td></tr></table></figure>
+<p>这里类型均是在<code>loader.h</code>文件中定义的</p>
+<p>对于我们示例中的我们的File Type为 <code>MH_EXECUTE</code>表示 可执行的二进制文件。</p>
+<h4 id="ncmds-Number-of-Load-Commands"><a href="#ncmds-Number-of-Load-Commands" class="headerlink" title="ncmds(Number of Load Commands)"></a>ncmds(Number of Load Commands)</h4><table>
+<thead>
+<tr>
+<th>offset</th>
+<th>data</th>
+<th>description</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00000010</td>
+<td>00000017</td>
+<td>Number of Load Commands</td>
+<td>23</td>
+</tr>
+</tbody></table>
+<p>ncmds表示load command的数量。在我们的示例中表示数量为23个。</p>
+<h4 id="sizeofcmds-Size-of-Load-Commands"><a href="#sizeofcmds-Size-of-Load-Commands" class="headerlink" title="sizeofcmds(Size of Load Commands)"></a>sizeofcmds(Size of Load Commands)</h4><table>
+<thead>
+<tr>
+<th>offset</th>
+<th>data</th>
+<th>description</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00000014</td>
+<td>00000AF8</td>
+<td>Size of Load Commands</td>
+<td>2808</td>
+</tr>
+</tbody></table>
+<p>sizeofcmds表示所有load command的总大小。示例中总大小为2808。</p>
+<h4 id="Flags"><a href="#Flags" class="headerlink" title="Flags"></a>Flags</h4><table>
+<thead>
+<tr>
+<th>offset</th>
+<th>data</th>
+<th>description</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00000018</td>
+<td>00200085</td>
+<td>Flags</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>00000001</td>
+<td>MH_NOUNDEFS</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>00000004</td>
+<td>MH_DYLDLINK</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>00000080</td>
+<td>MH_TWOLEVEL</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>00200000</td>
+<td>MH_PIE</td>
+</tr>
+</tbody></table>
+<p>Flags 是Mach-O文件的标志位。主要作用是告诉系统该如何加载这个Mach-O文件以及该文件的一些特性。有很多值，我们取常见的几种</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span>	MH_NOUNDEFS	0x1		<span class="comment">/* Target 文件中没有带未定义的符号，常为静态二进制文件 */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MH_SPLIT_SEGS	0x20  <span class="comment">/* Target 文件中的只读 Segment 和可读写 Segment 分开  */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MH_TWOLEVEL	0x80		<span class="comment">/* 该 Image 使用二级命名空间(two name space binding)绑定方案 */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MH_FORCE_FLAT	0x100 <span class="comment">/* 使用扁平命名空间(flat name space binding)绑定（与 MH_TWOLEVEL 互斥） */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MH_WEAK_DEFINES	0x8000 <span class="comment">/* 二进制文件使用了弱符号 */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MH_BINDS_TO_WEAK 0x10000 <span class="comment">/* 二进制文件链接了弱符号 */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MH_ALLOW_STACK_EXECUTION 0x20000<span class="comment">/* 允许 Stack 可执行 */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>	MH_PIE 0x200000  <span class="comment">/* 加载程序在随机的地址空间，只在 MH_EXECUTE中使用 */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MH_NO_HEAP_EXECUTION 0x1000000 <span class="comment">/* 将 Heap 标记为不可执行，可防止 heap spray 攻击 */</span></span></span><br></pre></td></tr></table></figure>
+
+<p>结合我们的示例，我们共有4个Flags:</p>
+<ul>
+<li>MH_NOUNDEFS</li>
+<li>MH_DYLDLINK dyld是苹果公司的动态链接库，用来把Mach-O文件加载入内存</li>
+<li>MH_TWOLEVEL 表示其符号空间中还会包含所在库的信息。这样可以使得不同的库导出通用的符号。与其相对的是扁平命名空间。</li>
+<li>MH_PIE 每次系统加载进程后，都会为其随机分配一个虚拟内存空间(在传统系统中，进程每次加载的虚拟内存是相同的。这就让黑客有可能篡改内存来破解软件)</li>
+</ul>
+<p><code>注意</code>:flags的值也定义在loader.h文件中 都可以通过源码查看。</p>
+<h3 id="Load-Commands"><a href="#Load-Commands" class="headerlink" title="Load Commands"></a>Load Commands</h3><p>Load Commands 紧跟在Header之后，用来告诉内核和dyld，如何将各个Segment加载入内存中。load command被源码表示为struct，有若干种load command，但是共同的特点是，在其结构的开头处，必须是如下两个属性：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * The load commands directly follow the mach_header.  The total size of all</span></span><br><span class="line"><span class="comment"> * of the commands is given by the sizeofcmds field in the mach_header.  All</span></span><br><span class="line"><span class="comment"> * load commands must have as their first two fields cmd and cmdsize.  </span></span><br><span class="line"><span class="comment"> * The cmd</span></span><br><span class="line"><span class="comment"> * field is filled in with a constant for that command type.  </span></span><br><span class="line"><span class="comment"> * Each command type</span></span><br><span class="line"><span class="comment"> * has a structure specifically for it.  </span></span><br><span class="line"><span class="comment"> * The cmdsize field is the size in bytes</span></span><br><span class="line"><span class="comment"> * of the particular load command structure plus anything that follows it that</span></span><br><span class="line"><span class="comment"> * is a part of the load command (i.e. section structures, strings, etc.). </span></span><br><span class="line"><span class="comment"> *  To</span></span><br><span class="line"><span class="comment"> * advance to the next load command the cmdsize can be added to the offset or</span></span><br><span class="line"><span class="comment"> * pointer of the current load command.  </span></span><br><span class="line"><span class="comment"> * The cmdsize for 32-bit architectures</span></span><br><span class="line"><span class="comment"> * MUST be a multiple of 4 bytes and for 64-bit architectures MUST be a multiple</span></span><br><span class="line"><span class="comment"> * of 8 bytes (these are forever the maximum alignment of any load commands).</span></span><br><span class="line"><span class="comment"> * The padded bytes must be zero.  All tables in the object file must also</span></span><br><span class="line"><span class="comment"> * follow these rules so the file can be memory mapped.  Otherwise the pointers</span></span><br><span class="line"><span class="comment"> * to these tables will not work well or at all on some machines.  With all</span></span><br><span class="line"><span class="comment"> * padding zeroed like objects will compare byte for byte.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">load_command</span> &#123;</span></span><br><span class="line">	<span class="keyword">uint32_t</span> cmd;		<span class="comment">/* type of load command */</span></span><br><span class="line">	<span class="keyword">uint32_t</span> cmdsize;	<span class="comment">/* total size of command in bytes */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>对应我们示例中的Load Commands</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8zwcgxxfj31py0s645r.jpg"></p>
+<p>我们在尝试去理解<code>load_command</code>的注释:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">load commands紧跟着mach_header,load commands的总大小由mach_header汇总的sizeofcmds字段给出，所有的load commands都必须以cmd和cmdsize两个字段作为前两个字段(结合我们的示例也得到验证)，cmd字段的值为commandtype常量，每一个commandtype都有一种特定的结构。cmdsize字段以字节为单位包含loadcommand结构和额外的其他字段(例如  section structures，strings等)。要前进到下一个加载命令，可以将cmdsize添加到当前加载命令的偏移量或指针。对于32位体系结构的cmdsize</span><br><span class="line"> 必须是4字节的倍数，并且对于64位架构，必须是8字节的倍数（这些永远是所有装入命令的最大对齐),填充字节必须为零。</span><br></pre></td></tr></table></figure>
+
+<h4 id="Segment"><a href="#Segment" class="headerlink" title="Segment"></a>Segment</h4><p>在这么多的load command中，需要我们重点关注的是segment load command，segment command解释了该如何将Data中的各个Segment加载入内存中，而和我们APP相关的逻辑及数据，则大部分位于各个Segment中。</p>
+<p>而和我们的Run time相关的Segment，则位于__DATA类型Segment下。</p>
+<p>Segment load command也分为32位和64位：</p>
+<p>32位</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * The segment load command indicates that a part of this file is to be</span></span><br><span class="line"><span class="comment"> * mapped into the task&#x27;s address space.  The size of this segment in memory,</span></span><br><span class="line"><span class="comment"> * vmsize, maybe equal to or larger than the amount to map from this file,</span></span><br><span class="line"><span class="comment"> * filesize.  The file is mapped starting at fileoff to the beginning of</span></span><br><span class="line"><span class="comment"> * the segment in memory, vmaddr.  The rest of the memory of the segment,</span></span><br><span class="line"><span class="comment"> * if any, is allocated zero fill on demand.  The segment&#x27;s maximum virtual</span></span><br><span class="line"><span class="comment"> * memory protection and initial virtual memory protection are specified</span></span><br><span class="line"><span class="comment"> * by the maxprot and initprot fields.  If the segment has sections then the</span></span><br><span class="line"><span class="comment"> * section structures directly follow the segment command and their size is</span></span><br><span class="line"><span class="comment"> * reflected in cmdsize.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">segment_command</span> &#123;</span> <span class="comment">/* for 32-bit architectures */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	cmd;		<span class="comment">/* LC_SEGMENT */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	cmdsize;	<span class="comment">/* includes sizeof section structs */</span></span><br><span class="line">	<span class="keyword">char</span>		segname[<span class="number">16</span>];	<span class="comment">/* segment name */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	vmaddr;		<span class="comment">/* memory address of this segment */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	vmsize;		<span class="comment">/* memory size of this segment */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	fileoff;	<span class="comment">/* file offset of this segment */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	filesize;	<span class="comment">/* amount to map from the file */</span></span><br><span class="line">	<span class="keyword">vm_prot_t</span>	maxprot;	<span class="comment">/* maximum VM protection */</span></span><br><span class="line">	<span class="keyword">vm_prot_t</span>	initprot;	<span class="comment">/* initial VM protection */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	nsects;		<span class="comment">/* number of sections in segment */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	flags;		<span class="comment">/* flags */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>64位</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * The 64-bit segment load command indicates that a part of this file is to be</span></span><br><span class="line"><span class="comment"> * mapped into a 64-bit task&#x27;s address space.  If the 64-bit segment has</span></span><br><span class="line"><span class="comment"> * sections then section_64 structures directly follow the 64-bit segment</span></span><br><span class="line"><span class="comment"> * command and their size is reflected in cmdsize.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">segment_command_64</span> &#123;</span> <span class="comment">/* for 64-bit architectures */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	cmd;		<span class="comment">/* LC_SEGMENT_64 */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	cmdsize;	<span class="comment">/* includes sizeof section_64 structs */</span></span><br><span class="line">	<span class="keyword">char</span>		segname[<span class="number">16</span>];	<span class="comment">/* segment name */</span></span><br><span class="line">	<span class="keyword">uint64_t</span>	vmaddr;		<span class="comment">/* memory address of this segment */</span></span><br><span class="line">	<span class="keyword">uint64_t</span>	vmsize;		<span class="comment">/* memory size of this segment */</span></span><br><span class="line">	<span class="keyword">uint64_t</span>	fileoff;	<span class="comment">/* file offset of this segment */</span></span><br><span class="line">	<span class="keyword">uint64_t</span>	filesize;	<span class="comment">/* amount to map from the file */</span></span><br><span class="line">	<span class="keyword">vm_prot_t</span>	maxprot;	<span class="comment">/* maximum VM protection */</span></span><br><span class="line">	<span class="keyword">vm_prot_t</span>	initprot;	<span class="comment">/* initial VM protection */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	nsects;		<span class="comment">/* number of sections in segment */</span></span><br><span class="line">	<span class="keyword">uint32_t</span>	flags;		<span class="comment">/* flags */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>32位和64位的segment_command基本一致，只是在64位的结构中把和寻址相关的数据类型由<code>uint32_t</code>改为<code>uint64_t</code></p>
+<p>我们先看下示例中，和Segment相关的Command：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi90jod69hj30i808ewfe.jpg"></p>
+<p>结合源码我们可以看到：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#define    SEG_PAGEZERO    &quot;__PAGEZERO&quot; &#x2F;* 当时 MH_EXECUTE 文件时，捕获到空指针 *&#x2F;</span><br><span class="line">#define    SEG_TEXT    &quot;__TEXT&quot; &#x2F;* 代码&#x2F;只读数据段 *&#x2F;</span><br><span class="line">#define    SEG_DATA    &quot;__DATA&quot; &#x2F;* 数据段 *&#x2F;</span><br><span class="line">#define    SEG_LINKEDIT    &quot;__LINKEDIT&quot; &#x2F;* 包含需要被动态链接器使用的符号和其他表，包括符号表、字符串表等 *&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p>根据前面结构图我们知道Load Commands实际上是一个二级结构:Segment-&gt;Section,正如示例中所示</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi90uyqf0ij314k0c8n0z.jpg"></p>
+<p>因此，下面我们在看下section的结构</p>
+<h4 id="Section"><a href="#Section" class="headerlink" title="Section"></a>Section</h4><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * A segment is made up of zero or more sections.  Non-MH_OBJECT files have</span></span><br><span class="line"><span class="comment"> * all of their segments with the proper sections in each, and padded to the</span></span><br><span class="line"><span class="comment"> * specified segment alignment when produced by the link editor.  The first</span></span><br><span class="line"><span class="comment"> * segment of a MH_EXECUTE and MH_FVMLIB format file contains the mach_header</span></span><br><span class="line"><span class="comment"> * and load commands of the object file before its first section.  The zero</span></span><br><span class="line"><span class="comment"> * fill sections are always last in their segment (in all formats).  This</span></span><br><span class="line"><span class="comment"> * allows the zeroed segment padding to be mapped into memory where zero fill</span></span><br><span class="line"><span class="comment"> * sections might be. The gigabyte zero fill sections, those with the section</span></span><br><span class="line"><span class="comment"> * type S_GB_ZEROFILL, can only be in a segment with sections of this type.</span></span><br><span class="line"><span class="comment"> * These segments are then placed after all other segments.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * The MH_OBJECT format has all of its sections in one segment for</span></span><br><span class="line"><span class="comment"> * compactness.  There is no padding to a specified segment boundary and the</span></span><br><span class="line"><span class="comment"> * mach_header and load commands are not part of the segment.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Sections with the same section name, sectname, going into the same segment,</span></span><br><span class="line"><span class="comment"> * segname, are combined by the link editor.  The resulting section is aligned</span></span><br><span class="line"><span class="comment"> * to the maximum alignment of the combined sections and is the new section&#x27;s</span></span><br><span class="line"><span class="comment"> * alignment.  The combined sections are aligned to their original alignment in</span></span><br><span class="line"><span class="comment"> * the combined section.  Any padded bytes to get the specified alignment are</span></span><br><span class="line"><span class="comment"> * zeroed.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * The format of the relocation entries referenced by the reloff and nreloc</span></span><br><span class="line"><span class="comment"> * fields of the section structure for mach object files is described in the</span></span><br><span class="line"><span class="comment"> * header file &lt;reloc.h&gt;.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">struct</span> section &#123; <span class="comment">/* for 32-bit architectures */</span></span><br><span class="line">	<span class="keyword">char</span>		sectname[<span class="number">16</span>];	<span class="comment">/* name of this section Section 名字 */</span></span><br><span class="line">	<span class="keyword">char</span>		segname[<span class="number">16</span>];	<span class="comment">/* segment this section goes in */</span></span><br><span class="line">	uint32_t	addr;		<span class="comment">/* memory address of this section */</span></span><br><span class="line">	uint32_t	size;		<span class="comment">/* size in bytes of this section */</span></span><br><span class="line">	uint32_t	offset;		<span class="comment">/* file offset of this section */</span></span><br><span class="line">	uint32_t	align;		<span class="comment">/* section alignment (power of 2) */</span></span><br><span class="line">	uint32_t	reloff;		<span class="comment">/* file offset of relocation entries */</span></span><br><span class="line">	uint32_t	nreloc;		<span class="comment">/* number of relocation entries */</span></span><br><span class="line">	uint32_t	flags;		<span class="comment">/* flags (section type and attributes)*/</span></span><br><span class="line">	uint32_t	reserved1;	<span class="comment">/* reserved (for offset or index) */</span></span><br><span class="line">	uint32_t	reserved2;	<span class="comment">/* reserved (for count or sizeof) */</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> section_64 &#123; <span class="comment">/* for 64-bit architectures */</span></span><br><span class="line">	<span class="keyword">char</span>		sectname[<span class="number">16</span>];	<span class="comment">/* Section 名字 */</span></span><br><span class="line">	<span class="keyword">char</span>		segname[<span class="number">16</span>];	<span class="comment">/* 所在的Segment名称*/</span></span><br><span class="line">	uint64_t	addr;		<span class="comment">/* Section 所在的内存地址 */</span></span><br><span class="line">	uint64_t	size;		<span class="comment">/* Section 的大小 */</span></span><br><span class="line">	uint32_t	offset;		<span class="comment">/* Section 所在的文件偏移 */</span></span><br><span class="line">	uint32_t	align;		<span class="comment">/* Section 的内存对齐边界 (2 的次幂) */</span></span><br><span class="line">	uint32_t	reloff;		<span class="comment">/* 重定位信息的文件偏移 */</span></span><br><span class="line">	uint32_t	nreloc;		<span class="comment">/* 重定位条目的数目 */</span></span><br><span class="line">	uint32_t	flags;		<span class="comment">/* 标志属性 (section type and attributes)*/</span></span><br><span class="line">	uint32_t	reserved1;	<span class="comment">/* 保留字段1 (for offset or index) */</span></span><br><span class="line">	uint32_t	reserved2;	<span class="comment">/* 保留字段2 (for count or sizeof) */</span></span><br><span class="line">	uint32_t	reserved3;	<span class="comment">/* 保留字段3 */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在64位和32位的section定义中，64位新增了一个reserved3保留字段，以及将section的addr和size字段由原来的uint32_t类型升级为uint64_t。</p>
+<p>在Data中，程序的逻辑和数据是按照Segment（段）存储，在Segment中，又分为0或多个section，每个section中在存储实际的内容。而之所以这么做的原因在于，在section中，可以不用内存对齐达到节约内存的作用，而所有的section作为整体的Segment，又可以整体的内存对齐。</p>
+<p>结合我们示例中的一个section结构如下图：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi914f1x7fj31240ie0vn.jpg"></p>
+<h3 id="DATA-数据"><a href="#DATA-数据" class="headerlink" title="DATA(数据)"></a>DATA(数据)</h3><p>Mach-O的Data部分，其实是真正存储APP二进制数据的位置，前面的header和load command，仅是提供文件的说明以及加载信息的功能。</p>
+<p>前面我们介绍过，我们通过Load Commands从DATA中读取数据，而Load Commands被划分成了多个Segment，也就是说 我们通过不同的Load Commands从DATA中读取不同的数据。</p>
+<p>在介绍Segment的时候我们说过Segment被划分成<code>__PAGEZERO</code>,<code>__TEXT</code>,<code>__DATA</code>,<code>__LINKEDIT</code>这几段。</p>
+<p>结合我们的示例，我们发现DATA被划分为:<code>__TEXT</code>,<code>__DATA</code></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi91bdekm9j31j80u0gy7.jpg"></p>
+<p>下面我们来看下这几个数据段(section):</p>
+<h4 id="TEXT段"><a href="#TEXT段" class="headerlink" title="__TEXT段"></a>__TEXT段</h4><p>__TEXT是程序的只读段，用于保存我们所写的代码和字符串常量，const修饰常量等。</p>
+<p>下面是几个我们常见的section：</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>存储内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>__TEXT.__text</td>
+<td>主程序代码</td>
+</tr>
+<tr>
+<td>__TEXT.__cstring</td>
+<td>C 语言字符串</td>
+</tr>
+<tr>
+<td>__TEXT.__const</td>
+<td>const 关键字修饰的常量</td>
+</tr>
+<tr>
+<td>__TEXT.__stubs</td>
+<td>用于 Stub 的占位代码，很多地方称之为桩代码。</td>
+</tr>
+<tr>
+<td>__TEXT.__stubs_helper</td>
+<td>当 Stub 无法找到真正的符号地址后的最终指向</td>
+</tr>
+<tr>
+<td>__TEXT.__objc_methname</td>
+<td>Objective-C 方法名称</td>
+</tr>
+<tr>
+<td>__TEXT.__objc_methtype</td>
+<td>Objective-C 方法类型</td>
+</tr>
+<tr>
+<td>__TEXT.__objc_classname</td>
+<td>Objective-C 类名称</td>
+</tr>
+</tbody></table>
+<p>我们来结合示例看下这几个section的内容：</p>
+<h5 id="cstring"><a href="#cstring" class="headerlink" title="cstring"></a>cstring</h5><p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gi939ehxldj31vk0mu7ef.jpg"></p>
+<p>我们可以从中看到<code>lw_property</code>,<code>lw_publicproperty</code>这两个属性名。以及我们打印的NSLog中的内容,同时我们发现，我们可能定义的某些三方key或者appid在这里都暴露在外部。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">static const NSString *lw_constsecretKey &#x3D; @&quot;11234455556&quot;;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gi93d875bdj31r60imtgw.jpg"></p>
+<h5 id="objc-methname"><a href="#objc-methname" class="headerlink" title="objc_methname"></a>objc_methname</h5><p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi91tzgretj31oq0j247e.jpg"></p>
+<p>我们可以看到我们自定义的方法名<code>lw_publicMethod</code>,<code>lw_privateMethod</code>以及<code>lw_property</code>,<code>lw_publicproperty</code>重写的setter和getter方法。</p>
+<h5 id="classname"><a href="#classname" class="headerlink" title="classname"></a>classname</h5><p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi91z90xhnj31og0fo43z.jpg"></p>
+<p>我们可以看到我们自定义的类的类:<code>LWCustomClass</code></p>
+<h3 id="DATA"><a href="#DATA" class="headerlink" title="_DATA"></a>_DATA</h3><p>__DATA段用于存储程序中所定义的数据，可读写。__DATA段下常见的sectin有：</p>
+<p>未完待续….</p>
+]]></content>
+  </entry>
 </search>
