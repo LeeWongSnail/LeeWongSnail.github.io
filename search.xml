@@ -7257,6 +7257,9 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
     <title>Mach-O 探究</title>
     <url>/2020/08/30/Mach-O/</url>
     <content><![CDATA[<p><code>Mach-O</code>为<code>Mach Object</code>文件格式的缩写，它是一种用于可执行文件，目标代码，动态库，内核转储的文件格式。作为a.out格式的替代，Mach-O提供了更强的扩展性，并提升了符号表中信息的访问速度。<br><code>Mach-O</code>格式为大部分基于<code>Mach</code>内核的操作系统所使用的，包括<code>NeXTSTEP</code>, <code>Mac OS X</code>和<code>iOS</code>，它们都以<code>Mach-O</code>格式作为其可执行文件，动态库，目标代码的文件格式。</p>
+<a id="more"></a>
+
+
 <h3 id="Mach-O简介"><a href="#Mach-O简介" class="headerlink" title="Mach-O简介"></a>Mach-O简介</h3><p>在iOS开发中，我们的代码在编译后会生成一个.app的文件(Product文件夹下),而.app文件我们可以把它看做是一个文件夹,内部存放了APP正常运行所需要的文件，通常比较容易识别的是一些资源文件。如图：</p>
 <p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xlznb88j30fm0keajq.jpg"></p>
 <p>我们通过显示包内容看下.app文件夹内都有什么：</p>
