@@ -315,13 +315,6 @@
     </span>
 
   
-    <span id="/2019/07/14/Git%E4%BD%BF%E7%94%A8%E7%AC%94%E8%AE%B0%E4%B9%8B%E5%86%B2%E7%AA%81%E8%A7%A3%E5%86%B3/" class="post-meta-item leancloud_visitors" data-flag-title="Git使用笔记之冲突解决" title="阅读次数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span class="leancloud-visitors-count"></span>
-    </span>
 </div>
 
         </div>
@@ -408,13 +401,6 @@
     </span>
 
   
-    <span id="/2019/02/24/multiscrollview/" class="post-meta-item leancloud_visitors" data-flag-title="多级滚动视图联动" title="阅读次数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span class="leancloud-visitors-count"></span>
-    </span>
 </div>
 
         </div>
@@ -501,13 +487,6 @@
     </span>
 
   
-    <span id="/2018/12/22/iOS-Time-Profiler-%E4%BD%BF%E7%94%A8/" class="post-meta-item leancloud_visitors" data-flag-title="Time Profiler 使用" title="阅读次数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span class="leancloud-visitors-count"></span>
-    </span>
 </div>
 
         </div>
@@ -594,13 +573,6 @@
     </span>
 
   
-    <span id="/2018/09/30/xcode-shortcuts/" class="post-meta-item leancloud_visitors" data-flag-title="iOS 开发中常用的快捷键" title="阅读次数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span class="leancloud-visitors-count"></span>
-    </span>
 </div>
 
         </div>
@@ -687,13 +659,6 @@
     </span>
 
   
-    <span id="/2018/09/02/OSSURLMontage/" class="post-meta-item leancloud_visitors" data-flag-title="OSSMaker 使用详解" title="阅读次数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span class="leancloud-visitors-count"></span>
-    </span>
 </div>
 
         </div>
@@ -780,13 +745,6 @@
     </span>
 
   
-    <span id="/2018/06/02/what-s-nsproxy/" class="post-meta-item leancloud_visitors" data-flag-title="探秘NSProxy" title="阅读次数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span class="leancloud-visitors-count"></span>
-    </span>
 </div>
 
         </div>
@@ -873,13 +831,6 @@
     </span>
 
   
-    <span id="/2018/05/04/huge-array-sort/" class="post-meta-item leancloud_visitors" data-flag-title="大数组的排序" title="阅读次数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span class="leancloud-visitors-count"></span>
-    </span>
 </div>
 
         </div>
@@ -966,13 +917,6 @@
     </span>
 
   
-    <span id="/2018/05/02/why-metaclass/" class="post-meta-item leancloud_visitors" data-flag-title="为什么要存在MetaClass" title="阅读次数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span class="leancloud-visitors-count"></span>
-    </span>
 </div>
 
         </div>
@@ -1060,13 +1004,6 @@
     </span>
 
   
-    <span id="/2018/04/25/what-did-block-do/" class="post-meta-item leancloud_visitors" data-flag-title="__Block 到底做了什么" title="阅读次数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span class="leancloud-visitors-count"></span>
-    </span>
 </div>
 
         </div>
@@ -1153,13 +1090,6 @@
     </span>
 
   
-    <span id="/2018/04/21/latest-interview/" class="post-meta-item leancloud_visitors" data-flag-title="祭最近的一次面试" title="阅读次数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-eye"></i>
-      </span>
-      <span class="post-meta-item-text">阅读次数：</span>
-      <span class="leancloud-visitors-count"></span>
-    </span>
 </div>
 
         </div>
@@ -1277,92 +1207,6 @@
 
 
 
-<script>
-  (function() {
-    function leancloudSelector(url) {
-      url = encodeURI(url);
-      return document.getElementById(url).querySelector('.leancloud-visitors-count');
-    }
-
-    function addCount(Counter) {
-      const visitors = document.querySelector('.leancloud_visitors');
-      const url = decodeURI(visitors.id);
-      const title = visitors.dataset.flagTitle;
-
-      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
-        .then(response => response.json())
-        .then(({ results }) => {
-          if (results.length > 0) {
-            const counter = results[0];
-            leancloudSelector(url).innerText = counter.time + 1;
-            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
-              .catch(error => {
-                console.error('Failed to save visitor count', error);
-              });
-          } else {
-              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
-              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
-            
-          }
-        })
-        .catch(error => {
-          console.error('LeanCloud Counter Error', error);
-        });
-    }
-
-    function showTime(Counter) {
-      const visitors = document.querySelectorAll('.leancloud_visitors');
-      const entries = [...visitors].map(element => {
-        return decodeURI(element.id);
-      });
-
-      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
-        .then(response => response.json())
-        .then(({ results }) => {
-          for (let url of entries) {
-            const target = results.find(item => item.url === url);
-            leancloudSelector(url).innerText = target ? target.time : 0;
-          }
-        })
-        .catch(error => {
-          console.error('LeanCloud Counter Error', error);
-        });
-    }
-
-    const { app_id, app_key, server_url } = {"enable":true,"app_id":"yUUAHzIjEn8fksXaNEX9VAe4-gzGzoHsz","app_key":"BVLeqEOea57puJUuekMXSvtL","server_url":null,"security":true};
-    function fetchData(api_server) {
-      const Counter = (method, url, data) => {
-        return fetch(`${api_server}/1.1${url}`, {
-          method,
-          headers: {
-            'X-LC-Id'     : app_id,
-            'X-LC-Key'    : app_key,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        });
-      };
-      if (CONFIG.page.isPost) {
-        if (CONFIG.hostname !== location.hostname) return;
-        addCount(Counter);
-      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
-        showTime(Counter);
-      }
-    }
-
-    const api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
-
-    if (api_server) {
-      fetchData(api_server);
-    } else {
-      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
-        .then(response => response.json())
-        .then(({ api_server }) => {
-          fetchData('https://' + api_server);
-        });
-    }
-  })();
-</script>
 
 
   
