@@ -7533,8 +7533,97 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <p>我们可以看到我们自定义的方法名<code>lw_publicMethod</code>,<code>lw_privateMethod</code>以及<code>lw_property</code>,<code>lw_publicproperty</code>重写的setter和getter方法。</p>
 <h5 id="classname"><a href="#classname" class="headerlink" title="classname"></a>classname</h5><p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi91z90xhnj31og0fo43z.jpg"></p>
 <p>我们可以看到我们自定义的类的类:<code>LWCustomClass</code></p>
-<h3 id="DATA"><a href="#DATA" class="headerlink" title="_DATA"></a>_DATA</h3><p>__DATA段用于存储程序中所定义的数据，可读写。__DATA段下常见的sectin有：</p>
-<p>未完待续….</p>
+<h4 id="DATA"><a href="#DATA" class="headerlink" title="_DATA"></a>_DATA</h4><p>__DATA段用于存储程序中所定义的数据，可读写。__DATA段下常见的sectin有：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gigtuycksmj30jo0pqgpu.jpg"></p>
+<p>下面我们看下常见的__DATA下的section:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>__DATA.__data</td>
+<td>初始化过的可变数据</td>
+</tr>
+<tr>
+<td>__DATA.__la_symbol_ptr</td>
+<td>lazy binding 的指针表，表中的指针一开始都指向 __stub_helper</td>
+</tr>
+<tr>
+<td>__DATA.nl_symbol_ptr</td>
+<td>非 lazy binding 的指针表，每个表项中的指针都指向一个在装载过程中，被动态链机器搜索完成的符号</td>
+</tr>
+<tr>
+<td>__DATA.__const</td>
+<td>没有初始化过的常量</td>
+</tr>
+<tr>
+<td>__DATA.__cfstring</td>
+<td>程序中使用的 Core Foundation 字符串（CFStringRefs）</td>
+</tr>
+<tr>
+<td>__DATA.__bss</td>
+<td>BSS，存放为初始化的全局变量，即常说的静态内存分配</td>
+</tr>
+<tr>
+<td>__DATA.__common</td>
+<td>没有初始化过的符号声明</td>
+</tr>
+<tr>
+<td>__DATA.__objc_classlist</td>
+<td>Objective-C 类列表</td>
+</tr>
+<tr>
+<td>__DATA.__objc_protolist</td>
+<td>Objective-C 协议列表</td>
+</tr>
+<tr>
+<td>__DATA.__objc_imginfo</td>
+<td>Objective-C 镜像信息</td>
+</tr>
+<tr>
+<td>__DATA.__objc_selfrefs</td>
+<td>Objective-C self 引用</td>
+</tr>
+<tr>
+<td>__DATA.__objc_protorefs</td>
+<td>Objective-C 原型引用</td>
+</tr>
+<tr>
+<td>__DATA.__objc_superrefs</td>
+<td>Objective-C 超类引用</td>
+</tr>
+</tbody></table>
+<p>这些以objc开头的DATA字段都是跟runtime有关的，后面我们会详细分析。</p>
+<h5 id="objc-imageinfo"><a href="#objc-imageinfo" class="headerlink" title="__objc_imageinfo"></a>__objc_imageinfo</h5><p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gih51mnkp7j31n60s6agt.jpg"></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">objc_image_info</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint32_t</span> version; <span class="comment">// currently 0</span></span><br><span class="line">    <span class="keyword">uint32_t</span> flags;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> __cplusplus &gt;= 201103L</span></span><br><span class="line">  <span class="keyword">private</span>:</span><br><span class="line">  <span class="comment">// 位移枚举 </span></span><br><span class="line">    <span class="keyword">enum</span> : <span class="keyword">uint32_t</span> &#123;</span><br><span class="line">        IsReplacement       = <span class="number">1</span>&lt;&lt;<span class="number">0</span>,  <span class="comment">// used for Fix&amp;Continue, now ignored</span></span><br><span class="line">        SupportsGC          = <span class="number">1</span>&lt;&lt;<span class="number">1</span>,  <span class="comment">// 是否支持垃圾回收</span></span><br><span class="line">        RequiresGC          = <span class="number">1</span>&lt;&lt;<span class="number">2</span>,  <span class="comment">// 镜像是否需要回收</span></span><br><span class="line">        OptimizedByDyld     = <span class="number">1</span>&lt;&lt;<span class="number">3</span>,  <span class="comment">// image is from an optimized shared cache</span></span><br><span class="line">        CorrectedSynthesize = <span class="number">1</span>&lt;&lt;<span class="number">4</span>,  <span class="comment">// used for an old workaround, now ignored</span></span><br><span class="line">        IsSimulated         = <span class="number">1</span>&lt;&lt;<span class="number">5</span>,  <span class="comment">// image compiled for a simulator platform</span></span><br><span class="line">        HasCategoryClassProperties  = <span class="number">1</span>&lt;&lt;<span class="number">6</span>,  <span class="comment">// class properties in category_t</span></span><br><span class="line"></span><br><span class="line">        SwiftVersionMaskShift = <span class="number">8</span>,</span><br><span class="line">        SwiftVersionMask    = <span class="number">0xff</span> &lt;&lt; SwiftVersionMaskShift  <span class="comment">// Swift ABI version</span></span><br><span class="line"></span><br><span class="line">    &#125;;</span><br><span class="line">   <span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">enum</span> : <span class="keyword">uint32_t</span> &#123;</span><br><span class="line">        SwiftVersion1   = <span class="number">1</span>,</span><br><span class="line">        SwiftVersion1_2 = <span class="number">2</span>,</span><br><span class="line">        SwiftVersion2   = <span class="number">3</span>,</span><br><span class="line">        SwiftVersion3   = <span class="number">4</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isReplacement</span><span class="params">()</span>   <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> flags &amp; IsReplacement; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">supportsGC</span><span class="params">()</span>      <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> flags &amp; SupportsGC; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">requiresGC</span><span class="params">()</span>      <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> flags &amp; RequiresGC; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">optimizedByDyld</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> flags &amp; OptimizedByDyld; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">hasCategoryClassProperties</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> flags &amp; HasCategoryClassProperties; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">containsSwift</span><span class="params">()</span>   <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> (flags &amp; SwiftVersionMask) != <span class="number">0</span>; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">uint32_t</span> <span class="title">swiftVersion</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> (flags &amp; SwiftVersionMask) &gt;&gt; SwiftVersionMaskShift; &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125; objc_image_info;</span><br></pre></td></tr></table></figure>
+
+<p>我们发现<code>objc_image_info</code>中主要是有version字段和flag字段，</p>
+<h5 id="objc-classlist"><a href="#objc-classlist" class="headerlink" title="__objc_classlist"></a>__objc_classlist</h5><p>这个section列出了所有的class，包括meta class。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gih4x7u5ckj31pr0u01b9.jpg"></p>
+<p>图中的value值是就是这个类结构体的地址(包括元类)，类结构体的结构为objc中的objc_class结构体，结构如下：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> objc_class : objc_object &#123;</span><br><span class="line">    <span class="comment">// Class ISA;</span></span><br><span class="line">    Class superclass;</span><br><span class="line">    cache_t cache;             <span class="comment">// formerly cache pointer and vtable</span></span><br><span class="line">    class_data_bits_t bits;    <span class="comment">// class_rw_t * plus custom rr/alloc flags</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="objc-catlist"><a href="#objc-catlist" class="headerlink" title="__objc_catlist"></a>__objc_catlist</h5><p>这里可以查看代码中的所有分类，其value的值为指向分类结构体的指针</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gih63wv6xzj31mv0u04jn.jpg"></p>
+<p>对应oc中的结构为category_t，具体结构如下：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> category_t &#123;</span><br><span class="line">    <span class="comment">// 是指 class_name 而不是 category_name</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *name;</span><br><span class="line">    <span class="comment">// 要扩展的类对象，编译期间是不会定义的，而是在运行时通过 * name 对应到对应的类对象。</span></span><br><span class="line">    classref_t cls;</span><br><span class="line">    <span class="comment">// 对象方法列表</span></span><br><span class="line">    <span class="keyword">struct</span> method_list_t *instanceMethods;</span><br><span class="line">    <span class="comment">// 类方法列表</span></span><br><span class="line">    <span class="keyword">struct</span> method_list_t *classMethods;</span><br><span class="line">    <span class="comment">// 协议列表</span></span><br><span class="line">    <span class="keyword">struct</span> protocol_list_t *protocols;</span><br><span class="line">    <span class="comment">// 实例属性</span></span><br><span class="line">    <span class="keyword">struct</span> property_list_t *instanceProperties;</span><br><span class="line">    <span class="comment">// Fields below this point are not always present on disk.</span></span><br><span class="line">    <span class="comment">// 类属性(这个结构体以_开头命名？？？)</span></span><br><span class="line">    <span class="keyword">struct</span> property_list_t *_classProperties;</span><br><span class="line">    <span class="comment">// methodsForMeta 返回类方法列表或者对象方法列表</span></span><br><span class="line">    method_list_t *methodsForMeta(<span class="keyword">bool</span> isMeta) &#123;</span><br><span class="line">        <span class="keyword">if</span> (isMeta) <span class="keyword">return</span> classMethods;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">return</span> instanceMethods;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 属性列表返回方法</span></span><br><span class="line">    property_list_t *propertiesForMeta(<span class="keyword">bool</span> isMeta, <span class="keyword">struct</span> header_info *hi);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="objc-protolist"><a href="#objc-protolist" class="headerlink" title="__objc_protolist"></a>__objc_protolist</h5><p>该Section中记录了项目中所有的协议。 其value值为指向协议的指针</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gih6ao4ee6j31nd0u01b2.jpg"></p>
+<p>协议的结构体为protocol_t，具体如下：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">struct</span> protocol_t : objc_object &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *mangledName;</span><br><span class="line">    <span class="keyword">struct</span> protocol_list_t *protocols;</span><br><span class="line">    method_list_t *instanceMethods;</span><br><span class="line">    method_list_t *classMethods;</span><br><span class="line">    method_list_t *optionalInstanceMethods;</span><br><span class="line">    method_list_t *optionalClassMethods;</span><br><span class="line">    property_list_t *instanceProperties;</span><br><span class="line">    uint32_t size;   <span class="comment">// sizeof(protocol_t)</span></span><br><span class="line">    uint32_t flags;</span><br><span class="line">    <span class="comment">// Fields below this point are not always present on disk.</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> **_extendedMethodTypes;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *_demangledName;</span><br><span class="line">    property_list_t *_classProperties;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="objc-classrefs"><a href="#objc-classrefs" class="headerlink" title="__objc_classrefs"></a>__objc_classrefs</h5><p>该section记录了哪些class被引用了，这里记录了所有被实例化的class，有些类虽然在包里，但是我们并未使用，因此这里不会有。<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gih6fqzemuj31rl0u0dyd.jpg"></p>
+<h5 id="objc-selrefs"><a href="#objc-selrefs" class="headerlink" title="__objc_selrefs"></a>__objc_selrefs</h5><p>这section记录哪些SEL对应的字符串被引用了，有系统方法，也有自定义方法：</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gih4rgf693j31lk0u07qb.jpg"></p>
+<h5 id="objc-superrefs"><a href="#objc-superrefs" class="headerlink" title="__objc_superrefs"></a>__objc_superrefs</h5><p>该section记录了调用super方法的类。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gih6sbnruvj31uy0u04gr.jpg"></p>
+<p>比如，在子类方法中，我们调用了父类的方法，就会将子类记录在这里。</p>
+<h5 id="objc-const"><a href="#objc-const" class="headerlink" title="__objc_const"></a>__objc_const</h5><p>该section用来记录在OC内存初始化过程中的不可变内容。这里所谓的不可变内容并不是我们在程序中所写的const NSInteger k = 5这种常量数据（它存在__TEXT的const section中），而是在OC内存布局中不可变得部分。</p>
+<h3 id="查找无用oc类"><a href="#查找无用oc类" class="headerlink" title="查找无用oc类"></a>查找无用oc类</h3><p><a href="https://www.jianshu.com/p/2eb351b0ce57">https://www.jianshu.com/p/2eb351b0ce57</a></p>
 ]]></content>
   </entry>
 </search>
