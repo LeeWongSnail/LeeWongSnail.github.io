@@ -7623,7 +7623,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gih6sbnruvj31uy0u04gr.jpg"></p>
 <p>比如，在子类方法中，我们调用了父类的方法，就会将子类记录在这里。</p>
 <h5 id="objc-const"><a href="#objc-const" class="headerlink" title="__objc_const"></a>__objc_const</h5><p>该section用来记录在OC内存初始化过程中的不可变内容。这里所谓的不可变内容并不是我们在程序中所写的const NSInteger k = 5这种常量数据（它存在__TEXT的const section中），而是在OC内存布局中不可变得部分。</p>
-<h3 id="查找无用oc类"><a href="#查找无用oc类" class="headerlink" title="查找无用oc类"></a>查找无用oc类</h3><p><a href="https://www.jianshu.com/p/2eb351b0ce57">https://www.jianshu.com/p/2eb351b0ce57</a></p>
+<h3 id="查找无用oc类"><a href="#查找无用oc类" class="headerlink" title="查找无用oc类"></a>查找无用oc类</h3><p><a href="https://www.jianshu.com/p/2eb351b0ce57">https://www.jianshu.com/p/2eb351b0ce57</a><br><a href="http://satanwoo.github.io/2017/06/29/Macho-2/">http://satanwoo.github.io/2017/06/29/Macho-2/</a><br><a href="https://jianli2017.top/wiki/IOS/MachO/MachO_FileStructure/">https://jianli2017.top/wiki/IOS/MachO/MachO_FileStructure/</a><br>Mach-O 文件格式<br>减少包大小<br>获取调用堆栈<br>如何用 MachO 文件关联类的方法名</p>
 ]]></content>
   </entry>
 </search>
