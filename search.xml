@@ -7662,7 +7662,10 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
   <entry>
     <title>应用启动-Main函数之前的那些事儿</title>
     <url>/2020/09/13/applaunchbeforemain/</url>
-    <content><![CDATA[<p>在<a href="http://www.leewong.cn/2020/08/30/Mach-O/">上一篇文章</a>中我们介绍了应用启动在objc_init方法执行前的调用堆栈，我们在来看下这这张图：</p>
+    <content><![CDATA[<p>在<a href="http://www.leewong.cn/2020/08/30/Mach-O/">上一篇文章</a>中我们介绍了应用启动在objc_init方法执行前的调用堆栈，根据这个堆栈我们可以看出在main函数之前实际上系统内核以及dyld还做了很多的操作，那么这篇文章我们来详细的看一下在这个过程中到底做了哪些事情。</p>
+<a id="more"></a>
+
+<p>我们在来看下这这张图：</p>
 <p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gip6q2kpiwj30nw0le4oi.jpg"></p>
 <p>从上图中我们看一看到应用启动的入口实际是_dyld_start函数,我们从<a href="https://opensource.apple.com/source/xnu/xnu-6153.141.1/">XNU源码</a><code>dyldStartup.s</code>中找到了这个方法：</p>
 <h3 id="dyld-start"><a href="#dyld-start" class="headerlink" title="__dyld_start"></a>__dyld_start</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">__dyld_start:</span><br><span class="line">	<span class="comment">//..........省略掉汇编代码</span></span><br><span class="line">	<span class="comment">// call dyldbootstrap::start(app_mh, argc, argv, slide, dyld_mh, &amp;startGlue)</span></span><br><span class="line">	bl	__ZN13dyldbootstrap5startEPK12macho_headeriPPKclS2_Pm</span><br><span class="line">  <span class="comment">//..........省略掉汇编代码</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>

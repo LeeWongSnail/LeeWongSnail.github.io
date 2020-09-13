@@ -22,16 +22,16 @@
     var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
   </script>
 
-  <meta name="description" content="在上一篇文章中我们介绍了应用启动在objc_init方法执行前的调用堆栈，我们在来看下这这张图：  从上图中我们看一看到应用启动的入口实际是_dyld_start函数,我们从XNU源码dyldStartup.s中找到了这个方法： __dyld_start123456__dyld_start:	&#x2F;&#x2F;..........省略掉汇编代码	&#x2F;&#x2F; call dyldbootstrap::start(app_">
+  <meta name="description" content="在上一篇文章中我们介绍了应用启动在objc_init方法执行前的调用堆栈，根据这个堆栈我们可以看出在main函数之前实际上系统内核以及dyld还做了很多的操作，那么这篇文章我们来详细的看一下在这个过程中到底做了哪些事情。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="应用启动-Main函数之前的那些事儿">
 <meta property="og:url" content="https://www.leewong.cn/2020/09/13/applaunchbeforemain/index.html">
 <meta property="og:site_name" content="LeeWong">
-<meta property="og:description" content="在上一篇文章中我们介绍了应用启动在objc_init方法执行前的调用堆栈，我们在来看下这这张图：  从上图中我们看一看到应用启动的入口实际是_dyld_start函数,我们从XNU源码dyldStartup.s中找到了这个方法： __dyld_start123456__dyld_start:	&#x2F;&#x2F;..........省略掉汇编代码	&#x2F;&#x2F; call dyldbootstrap::start(app_">
+<meta property="og:description" content="在上一篇文章中我们介绍了应用启动在objc_init方法执行前的调用堆栈，根据这个堆栈我们可以看出在main函数之前实际上系统内核以及dyld还做了很多的操作，那么这篇文章我们来详细的看一下在这个过程中到底做了哪些事情。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gip6q2kpiwj30nw0le4oi.jpg">
 <meta property="article:published_time" content="2020-09-13T10:41:22.000Z">
-<meta property="article:modified_time" content="2020-09-13T12:21:12.646Z">
+<meta property="article:modified_time" content="2020-09-13T12:23:28.829Z">
 <meta property="article:author" content="LeeWong">
 <meta property="article:tag" content="mach-o">
 <meta name="twitter:card" content="summary">
@@ -301,7 +301,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2020-09-13 18:41:22 / 修改时间：20:21:12" itemprop="dateCreated datePublished" datetime="2020-09-13T18:41:22+08:00">2020-09-13</time>
+      <time title="创建时间：2020-09-13 18:41:22 / 修改时间：20:23:28" itemprop="dateCreated datePublished" datetime="2020-09-13T18:41:22+08:00">2020-09-13</time>
     </span>
 
   
@@ -321,7 +321,10 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>在<a href="http://www.leewong.cn/2020/08/30/Mach-O/">上一篇文章</a>中我们介绍了应用启动在objc_init方法执行前的调用堆栈，我们在来看下这这张图：</p>
+        <p>在<a href="http://www.leewong.cn/2020/08/30/Mach-O/">上一篇文章</a>中我们介绍了应用启动在objc_init方法执行前的调用堆栈，根据这个堆栈我们可以看出在main函数之前实际上系统内核以及dyld还做了很多的操作，那么这篇文章我们来详细的看一下在这个过程中到底做了哪些事情。</p>
+<a id="more"></a>
+
+<p>我们在来看下这这张图：</p>
 <p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gip6q2kpiwj30nw0le4oi.jpg"></p>
 <p>从上图中我们看一看到应用启动的入口实际是_dyld_start函数,我们从<a target="_blank" rel="noopener" href="https://opensource.apple.com/source/xnu/xnu-6153.141.1/">XNU源码</a><code>dyldStartup.s</code>中找到了这个方法：</p>
 <h3 id="dyld-start"><a href="#dyld-start" class="headerlink" title="__dyld_start"></a>__dyld_start</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">__dyld_start:</span><br><span class="line">	<span class="comment">//..........省略掉汇编代码</span></span><br><span class="line">	<span class="comment">// call dyldbootstrap::start(app_mh, argc, argv, slide, dyld_mh, &amp;startGlue)</span></span><br><span class="line">	bl	__ZN13dyldbootstrap5startEPK12macho_headeriPPKclS2_Pm</span><br><span class="line">  <span class="comment">//..........省略掉汇编代码</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
