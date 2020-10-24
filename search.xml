@@ -7812,7 +7812,9 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
   <entry>
     <title>oc object structure</title>
     <url>/2020/10/24/oc-object-structure/</url>
-    <content><![CDATA[<h3 id="runtime之OC的数据结构"><a href="#runtime之OC的数据结构" class="headerlink" title="runtime之OC的数据结构"></a>runtime之OC的数据结构</h3><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>OC是一门面向对象的语言，而对于面向对象语言来说<code>一切皆对象</code>。相信每个iOS开发者都很清楚在OC中NSObject是绝大多数对象的父类。OC是一门动态语言，而动态的实现则是离不开Runtime。那么OC中的对象在Runtime中又是以一种什么样的形态出现的呢？本篇文章我们来详细介绍OC对象在Runtime中的结构。</p>
+    <content><![CDATA[<h3 id="runtime之OC的数据结构"><a href="#runtime之OC的数据结构" class="headerlink" title="runtime之OC的数据结构"></a>runtime之OC的数据结构</h3><p>OC是一门面向对象的语言，而对于面向对象语言来说<code>一切皆对象</code>。相信每个iOS开发者都很清楚在OC中NSObject是绝大多数对象的父类。OC是一门动态语言，而动态的实现则是离不开Runtime。那么OC中的对象在Runtime中又是以一种什么样的形态出现的呢？本篇文章我们来详细介绍OC对象在Runtime中的结构。</p>
+<a id="more"></a>
+
 <h3 id="NSObject"><a href="#NSObject" class="headerlink" title="NSObject"></a>NSObject</h3><p>我们先来看下在Runtime中NSObject的结构</p>
 <figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NSObject</span> &lt;<span class="title">NSObject</span>&gt; </span>&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> clang diagnostic push</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> clang diagnostic ignored <span class="meta-string">&quot;-Wobjc-interface-ivars&quot;</span></span></span><br><span class="line">    Class isa  OBJC_ISA_AVAILABILITY;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> clang diagnostic pop</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>从代码中我们可以看到，实际上对于一个NSObject对象 首先遵守了<code>&lt;NSObject&gt;</code>协议同时有一个isa指针，这个指针是Class类型的。</p>

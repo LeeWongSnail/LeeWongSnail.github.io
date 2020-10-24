@@ -22,15 +22,15 @@
     var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
   </script>
 
-  <meta name="description" content="runtime之OC的数据结构简介OC是一门面向对象的语言，而对于面向对象语言来说一切皆对象。相信每个iOS开发者都很清楚在OC中NSObject是绝大多数对象的父类。OC是一门动态语言，而动态的实现则是离不开Runtime。那么OC中的对象在Runtime中又是以一种什么样的形态出现的呢？本篇文章我们来详细介绍OC对象在Runtime中的结构。 NSObject我们先来看下在Runtime中NS">
+  <meta name="description" content="runtime之OC的数据结构OC是一门面向对象的语言，而对于面向对象语言来说一切皆对象。相信每个iOS开发者都很清楚在OC中NSObject是绝大多数对象的父类。OC是一门动态语言，而动态的实现则是离不开Runtime。那么OC中的对象在Runtime中又是以一种什么样的形态出现的呢？本篇文章我们来详细介绍OC对象在Runtime中的结构。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="oc object structure">
 <meta property="og:url" content="https://www.leewong.cn/2020/10/24/oc-object-structure/index.html">
 <meta property="og:site_name" content="LeeWong">
-<meta property="og:description" content="runtime之OC的数据结构简介OC是一门面向对象的语言，而对于面向对象语言来说一切皆对象。相信每个iOS开发者都很清楚在OC中NSObject是绝大多数对象的父类。OC是一门动态语言，而动态的实现则是离不开Runtime。那么OC中的对象在Runtime中又是以一种什么样的形态出现的呢？本篇文章我们来详细介绍OC对象在Runtime中的结构。 NSObject我们先来看下在Runtime中NS">
+<meta property="og:description" content="runtime之OC的数据结构OC是一门面向对象的语言，而对于面向对象语言来说一切皆对象。相信每个iOS开发者都很清楚在OC中NSObject是绝大多数对象的父类。OC是一门动态语言，而动态的实现则是离不开Runtime。那么OC中的对象在Runtime中又是以一种什么样的形态出现的呢？本篇文章我们来详细介绍OC对象在Runtime中的结构。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-10-24T12:28:58.000Z">
-<meta property="article:modified_time" content="2020-10-24T12:37:26.306Z">
+<meta property="article:modified_time" content="2020-10-24T12:39:00.179Z">
 <meta property="article:author" content="LeeWong">
 <meta property="article:tag" content="iOS">
 <meta name="twitter:card" content="summary">
@@ -200,7 +200,7 @@
 
       <!--noindex-->
       <section class="post-toc-wrap sidebar-panel">
-          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#runtime%E4%B9%8BOC%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">runtime之OC的数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSObject"><span class="nav-number">3.</span> <span class="nav-text">NSObject</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#superclass"><span class="nav-number">3.1.</span> <span class="nav-text">superclass</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#isRootClass"><span class="nav-number">3.1.1.</span> <span class="nav-text">isRootClass</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cache"><span class="nav-number">3.2.</span> <span class="nav-text">cache</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bits"><span class="nav-number">3.3.</span> <span class="nav-text">bits</span></a></li></ol></li></ol></div>
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#runtime%E4%B9%8BOC%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">runtime之OC的数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSObject"><span class="nav-number">2.</span> <span class="nav-text">NSObject</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#superclass"><span class="nav-number">2.1.</span> <span class="nav-text">superclass</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#isRootClass"><span class="nav-number">2.1.1.</span> <span class="nav-text">isRootClass</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cache"><span class="nav-number">2.2.</span> <span class="nav-text">cache</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bits"><span class="nav-number">2.3.</span> <span class="nav-text">bits</span></a></li></ol></li></ol></div>
       </section>
       <!--/noindex-->
 
@@ -299,7 +299,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2020-10-24 20:28:58 / 修改时间：20:37:26" itemprop="dateCreated datePublished" datetime="2020-10-24T20:28:58+08:00">2020-10-24</time>
+      <time title="创建时间：2020-10-24 20:28:58 / 修改时间：20:39:00" itemprop="dateCreated datePublished" datetime="2020-10-24T20:28:58+08:00">2020-10-24</time>
     </span>
 
   
@@ -319,7 +319,9 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h3 id="runtime之OC的数据结构"><a href="#runtime之OC的数据结构" class="headerlink" title="runtime之OC的数据结构"></a>runtime之OC的数据结构</h3><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>OC是一门面向对象的语言，而对于面向对象语言来说<code>一切皆对象</code>。相信每个iOS开发者都很清楚在OC中NSObject是绝大多数对象的父类。OC是一门动态语言，而动态的实现则是离不开Runtime。那么OC中的对象在Runtime中又是以一种什么样的形态出现的呢？本篇文章我们来详细介绍OC对象在Runtime中的结构。</p>
+        <h3 id="runtime之OC的数据结构"><a href="#runtime之OC的数据结构" class="headerlink" title="runtime之OC的数据结构"></a>runtime之OC的数据结构</h3><p>OC是一门面向对象的语言，而对于面向对象语言来说<code>一切皆对象</code>。相信每个iOS开发者都很清楚在OC中NSObject是绝大多数对象的父类。OC是一门动态语言，而动态的实现则是离不开Runtime。那么OC中的对象在Runtime中又是以一种什么样的形态出现的呢？本篇文章我们来详细介绍OC对象在Runtime中的结构。</p>
+<a id="more"></a>
+
 <h3 id="NSObject"><a href="#NSObject" class="headerlink" title="NSObject"></a>NSObject</h3><p>我们先来看下在Runtime中NSObject的结构</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NSObject</span> &lt;<span class="title">NSObject</span>&gt; </span>&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> clang diagnostic push</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> clang diagnostic ignored <span class="meta-string">&quot;-Wobjc-interface-ivars&quot;</span></span></span><br><span class="line">    Class isa  OBJC_ISA_AVAILABILITY;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> clang diagnostic pop</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>从代码中我们可以看到，实际上对于一个NSObject对象 首先遵守了<code>&lt;NSObject&gt;</code>协议同时有一个isa指针，这个指针是Class类型的。</p>
