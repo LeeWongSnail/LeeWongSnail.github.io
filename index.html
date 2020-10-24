@@ -213,7 +213,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-count">74</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -263,6 +263,108 @@
       
 
       
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/10/24/oc-object-structure/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/10/24/oc-object-structure/" class="post-title-link" itemprop="url">oc object structure</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2020-10-24 20:28:58 / 修改时间：20:37:26" itemprop="dateCreated datePublished" datetime="2020-10-24T20:28:58+08:00">2020-10-24</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="runtime之OC的数据结构"><a href="#runtime之OC的数据结构" class="headerlink" title="runtime之OC的数据结构"></a>runtime之OC的数据结构</h3><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>OC是一门面向对象的语言，而对于面向对象语言来说<code>一切皆对象</code>。相信每个iOS开发者都很清楚在OC中NSObject是绝大多数对象的父类。OC是一门动态语言，而动态的实现则是离不开Runtime。那么OC中的对象在Runtime中又是以一种什么样的形态出现的呢？本篇文章我们来详细介绍OC对象在Runtime中的结构。</p>
+<h3 id="NSObject"><a href="#NSObject" class="headerlink" title="NSObject"></a>NSObject</h3><p>我们先来看下在Runtime中NSObject的结构</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NSObject</span> &lt;<span class="title">NSObject</span>&gt; </span>&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> clang diagnostic push</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> clang diagnostic ignored <span class="meta-string">&quot;-Wobjc-interface-ivars&quot;</span></span></span><br><span class="line">    Class isa  OBJC_ISA_AVAILABILITY;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> clang diagnostic pop</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从代码中我们可以看到，实际上对于一个NSObject对象 首先遵守了<code>&lt;NSObject&gt;</code>协议同时有一个isa指针，这个指针是Class类型的。</p>
+<p>那么Class的结构呢？</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> objc_class *Class;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以简单的理解为：Class是一个指向objc_class类型结构体的指针</p>
+<p>那么objc_class的结构又是什么样的呢？</p>
+<p>对于这个结构首先，我们在runtime.h中找到了下面这个定义</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> objc_class &#123;</span><br><span class="line">    Class _Nonnull isa  OBJC_ISA_AVAILABILITY;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> !__OBJC2__</span></span><br><span class="line">    Class _Nullable super_class                              OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> * _Nonnull name                               OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">long</span> version                                             OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">long</span> info                                                OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">long</span> instance_size                                       OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">struct</span> objc_ivar_list * _Nullable ivars                  OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">struct</span> objc_method_list * _Nullable * _Nullable methodLists                    OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">struct</span> objc_cache * _Nonnull cache                       OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">struct</span> objc_protocol_list * _Nullable protocols          OBJC2_UNAVAILABLE;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">&#125; OBJC2_UNAVAILABLE;</span><br></pre></td></tr></table></figure>
+<p>这个定义应该是我们在平时查看objc_class结构的时候最长见到的结构了，但是我们注意后面实际上有<code>OBJC2_UNAVAILABLE</code>这个标识，表示在objc2中已经不可用了。因此这个结构不具有参考价值，我们继续来查找<code>objc_class</code>结构体。</p>
+<p>在objc-runtime-new.h文件中我们发现了新的定义：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// OC 中对象的结构体</span></span><br><span class="line"><span class="keyword">struct</span> objc_class : objc_object &#123;</span><br><span class="line">    <span class="comment">// Class ISA;</span></span><br><span class="line">    Class superclass;</span><br><span class="line">    cache_t cache;             <span class="comment">// formerly cache pointer and vtable</span></span><br><span class="line">    class_data_bits_t bits;    <span class="comment">// class_rw_t * plus custom rr/alloc flags</span></span><br><span class="line"></span><br><span class="line">    class_rw_t *data() &#123; </span><br><span class="line">        <span class="keyword">return</span> bits.data();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">void</span> setData(class_rw_t *newData) &#123;</span><br><span class="line">        bits.setData(newData);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// ....省略一些方法</span></span><br></pre></td></tr></table></figure>
+<p>从上面的结构中我们可以看到：类实际上也是一个对象(类对象)，主要包括<code>superclass</code>、<code>cache</code>、<code>bits</code>三个属性。下面我们分别来看下这三个属性的意义。</p>
+<h4 id="superclass"><a href="#superclass" class="headerlink" title="superclass"></a>superclass</h4><p>superclass首先也是一个class类型，表示这个类的父类。</p>
+<p>superclass在objc_class结构中除了标识这个类对象是哪种类型的之外，还用在了下面几个方法中</p>
+<h5 id="isRootClass"><a href="#isRootClass" class="headerlink" title="isRootClass"></a>isRootClass</h5><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> isRootClass() &#123;</span><br><span class="line">        <span class="keyword">return</span> superclass == <span class="literal">nil</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当superclass为nil时则表明当前的类对象没有父类 同时也就意味着这个类是rootClass。</p>
+<h4 id="cache"><a href="#cache" class="headerlink" title="cache"></a>cache</h4><p>cache即缓存，那么缓存中存放的内容是什么呢？我们先来看下<code>cache_t</code>的结构</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> cache_t &#123;</span><br><span class="line">    <span class="keyword">struct</span> bucket_t *_buckets;</span><br><span class="line">    mask_t _mask;</span><br><span class="line">    mask_t _occupied;</span><br><span class="line"></span><br><span class="line">public:</span><br><span class="line">    <span class="keyword">struct</span> bucket_t *buckets();</span><br><span class="line">    mask_t mask();</span><br><span class="line">    mask_t occupied();</span><br><span class="line">    <span class="comment">//.....</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>cache_t</code>结构中主要包含了一个<code>bucket_t</code>类型的数组<code>_buckets</code>。我们继续看下<code>bucket_t</code>的结构。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> bucket_t &#123;</span><br><span class="line">private:</span><br><span class="line">    <span class="comment">// IMP-first is better for arm64e ptrauth and no worse for arm64.</span></span><br><span class="line">    <span class="comment">// SEL-first is better for armv7* and i386 and x86_64.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> __arm64__</span></span><br><span class="line">    MethodCacheIMP _imp;</span><br><span class="line">    cache_key_t _key;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    cache_key_t _key;</span><br><span class="line">    MethodCacheIMP _imp;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">public:</span><br><span class="line">    <span class="keyword">inline</span> cache_key_t key() <span class="keyword">const</span> &#123; <span class="keyword">return</span> _key; &#125;</span><br><span class="line">    <span class="keyword">inline</span> IMP imp() <span class="keyword">const</span> &#123; <span class="keyword">return</span> (IMP)_imp; &#125;</span><br><span class="line">    <span class="keyword">inline</span> <span class="keyword">void</span> setKey(cache_key_t newKey) &#123; _key = newKey; &#125;</span><br><span class="line">    <span class="keyword">inline</span> <span class="keyword">void</span> setImp(IMP newImp) &#123; _imp = newImp; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> set(cache_key_t newKey, IMP newImp);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>每个bucket_t实际上有一个key和imp，并包含了设置key,imp以及取值的方法。那么这个缓存在什么时间被填充和使用呢？</p>
+<p>实际上在oc中每个类的方法调用都维护了一个cache，当A类的a方法被调用时，A类的cache存放了a方法的实现和key，如果下次再调用了a方法，那么直接从缓存中取出执行。如果缓存中没有找到，那么在去类的方法列表中进行查找，如果找到了，那么执行这个方法并将方法塞到缓存中，方便下此调用。</p>
+<h4 id="bits"><a href="#bits" class="headerlink" title="bits"></a>bits</h4><p>同样我们首先看下这个属性的类型为<code>class_data_bits_t</code>，我们再看下这个类型的结构</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> class_data_bits_t &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Values are the FAST_ flags above.</span></span><br><span class="line">    uintptr_t bits;</span><br><span class="line">private:</span><br><span class="line">    <span class="keyword">bool</span> getBit(uintptr_t bit)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> bits &amp; bit;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/// ......省略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们看到这个结构体里包含集合<code>bits</code>以及一个<code>getBit</code>方法，我们可以通过不同的标志位从这个集合中获取到不同的值(类似位移枚举)<br>例如：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">class_rw_t* data() &#123;</span><br><span class="line">        <span class="keyword">return</span> (class_rw_t *)(bits &amp; FAST_DATA_MASK);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们通过使用FAST_DATA_MASK获取指定标志位存储的内容。</p>
+<p>类似的标志位还有：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// class or superclass has .cxx_construct implementation</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RW_HAS_CXX_CTOR       (1&lt;&lt;18)</span></span><br><span class="line"><span class="comment">// class or superclass has .cxx_destruct implementation</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RW_HAS_CXX_DTOR       (1&lt;&lt;17)</span></span><br><span class="line"><span class="comment">// class or superclass has default alloc/allocWithZone: implementation</span></span><br><span class="line"><span class="comment">// Note this is is stored in the metaclass.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RW_HAS_DEFAULT_AWZ    (1&lt;&lt;16)</span></span><br><span class="line"><span class="comment">// class&#x27;s instances requires raw isa</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RW_REQUIRES_RAW_ISA   (1&lt;&lt;15)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// class is a Swift class from the pre-stable Swift ABI</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FAST_IS_SWIFT_LEGACY    (1UL&lt;&lt;0)</span></span><br><span class="line"><span class="comment">// class is a Swift class from the stable Swift ABI</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FAST_IS_SWIFT_STABLE    (1UL&lt;&lt;1)</span></span><br><span class="line"><span class="comment">// class or superclass has default retain/release/autorelease/retainCount/</span></span><br><span class="line"><span class="comment">//   _tryRetain/_isDeallocating/retainWeakReference/allowsWeakReference</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FAST_HAS_DEFAULT_RR     (1UL&lt;&lt;2)</span></span><br><span class="line"><span class="comment">// data pointer</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FAST_DATA_MASK          0x00007ffffffffff8UL</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+  
+  
+  
+
       
   
   
@@ -965,92 +1067,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/07/02/responsechainevent/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/02/20/webpframework/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
-      <meta itemprop="name" content="LeeWong">
-      <meta itemprop="description" content="What is Life But One Chanllege After Another">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LeeWong">
-    </span>
-
-    
-    
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/20/webpframework/" class="post-title-link" itemprop="url">iOS webP.framework制作</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-02-20 20:00:51" itemprop="dateCreated datePublished" datetime="2020-02-20T20:00:51+08:00">2020-02-20</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-07-19 22:19:16" itemprop="dateModified" datetime="2020-07-19T22:19:16+08:00">2020-07-19</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/iOS%E4%BC%98%E5%8C%96/" itemprop="url" rel="index"><span itemprop="name">iOS优化</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>相信目前大部分APP都已经支持了WebP格式的图片,下面我们通过这种图片简单介绍下WebP格式图片的优点。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/02/20/webpframework/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+
+  <meta name="description" content="runtime之OC的数据结构简介OC是一门面向对象的语言，而对于面向对象语言来说一切皆对象。相信每个iOS开发者都很清楚在OC中NSObject是绝大多数对象的父类。OC是一门动态语言，而动态的实现则是离不开Runtime。那么OC中的对象在Runtime中又是以一种什么样的形态出现的呢？本篇文章我们来详细介绍OC对象在Runtime中的结构。 NSObject我们先来看下在Runtime中NS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="oc object structure">
+<meta property="og:url" content="https://www.leewong.cn/2020/10/24/oc-object-structure/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="runtime之OC的数据结构简介OC是一门面向对象的语言，而对于面向对象语言来说一切皆对象。相信每个iOS开发者都很清楚在OC中NSObject是绝大多数对象的父类。OC是一门动态语言，而动态的实现则是离不开Runtime。那么OC中的对象在Runtime中又是以一种什么样的形态出现的呢？本篇文章我们来详细介绍OC对象在Runtime中的结构。 NSObject我们先来看下在Runtime中NS">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-10-24T12:28:58.000Z">
+<meta property="article:modified_time" content="2020-10-24T12:37:26.306Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2020/10/24/oc-object-structure/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>oc object structure | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#runtime%E4%B9%8BOC%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">runtime之OC的数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSObject"><span class="nav-number">3.</span> <span class="nav-text">NSObject</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#superclass"><span class="nav-number">3.1.</span> <span class="nav-text">superclass</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#isRootClass"><span class="nav-number">3.1.1.</span> <span class="nav-text">isRootClass</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cache"><span class="nav-number">3.2.</span> <span class="nav-text">cache</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bits"><span class="nav-number">3.3.</span> <span class="nav-text">bits</span></a></li></ol></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">80</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/LeeWongSnail" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/10/24/oc-object-structure/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          oc object structure
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2020-10-24 20:28:58 / 修改时间：20:37:26" itemprop="dateCreated datePublished" datetime="2020-10-24T20:28:58+08:00">2020-10-24</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="runtime之OC的数据结构"><a href="#runtime之OC的数据结构" class="headerlink" title="runtime之OC的数据结构"></a>runtime之OC的数据结构</h3><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>OC是一门面向对象的语言，而对于面向对象语言来说<code>一切皆对象</code>。相信每个iOS开发者都很清楚在OC中NSObject是绝大多数对象的父类。OC是一门动态语言，而动态的实现则是离不开Runtime。那么OC中的对象在Runtime中又是以一种什么样的形态出现的呢？本篇文章我们来详细介绍OC对象在Runtime中的结构。</p>
+<h3 id="NSObject"><a href="#NSObject" class="headerlink" title="NSObject"></a>NSObject</h3><p>我们先来看下在Runtime中NSObject的结构</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">NSObject</span> &lt;<span class="title">NSObject</span>&gt; </span>&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> clang diagnostic push</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> clang diagnostic ignored <span class="meta-string">&quot;-Wobjc-interface-ivars&quot;</span></span></span><br><span class="line">    Class isa  OBJC_ISA_AVAILABILITY;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> clang diagnostic pop</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从代码中我们可以看到，实际上对于一个NSObject对象 首先遵守了<code>&lt;NSObject&gt;</code>协议同时有一个isa指针，这个指针是Class类型的。</p>
+<p>那么Class的结构呢？</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> objc_class *Class;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以简单的理解为：Class是一个指向objc_class类型结构体的指针</p>
+<p>那么objc_class的结构又是什么样的呢？</p>
+<p>对于这个结构首先，我们在runtime.h中找到了下面这个定义</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> objc_class &#123;</span><br><span class="line">    Class _Nonnull isa  OBJC_ISA_AVAILABILITY;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> !__OBJC2__</span></span><br><span class="line">    Class _Nullable super_class                              OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> * _Nonnull name                               OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">long</span> version                                             OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">long</span> info                                                OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">long</span> instance_size                                       OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">struct</span> objc_ivar_list * _Nullable ivars                  OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">struct</span> objc_method_list * _Nullable * _Nullable methodLists                    OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">struct</span> objc_cache * _Nonnull cache                       OBJC2_UNAVAILABLE;</span><br><span class="line">    <span class="keyword">struct</span> objc_protocol_list * _Nullable protocols          OBJC2_UNAVAILABLE;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">&#125; OBJC2_UNAVAILABLE;</span><br></pre></td></tr></table></figure>
+<p>这个定义应该是我们在平时查看objc_class结构的时候最长见到的结构了，但是我们注意后面实际上有<code>OBJC2_UNAVAILABLE</code>这个标识，表示在objc2中已经不可用了。因此这个结构不具有参考价值，我们继续来查找<code>objc_class</code>结构体。</p>
+<p>在objc-runtime-new.h文件中我们发现了新的定义：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// OC 中对象的结构体</span></span><br><span class="line"><span class="keyword">struct</span> objc_class : objc_object &#123;</span><br><span class="line">    <span class="comment">// Class ISA;</span></span><br><span class="line">    Class superclass;</span><br><span class="line">    cache_t cache;             <span class="comment">// formerly cache pointer and vtable</span></span><br><span class="line">    class_data_bits_t bits;    <span class="comment">// class_rw_t * plus custom rr/alloc flags</span></span><br><span class="line"></span><br><span class="line">    class_rw_t *data() &#123; </span><br><span class="line">        <span class="keyword">return</span> bits.data();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">void</span> setData(class_rw_t *newData) &#123;</span><br><span class="line">        bits.setData(newData);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// ....省略一些方法</span></span><br></pre></td></tr></table></figure>
+<p>从上面的结构中我们可以看到：类实际上也是一个对象(类对象)，主要包括<code>superclass</code>、<code>cache</code>、<code>bits</code>三个属性。下面我们分别来看下这三个属性的意义。</p>
+<h4 id="superclass"><a href="#superclass" class="headerlink" title="superclass"></a>superclass</h4><p>superclass首先也是一个class类型，表示这个类的父类。</p>
+<p>superclass在objc_class结构中除了标识这个类对象是哪种类型的之外，还用在了下面几个方法中</p>
+<h5 id="isRootClass"><a href="#isRootClass" class="headerlink" title="isRootClass"></a>isRootClass</h5><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> isRootClass() &#123;</span><br><span class="line">        <span class="keyword">return</span> superclass == <span class="literal">nil</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当superclass为nil时则表明当前的类对象没有父类 同时也就意味着这个类是rootClass。</p>
+<h4 id="cache"><a href="#cache" class="headerlink" title="cache"></a>cache</h4><p>cache即缓存，那么缓存中存放的内容是什么呢？我们先来看下<code>cache_t</code>的结构</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> cache_t &#123;</span><br><span class="line">    <span class="keyword">struct</span> bucket_t *_buckets;</span><br><span class="line">    mask_t _mask;</span><br><span class="line">    mask_t _occupied;</span><br><span class="line"></span><br><span class="line">public:</span><br><span class="line">    <span class="keyword">struct</span> bucket_t *buckets();</span><br><span class="line">    mask_t mask();</span><br><span class="line">    mask_t occupied();</span><br><span class="line">    <span class="comment">//.....</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>cache_t</code>结构中主要包含了一个<code>bucket_t</code>类型的数组<code>_buckets</code>。我们继续看下<code>bucket_t</code>的结构。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> bucket_t &#123;</span><br><span class="line">private:</span><br><span class="line">    <span class="comment">// IMP-first is better for arm64e ptrauth and no worse for arm64.</span></span><br><span class="line">    <span class="comment">// SEL-first is better for armv7* and i386 and x86_64.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> __arm64__</span></span><br><span class="line">    MethodCacheIMP _imp;</span><br><span class="line">    cache_key_t _key;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    cache_key_t _key;</span><br><span class="line">    MethodCacheIMP _imp;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">public:</span><br><span class="line">    <span class="keyword">inline</span> cache_key_t key() <span class="keyword">const</span> &#123; <span class="keyword">return</span> _key; &#125;</span><br><span class="line">    <span class="keyword">inline</span> IMP imp() <span class="keyword">const</span> &#123; <span class="keyword">return</span> (IMP)_imp; &#125;</span><br><span class="line">    <span class="keyword">inline</span> <span class="keyword">void</span> setKey(cache_key_t newKey) &#123; _key = newKey; &#125;</span><br><span class="line">    <span class="keyword">inline</span> <span class="keyword">void</span> setImp(IMP newImp) &#123; _imp = newImp; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> set(cache_key_t newKey, IMP newImp);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>每个bucket_t实际上有一个key和imp，并包含了设置key,imp以及取值的方法。那么这个缓存在什么时间被填充和使用呢？</p>
+<p>实际上在oc中每个类的方法调用都维护了一个cache，当A类的a方法被调用时，A类的cache存放了a方法的实现和key，如果下次再调用了a方法，那么直接从缓存中取出执行。如果缓存中没有找到，那么在去类的方法列表中进行查找，如果找到了，那么执行这个方法并将方法塞到缓存中，方便下此调用。</p>
+<h4 id="bits"><a href="#bits" class="headerlink" title="bits"></a>bits</h4><p>同样我们首先看下这个属性的类型为<code>class_data_bits_t</code>，我们再看下这个类型的结构</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> class_data_bits_t &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Values are the FAST_ flags above.</span></span><br><span class="line">    uintptr_t bits;</span><br><span class="line">private:</span><br><span class="line">    <span class="keyword">bool</span> getBit(uintptr_t bit)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> bits &amp; bit;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/// ......省略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们看到这个结构体里包含集合<code>bits</code>以及一个<code>getBit</code>方法，我们可以通过不同的标志位从这个集合中获取到不同的值(类似位移枚举)<br>例如：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">class_rw_t* data() &#123;</span><br><span class="line">        <span class="keyword">return</span> (class_rw_t *)(bits &amp; FAST_DATA_MASK);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们通过使用FAST_DATA_MASK获取指定标志位存储的内容。</p>
+<p>类似的标志位还有：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// class or superclass has .cxx_construct implementation</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RW_HAS_CXX_CTOR       (1&lt;&lt;18)</span></span><br><span class="line"><span class="comment">// class or superclass has .cxx_destruct implementation</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RW_HAS_CXX_DTOR       (1&lt;&lt;17)</span></span><br><span class="line"><span class="comment">// class or superclass has default alloc/allocWithZone: implementation</span></span><br><span class="line"><span class="comment">// Note this is is stored in the metaclass.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RW_HAS_DEFAULT_AWZ    (1&lt;&lt;16)</span></span><br><span class="line"><span class="comment">// class&#x27;s instances requires raw isa</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RW_REQUIRES_RAW_ISA   (1&lt;&lt;15)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// class is a Swift class from the pre-stable Swift ABI</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FAST_IS_SWIFT_LEGACY    (1UL&lt;&lt;0)</span></span><br><span class="line"><span class="comment">// class is a Swift class from the stable Swift ABI</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FAST_IS_SWIFT_STABLE    (1UL&lt;&lt;1)</span></span><br><span class="line"><span class="comment">// class or superclass has default retain/release/autorelease/retainCount/</span></span><br><span class="line"><span class="comment">//   _tryRetain/_isDeallocating/retainWeakReference/allowsWeakReference</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FAST_HAS_DEFAULT_RR     (1UL&lt;&lt;2)</span></span><br><span class="line"><span class="comment">// data pointer</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FAST_DATA_MASK          0x00007ffffffffff8UL</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/09/13/applaunchbeforemain/" rel="prev" title="应用启动-Main函数之前的那些事儿">
+                  <i class="fa fa-chevron-left"></i> 应用启动-Main函数之前的那些事儿
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : '08e611257c46bb056c061d9d6b624713',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
