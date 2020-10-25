@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+<meta name="google-site-verification" content="4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+
+  <meta name="description" content="简介前面几篇文章我们介绍了Runtime中NSObject的数据结构，下面我们来介绍下Runtime在平时开发过程中的常用方法以及实现原理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="runtime-methodswizzle">
+<meta property="og:url" content="https://www.leewong.cn/2020/10/25/runtime-methodswizzle/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="简介前面几篇文章我们介绍了Runtime中NSObject的数据结构，下面我们来介绍下Runtime在平时开发过程中的常用方法以及实现原理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-10-25T08:47:55.000Z">
+<meta property="article:modified_time" content="2020-10-25T10:05:59.098Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2020/10/25/runtime-methodswizzle/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>runtime-methodswizzle | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%BA%A4%E6%8D%A2"><span class="nav-number">2.</span> <span class="nav-text">方法交换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#class-getInstanceMethod"><span class="nav-number">2.1.</span> <span class="nav-text">class_getInstanceMethod</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#getMethod-nolock"><span class="nav-number">2.1.1.</span> <span class="nav-text">getMethod_nolock</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#getMethodNoSuper-nolock"><span class="nav-number">2.1.2.</span> <span class="nav-text">getMethodNoSuper_nolock</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#search-method-list"><span class="nav-number">2.1.3.</span> <span class="nav-text">search_method_list</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E8%BD%AC%E5%8F%91"><span class="nav-number">3.</span> <span class="nav-text">消息转发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E8%81%94%E5%B1%9E%E6%80%A7"><span class="nav-number">4.</span> <span class="nav-text">关联属性</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">80</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/LeeWongSnail" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/10/25/runtime-methodswizzle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          runtime-methodswizzle
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2020-10-25 16:47:55 / 修改时间：18:05:59" itemprop="dateCreated datePublished" datetime="2020-10-25T16:47:55+08:00">2020-10-25</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>前面几篇文章我们介绍了Runtime中NSObject的数据结构，下面我们来介绍下Runtime在平时开发过程中的常用方法以及实现原理。</p>
+<a id="more"></a>
+
+<h3 id="方法交换"><a href="#方法交换" class="headerlink" title="方法交换"></a>方法交换</h3><p>方法交换可以说是我们在开发中比较常用的方法，尤其是在一些需要埋点或者统计的位置，我们可以通过Hook系统的某些方法，通过在这些方法中添加自己代码的方式实现在不入侵业务的情况下实现功能。</p>
+<p>首先我们来看下方法交换的实现，下面这段代码使我们在网上随便找了一份方法交换的代码实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">+ (<span class="built_in">BOOL</span>)swizzleMethod:(Class)<span class="keyword">class</span> orgSel:(SEL)origSel swizzSel:(SEL)altSel &#123;</span><br><span class="line">    Method origMethod = class_getInstanceMethod(<span class="keyword">class</span>, origSel);</span><br><span class="line">    Method altMethod = class_getInstanceMethod(<span class="keyword">class</span>, altSel);</span><br><span class="line">    <span class="keyword">if</span> (!origMethod || !altMethod) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NO</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">BOOL</span> didAddMethod = class_addMethod(<span class="keyword">class</span>,origSel,</span><br><span class="line">                                        method_getImplementation(altMethod),</span><br><span class="line">                                        method_getTypeEncoding(altMethod));</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (didAddMethod) &#123;</span><br><span class="line">        class_replaceMethod(<span class="keyword">class</span>,altSel,</span><br><span class="line">                            method_getImplementation(origMethod),</span><br><span class="line">                            method_getTypeEncoding(origMethod));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        method_exchangeImplementations(origMethod, altMethod);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个方法是交换class类中origSel方法和swizzSel方法。我们先来分析这个方法的实现步骤：</p>
+<ul>
+<li>swizzleMethod方法的三个参数分别为class交换方法的类 origSel 原方法 altSel要替换的方法</li>
+<li>class_getInstanceMethod通过runtime的这个方法获取方法Method结构体</li>
+<li>给class添加origSel方法 方法的实现是altSel的实现</li>
+<li>如果第三步添加成功 则替换class中altSel方法实现为origSel</li>
+<li>如果第三步添加失败 则交换origMethod和altMethod方法的实现</li>
+</ul>
+<p>下面我们先针对上面的实现提出几个自己的问题，然后带着这些问题去研究为什么需要这么实现，这么实现是否有其他的问题。</p>
+<p>问题一：class_getInstanceMethod到底是从哪里获取方法实现？如果是父类方法可以获取到吗？<br>问题二：交换方法之前为何要调用class_addMethod方法先去添加方法？<br>问题三：为何根据添加方法class_addMethod的返回值去判断下一步的操作？<br>问题四：method_exchangeImplementations和class_replaceMethod的区别是什么？<br>问题五：大多数方法都是交换一个类中的两个方法，是否可以交换两个不同类的方法呢？方法名相同可以交换吗？</p>
+<p>下面我们带着这些问题来看方法交换的具体实现：</p>
+<h4 id="class-getInstanceMethod"><a href="#class-getInstanceMethod" class="headerlink" title="class_getInstanceMethod"></a>class_getInstanceMethod</h4><p>我们先来看下方法的实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取cls类中对象方法sel的实现</span></span><br><span class="line">Method class_getInstanceMethod(Class cls, SEL sel)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!cls  ||  !sel) <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    <span class="comment">// Search method lists, try method resolver, etc.</span></span><br><span class="line">    <span class="comment">// 搜索方法列表 这个方法是有返回值的 但是在这里并没有用到返回值</span></span><br><span class="line">    lookUpImpOrNil(cls, sel, <span class="literal">nil</span>, </span><br><span class="line">                   <span class="literal">NO</span><span class="comment">/*initialize*/</span>, <span class="literal">NO</span><span class="comment">/*cache*/</span>, <span class="literal">YES</span><span class="comment">/*resolver*/</span>);</span><br><span class="line">    <span class="comment">// 递归获取cls的sel方法</span></span><br><span class="line">    <span class="keyword">return</span> _class_getMethod(cls, sel);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从这个方法的实现中我们看到在正式调用<code>_class_getMethod</code>方法获取实例方法前，还调用了lookUpImpOrNil方法，这个方法又是做什么的呢？关于这个问题，我们在后面消息转发模块会进一步介绍，这里暂时略过。</p>
+<p>我们来看下递归查找方法的实现：</p>
+<h5 id="getMethod-nolock"><a href="#getMethod-nolock" class="headerlink" title="getMethod_nolock"></a>getMethod_nolock</h5><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 无锁情况下过去cls类的实例方法sel</span></span><br><span class="line"><span class="keyword">static</span> method_t *</span><br><span class="line">getMethod_nolock(Class cls, SEL sel)</span><br><span class="line">&#123;</span><br><span class="line">    method_t *m = <span class="literal">nil</span>;</span><br><span class="line"></span><br><span class="line">    runtimeLock.assertLocked();</span><br><span class="line">    <span class="comment">// 类是否被实例化 每个被实例化的类实际上是有一个标志位</span></span><br><span class="line">    assert(cls-&gt;isRealized());</span><br><span class="line">    <span class="comment">// 这里通过while循环的方式不断的查找当前类-&gt;父类-&gt;...的方法查找这个方法 直到找到方法或者是找到cls-&gt;superclass=nil</span></span><br><span class="line">    <span class="keyword">while</span> (cls  &amp;&amp;  ((m = getMethodNoSuper_nolock(cls, sel))) == <span class="literal">nil</span>) &#123;</span><br><span class="line">        cls = cls-&gt;superclass;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看到这个实现后，我们的第一个问题的答案就显而易见了。class_getInstanceMethod方法在获取实例方法时会递归遍历所有的父类来查找sel对应的方法，并通过getMethodNoSuper_nolock方法获取方法的method_t结构。</p>
+<p>那么getMethodNoSuper_nolock是如何在methodlist中查找对应的方法的呢？</p>
+<h5 id="getMethodNoSuper-nolock"><a href="#getMethodNoSuper-nolock" class="headerlink" title="getMethodNoSuper_nolock"></a>getMethodNoSuper_nolock</h5><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">/ 在类的方法列表中查找对应的方法实现</span><br><span class="line"><span class="keyword">static</span> method_t *</span><br><span class="line">getMethodNoSuper_nolock(Class cls, SEL sel)</span><br><span class="line">&#123;</span><br><span class="line">    runtimeLock.assertLocked();</span><br><span class="line"></span><br><span class="line">    assert(cls-&gt;isRealized());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 方法列表的遍历</span></span><br><span class="line">    <span class="keyword">for</span> (auto mlists = cls-&gt;data()-&gt;methods.beginLists(),</span><br><span class="line">              end = cls-&gt;data()-&gt;methods.endLists(); </span><br><span class="line">         mlists != end;</span><br><span class="line">         ++mlists)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 在mlists中查找sel</span></span><br><span class="line">        method_t *m = search_method_list(*mlists, sel);</span><br><span class="line">        <span class="keyword">if</span> (m) <span class="keyword">return</span> m;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们先忽略for循环里的逻辑，我们先看下search_method_list这个方法：</p>
+<h5 id="search-method-list"><a href="#search-method-list" class="headerlink" title="search_method_list"></a>search_method_list</h5><p>这个方法的实现 主要实现是findMethodInSortedMethodList方法实现，我们直接看下这个方法</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在list中查找方法为key的</span></span><br><span class="line"><span class="keyword">static</span> method_t *findMethodInSortedMethodList(SEL key, <span class="keyword">const</span> method_list_t *list)</span><br><span class="line">&#123;</span><br><span class="line">    assert(list);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> method_t * <span class="keyword">const</span> first = &amp;list-&gt;first;</span><br><span class="line">    <span class="keyword">const</span> method_t *base = first;</span><br><span class="line">    <span class="comment">// 标志位</span></span><br><span class="line">    <span class="keyword">const</span> method_t *probe;</span><br><span class="line">    <span class="comment">// 要查找的方法的名称</span></span><br><span class="line">    uintptr_t keyValue = (uintptr_t)key;</span><br><span class="line">    <span class="comment">// 方法列表中方法的个数</span></span><br><span class="line">    uint32_t count;</span><br><span class="line">    <span class="comment">// 遍历方法列表 每次遍历count &gt;&gt;= 1 count每次遍历/2</span></span><br><span class="line">    <span class="keyword">for</span> (count = list-&gt;count; count != <span class="number">0</span>; count &gt;&gt;= <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="comment">// base为列表中第一个 count&gt;&gt;1 = count /2 即表示列表中间的位置index</span></span><br><span class="line">        probe = base + (count &gt;&gt; <span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 中间位置的方法的方法名</span></span><br><span class="line">        uintptr_t probeValue = (uintptr_t)probe-&gt;name;</span><br><span class="line">        <span class="comment">// 方法名对比 如果刚好中间位置的方法的方法名等于要查找的方法名</span></span><br><span class="line">        <span class="keyword">if</span> (keyValue == probeValue) &#123;</span><br><span class="line">            <span class="comment">// `probe` is a match.</span></span><br><span class="line">            <span class="comment">// Rewind looking for the *first* occurrence of this value.</span></span><br><span class="line">            <span class="comment">// This is required for correct category overrides.</span></span><br><span class="line">            <span class="comment">// 即使查找到了对应的方法 也要向前查找 找到在方法列表中靠前的方法实现</span></span><br><span class="line">            <span class="comment">// 方法列表中是可能存在同名方法的 比如分类重写了方法实现 那么肯定会找到分类的实现返回</span></span><br><span class="line">            <span class="keyword">while</span> (probe &gt; first &amp;&amp; keyValue == (uintptr_t)probe[<span class="number">-1</span>].name) &#123;</span><br><span class="line">                probe--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 返回方法列表中对应方法实现</span></span><br><span class="line">            <span class="keyword">return</span> (method_t *)probe;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 如果要查找的方法大于中间位置的方法</span></span><br><span class="line">        <span class="keyword">if</span> (keyValue &gt; probeValue) &#123;</span><br><span class="line">            <span class="comment">// 从中间位置作为base 查找 base-count之间的方法 此处为二分查找 这也侧面验证了method_list_t是一个有序列表</span></span><br><span class="line">            base = probe + <span class="number">1</span>;</span><br><span class="line">            count--;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="消息转发"><a href="#消息转发" class="headerlink" title="消息转发"></a>消息转发</h3><h3 id="关联属性"><a href="#关联属性" class="headerlink" title="关联属性"></a>关联属性</h3>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/10/24/oc-object-structure/" rel="prev" title="Runtime之NSObject结构">
+                  <i class="fa fa-chevron-left"></i> Runtime之NSObject结构
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : '144dc3d31ccdd163bcdbe27a55bb47ef',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
