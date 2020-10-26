@@ -8012,6 +8012,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 
 <p>经过代码的对比我们很容易发现，在class_addMethod方法中我们只是查找了当前类的方法列表，而在class_getInstanceMethod方法中我们会递归查询当前类以及其父类的方法列表。</p>
 <p>因此在Tiger类中找不到walk方法是正常的。</p>
-<h3 id="消息转发"><a href="#消息转发" class="headerlink" title="消息转发"></a>消息转发</h3><h3 id="关联属性"><a href="#关联属性" class="headerlink" title="关联属性"></a>关联属性</h3><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3>]]></content>
+<h3 id="消息转发"><a href="#消息转发" class="headerlink" title="消息转发"></a>消息转发</h3><h3 id="关联属性"><a href="#关联属性" class="headerlink" title="关联属性"></a>关联属性</h3><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><a href="https://github.com/LeeWongSnail/Blog_Demo/tree/master/MethodSwizzlzeDemo">demo代码地址</a></p>
+]]></content>
   </entry>
 </search>
