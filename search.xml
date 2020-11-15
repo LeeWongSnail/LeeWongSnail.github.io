@@ -8281,7 +8281,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 
 <p>同样当外部调用testMethod方法时，由于我们并没有实现动态解析的方法，因此默认是走转发的逻辑，在转发的逻辑中我们实现了methodSignatureForSelector和forwardInvocation方法，如果要实现消息的转发逻辑这两个方法是必须全部实现的，在forwardInvocation方法中，我们判断如果当前调用的是testMethod方法，我们会直接调用test方法。</p>
 <p>至此 消息发送和消息转发的逻辑就整理完成了，后面我们会继续看下Runtime中关联属性相关的实现逻辑。</p>
-<h4 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h4><p><a href="http://www.arigrant.com/blog/2013/12/13/a-selector-left-unhandled">Hmmm, What’s that Selector?</a><br><a href="http://yulingtianxia.com/blog/2016/06/15/Objective-C-Message-Sending-and-Forwarding/">Objective-C 消息发送与转发机制原理</a></p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a href="http://www.arigrant.com/blog/2013/12/13/a-selector-left-unhandled">Hmmm, What’s that Selector?</a><br><a href="http://yulingtianxia.com/blog/2016/06/15/Objective-C-Message-Sending-and-Forwarding/">Objective-C 消息发送与转发机制原理</a></p>
 ]]></content>
   </entry>
 </search>
