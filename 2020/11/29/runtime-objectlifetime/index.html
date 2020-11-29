@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+<meta name="google-site-verification" content="4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leewong.cn","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+
+  <meta name="description" content="在所有的面向对象语言中，万物皆对象。Objective-C也不例外，这篇文章我们从Runtime的源码去分析一个对象从创建到销毁的整个过程中都做了哪些操作，同时也加深我们对内存管理的理解。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Runtime之对象的一生">
+<meta property="og:url" content="https://www.leewong.cn/2020/11/29/runtime-objectlifetime/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="在所有的面向对象语言中，万物皆对象。Objective-C也不例外，这篇文章我们从Runtime的源码去分析一个对象从创建到销毁的整个过程中都做了哪些操作，同时也加深我们对内存管理的理解。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gl55393ycbj31hr0u0dlg.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwly1gk0s5oef3ej30ro0imgtj.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gl58rskmkaj30u00xojzw.jpg">
+<meta property="article:published_time" content="2020-11-29T02:58:14.000Z">
+<meta property="article:modified_time" content="2020-11-29T02:59:33.953Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gl55393ycbj31hr0u0dlg.jpg">
+
+
+<link rel="canonical" href="https://www.leewong.cn/2020/11/29/runtime-objectlifetime/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Runtime之对象的一生 | LeeWong</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?DR81zbdrQ3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">LeeWong</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">What is Life But One Chanllege After Another</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">对象的创建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#alloc"><span class="nav-number">1.1.</span> <span class="nav-text">alloc</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#objc-rootAllocWithZone"><span class="nav-number">1.1.1.</span> <span class="nav-text">objc_rootAllocWithZone</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#class-createInstance"><span class="nav-number">1.1.2.</span> <span class="nav-text">class_createInstance</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hasCxxDtor"><span class="nav-number">1.1.3.</span> <span class="nav-text">hasCxxDtor</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#canAllocNonpointer"><span class="nav-number">1.1.4.</span> <span class="nav-text">canAllocNonpointer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#initInstanceIsa"><span class="nav-number">1.1.5.</span> <span class="nav-text">initInstanceIsa</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hasCustomAWZ"><span class="nav-number">1.1.6.</span> <span class="nav-text">hasCustomAWZ</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#object-cxxConstructFromClass"><span class="nav-number">1.1.7.</span> <span class="nav-text">object_cxxConstructFromClass</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#allocWithZone"><span class="nav-number">1.1.8.</span> <span class="nav-text">allocWithZone</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#init"><span class="nav-number">2.</span> <span class="nav-text">init</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#new"><span class="nav-number">3.</span> <span class="nav-text">new</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E8%B5%8B%E5%80%BC"><span class="nav-number">4.</span> <span class="nav-text">对象赋值</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%8B%E5%80%BC"><span class="nav-number">4.1.</span> <span class="nav-text">赋值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%B7%E8%B4%9D"><span class="nav-number">4.2.</span> <span class="nav-text">拷贝</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E7%9A%84%E9%94%80%E6%AF%81"><span class="nav-number">5.</span> <span class="nav-text">对象的销毁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="LeeWong"
+      src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+  <p class="site-author-name" itemprop="name">LeeWong</p>
+  <div class="site-description" itemprop="description">What is Life But One Chanllege After Another</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">80</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/LeeWongSnail" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;LeeWongSnail" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wangli_0632@163.com" title="E-Mail → wangli_0632@163.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/LeeWongSnail" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.leewong.cn/2020/11/29/runtime-objectlifetime/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi7obtinvfj30hq0hqgme.jpg">
+      <meta itemprop="name" content="LeeWong">
+      <meta itemprop="description" content="What is Life But One Chanllege After Another">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LeeWong">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Runtime之对象的一生
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2020-11-29 10:58:14 / 修改时间：10:59:33" itemprop="dateCreated datePublished" datetime="2020-11-29T10:58:14+08:00">2020-11-29</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>在所有的面向对象语言中，万物皆对象。Objective-C也不例外，这篇文章我们从Runtime的源码去分析一个对象从创建到销毁的整个过程中都做了哪些操作，同时也加深我们对内存管理的理解。</p>
+<a id="more"></a>
+
+<h2 id="对象的创建"><a href="#对象的创建" class="headerlink" title="对象的创建"></a>对象的创建</h2><p>我们平时开发中创建一个对象的方式一般有三种</p>
+<ul>
+<li>alloc init </li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSString</span> *str = [[<span class="built_in">NSString</span> alloc] init];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>new</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSString</span> *str = [<span class="built_in">NSString</span> new];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>类方法构建</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSMutableString</span> *str = [<span class="built_in">NSMutableString</span> string];</span><br></pre></td></tr></table></figure>
+
+<p>那么在这个过程中系统都做了哪些操作呢？这三种不同的创建方式又会有什么区别呢？下面我们对上述的几个关键词一一介绍然后在分析下这几种创建对象方式的区别。</p>
+<h3 id="alloc"><a href="#alloc" class="headerlink" title="alloc"></a>alloc</h3><p>我们先来看下alloc方法在Runtime中的实现</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+ (<span class="keyword">id</span>)alloc &#123;</span><br><span class="line">    <span class="keyword">return</span> _objc_rootAlloc(<span class="keyword">self</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们在进一步看下_objc_rootAlloc方法的实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">id</span></span><br><span class="line">_objc_rootAlloc(Class cls)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> callAlloc(cls, <span class="literal">false</span><span class="comment">/*checkNil*/</span>, <span class="literal">true</span><span class="comment">/*allocWithZone*/</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们继续跟进方法实现:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ALWAYS_INLINE 强制内联函数 所有加了__attribute__((always_inline))的函数再</span></span><br><span class="line"><span class="comment">// 把被调用时不会被编译成函数调用而是直接扩展到调用函数体内</span></span><br><span class="line"><span class="keyword">static</span> ALWAYS_INLINE <span class="keyword">id</span></span><br><span class="line">callAlloc(Class cls, <span class="keyword">bool</span> checkNil, <span class="keyword">bool</span> allocWithZone=<span class="literal">false</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// slowpath 表示if条件为0的可能性较大 利于编译器优化指令跳转</span></span><br><span class="line">    <span class="comment">// 如果需要检查nil 且cls 为nil 那么直接返回nil</span></span><br><span class="line">    <span class="comment">// 因此 如果cls不存在使用alloc方法创建时可能返回nil</span></span><br><span class="line">    <span class="keyword">if</span> (slowpath(checkNil &amp;&amp; !cls)) <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> __OBJC2__</span></span><br><span class="line">    <span class="comment">// fastpath 表示if条件中为1的可能性较大</span></span><br><span class="line">    <span class="comment">// 如果类没有自定义的allocwithzone方法</span></span><br><span class="line">    <span class="keyword">if</span> (fastpath(!cls-&gt;ISA()-&gt;hasCustomAWZ())) &#123;</span><br><span class="line">        <span class="comment">// cls 是否可以快速创建</span></span><br><span class="line">        <span class="keyword">if</span> (fastpath(cls-&gt;canAllocFast())) &#123;</span><br><span class="line">            <span class="comment">// No ctors, raw isa, etc. Go straight to the metal.</span></span><br><span class="line">            <span class="comment">// cls是否有c++销毁方法 dtor = destructor</span></span><br><span class="line">            <span class="keyword">bool</span> dtor = cls-&gt;hasCxxDtor();</span><br><span class="line">            <span class="comment">// calloc 在内存中动态地分配 1 个长度为  cls-&gt;bits.fastInstanceSize() 的连续空间</span></span><br><span class="line">            <span class="keyword">id</span> obj = (<span class="keyword">id</span>)calloc(<span class="number">1</span>, cls-&gt;bits.fastInstanceSize());</span><br><span class="line">            <span class="comment">// 如果obj为空 类初始化失败 报错 attempt to allocate object of class &#x27;%s&#x27; failed</span></span><br><span class="line">            <span class="keyword">if</span> (slowpath(!obj)) <span class="keyword">return</span> callBadAllocHandler(cls);</span><br><span class="line">            <span class="comment">// 调用初始化对象isa方法</span></span><br><span class="line">            obj-&gt;initInstanceIsa(cls, dtor);</span><br><span class="line">            <span class="keyword">return</span> obj;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// Has ctor or raw isa or something. Use the slower path.</span></span><br><span class="line">            <span class="comment">// 调用class_createInstance创建对象</span></span><br><span class="line">            <span class="keyword">id</span> obj = class_createInstance(cls, <span class="number">0</span>);</span><br><span class="line">            <span class="comment">// 如果对象为空 那么直接报错</span></span><br><span class="line">            <span class="keyword">if</span> (slowpath(!obj)) <span class="keyword">return</span> callBadAllocHandler(cls);</span><br><span class="line">            <span class="keyword">return</span> obj;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// No shortcuts available.</span></span><br><span class="line">    <span class="comment">// alloc 方法会进一步调用allocwithzone方法</span></span><br><span class="line">    <span class="keyword">if</span> (allocWithZone) <span class="keyword">return</span> [cls allocWithZone:<span class="literal">nil</span>];</span><br><span class="line">    <span class="comment">// 正常情况不会走到这里 想到与一个递归？</span></span><br><span class="line">    <span class="keyword">return</span> [cls alloc];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们将这个方法的流程通过下图来更好的了解下：</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gl55393ycbj31hr0u0dlg.jpg"></p>
+<p><code>注意</code>:图中深色背景区域为OBJC2下会走的的位置，基本上目前都会做到这里</p>
+<p>写完这个方法后，<strong>发现在最新的Runtime(781)源码中这个方法变成了:</strong></p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> ALWAYS_INLINE <span class="keyword">id</span></span><br><span class="line">callAlloc(Class cls, <span class="keyword">bool</span> checkNil, <span class="keyword">bool</span> allocWithZone=<span class="literal">false</span>)</span><br><span class="line">&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> __OBJC2__</span></span><br><span class="line">    <span class="keyword">if</span> (slowpath(checkNil &amp;&amp; !cls)) <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    <span class="comment">// 是否有自定义的allocWithZone方法</span></span><br><span class="line">    <span class="keyword">if</span> (fastpath(!cls-&gt;ISA()-&gt;hasCustomAWZ())) &#123;</span><br><span class="line">        <span class="comment">// 直接调用_objc_rootAllocWithZone</span></span><br><span class="line">        <span class="keyword">return</span> _objc_rootAllocWithZone(cls, <span class="literal">nil</span>);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// No shortcuts available.</span></span><br><span class="line">    <span class="comment">// 是否需要调用allocWithZone _objc_rootAlloc方法调用时这个参数为yes</span></span><br><span class="line">    <span class="keyword">if</span> (allocWithZone) &#123;</span><br><span class="line">        <span class="keyword">return</span> ((<span class="keyword">id</span>(*)(<span class="keyword">id</span>, SEL, <span class="keyword">struct</span> _NSZone *))objc_msgSend)(cls, <span class="keyword">@selector</span>(allocWithZone:), <span class="literal">nil</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 调用alloc方法</span></span><br><span class="line">    <span class="keyword">return</span> ((<span class="keyword">id</span>(*)(<span class="keyword">id</span>, SEL))objc_msgSend)(cls, <span class="keyword">@selector</span>(alloc));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><del>为了更好的了解这个方法的实现我们进一步看下这个方法中调用的几个方法：</del></p>
+<p>实际上在OBJC2中这个方法的改变并不大，下面我们看下上面这两种实现用到的主要方法的实现，</p>
+<h4 id="objc-rootAllocWithZone"><a href="#objc-rootAllocWithZone" class="headerlink" title="objc_rootAllocWithZone"></a>objc_rootAllocWithZone</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//allocWithZone的根方法</span></span><br><span class="line"><span class="keyword">id</span></span><br><span class="line">_objc_rootAllocWithZone(Class cls, malloc_zone_t *zone)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">id</span> obj;</span><br><span class="line">    <span class="comment">// 如果zone未空 那么直接调用class_createInstance方法 与之前750的实现一致</span></span><br><span class="line">    <span class="keyword">if</span> (fastpath(!zone)) &#123;</span><br><span class="line">        obj = class_createInstance(cls, <span class="number">0</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 如果返回的zone有值 那么调用class_createInstanceFromZone传入</span></span><br><span class="line">        obj = class_createInstanceFromZone(cls, <span class="number">0</span>, zone);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果创建的obj为空</span></span><br><span class="line">    <span class="keyword">if</span> (slowpath(!obj)) obj = _objc_callBadAllocHandler(cls);</span><br><span class="line">    <span class="keyword">return</span> obj;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个方法实际上只是做了一层简单的包装，我们重点关注class_createInstance和class_createInstanceFromZone方法。</p>
+<h4 id="class-createInstance"><a href="#class-createInstance" class="headerlink" title="class_createInstance"></a>class_createInstance</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">id</span></span><br><span class="line">class_createInstance(Class cls, size_t extraBytes)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!cls) <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    <span class="keyword">return</span> _class_createInstanceFromZone(cls, extraBytes, <span class="literal">nil</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们继续看_class_createInstanceFromZone方法(即_objc_rootAllocWithZone方法中zone不为空时调用的方法)：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">NEVER_INLINE</span><br><span class="line"><span class="keyword">id</span></span><br><span class="line">_objc_rootAllocWithZone(Class cls, malloc_zone_t *zone __unused)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// allocWithZone under __OBJC2__ ignores the zone parameter</span></span><br><span class="line">    <span class="keyword">return</span> _class_createInstanceFromZone(cls, <span class="number">0</span>, <span class="literal">nil</span>,</span><br><span class="line">                                         OBJECT_CONSTRUCT_CALL_BADALLOC);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>继续深入_objc_rootAllocWithZone方法：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建对象</span></span><br><span class="line"><span class="comment">// cls 创建对象的类型</span></span><br><span class="line"><span class="comment">// extraBytes 额外字节 正常alloc方法这个值为0</span></span><br><span class="line"><span class="comment">// zone construct_flags outAllocatedSize</span></span><br><span class="line"><span class="keyword">static</span> ALWAYS_INLINE <span class="keyword">id</span></span><br><span class="line">_class_createInstanceFromZone(Class cls, size_t extraBytes, <span class="keyword">void</span> *zone,</span><br><span class="line">                              <span class="keyword">int</span> construct_flags = OBJECT_CONSTRUCT_NONE,</span><br><span class="line">                              <span class="keyword">bool</span> cxxConstruct = <span class="literal">true</span>,</span><br><span class="line">                              size_t *outAllocatedSize = <span class="literal">nil</span>)</span><br><span class="line">&#123;</span><br><span class="line">    ASSERT(cls-&gt;isRealized());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Read class&#x27;s info bits all at once for performance</span></span><br><span class="line">    <span class="comment">// 是否有自定义的创建方法</span></span><br><span class="line">    <span class="keyword">bool</span> hasCxxCtor = cxxConstruct &amp;&amp; cls-&gt;hasCxxCtor();</span><br><span class="line">    <span class="comment">// 是否有自定义的销毁方法</span></span><br><span class="line">    <span class="keyword">bool</span> hasCxxDtor = cls-&gt;hasCxxDtor();</span><br><span class="line">    <span class="comment">// canAllocNonpointer:class&#x27;s instances requires raw isa</span></span><br><span class="line">    <span class="comment">// #define FAST_CACHE_REQUIRES_RAW_ISA   (1&lt;&lt;13)</span></span><br><span class="line">    <span class="comment">// 是否是 isa_t 类型的 isa</span></span><br><span class="line">    <span class="keyword">bool</span> fast = cls-&gt;canAllocNonpointer();</span><br><span class="line"></span><br><span class="line">    size_t size;</span><br><span class="line">    <span class="comment">// 增加额外字节</span></span><br><span class="line">    size = cls-&gt;instanceSize(extraBytes);</span><br><span class="line">    <span class="keyword">if</span> (outAllocatedSize) *outAllocatedSize = size;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">id</span> obj;</span><br><span class="line">    <span class="comment">// 新创建一个obj 并指向一块新创建的内存空间</span></span><br><span class="line">    <span class="keyword">if</span> (zone) &#123;</span><br><span class="line">        obj = (<span class="keyword">id</span>)malloc_zone_calloc((malloc_zone_t *)zone, <span class="number">1</span>, size);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        obj = (<span class="keyword">id</span>)calloc(<span class="number">1</span>, size);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果对象创建失败 obj = nil</span></span><br><span class="line">    <span class="keyword">if</span> (slowpath(!obj)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (construct_flags &amp; OBJECT_CONSTRUCT_CALL_BADALLOC) &#123;</span><br><span class="line">            <span class="keyword">return</span> _objc_callBadAllocHandler(cls);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// isa如果是isa_t类型</span></span><br><span class="line">    <span class="keyword">if</span> (!zone &amp;&amp; fast) &#123;</span><br><span class="line">        obj-&gt;initInstanceIsa(cls, hasCxxDtor);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// Use raw pointer isa on the assumption that they might be</span></span><br><span class="line">        <span class="comment">// doing something weird with the zone or RR.</span></span><br><span class="line">        <span class="comment">// isa是cls类型</span></span><br><span class="line">        obj-&gt;initIsa(cls);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果没有自定义构建方法</span></span><br><span class="line">    <span class="keyword">if</span> (fastpath(!hasCxxCtor)) &#123;</span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 自定义构建方法调用</span></span><br><span class="line">    construct_flags |= OBJECT_CONSTRUCT_FREE_ONFAILURE;</span><br><span class="line">    <span class="keyword">return</span> object_cxxConstructFromClass(obj, cls, construct_flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们在看下这个方法中用到的几个方法：</p>
+<h4 id="hasCxxDtor"><a href="#hasCxxDtor" class="headerlink" title="hasCxxDtor"></a>hasCxxDtor</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> hasCxxDtor() &#123;</span><br><span class="line">    <span class="comment">// addSubclass() propagates this flag from the superclass.</span></span><br><span class="line">    assert(isRealized());</span><br><span class="line">    <span class="keyword">return</span> bits.hasCxxDtor();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">bool</span> hasCxxDtor() &#123;</span><br><span class="line">    <span class="keyword">return</span> data()-&gt;flags &amp; RW_HAS_CXX_DTOR;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// class or superclass has .cxx_destruct implementation</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RW_HAS_CXX_DTOR       (1&lt;&lt;17)</span></span><br></pre></td></tr></table></figure>
+
+<p>从上述代码中，我们可以看到hasCxxDtor表示cls或者supercls是否有销毁(cxx_destruct)方法。</p>
+<h4 id="canAllocNonpointer"><a href="#canAllocNonpointer" class="headerlink" title="canAllocNonpointer"></a>canAllocNonpointer</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">BOOL</span> canAllocNonpointer() &#123;</span><br><span class="line">    ASSERT(!isFuture());</span><br><span class="line">    <span class="keyword">return</span> !instancesRequireRawIsa();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">BOOL</span> instancesRequireRawIsa() &#123;</span><br><span class="line">    <span class="keyword">return</span> cache.getBit(FAST_CACHE_REQUIRES_RAW_ISA);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// class&#x27;s instances requires raw isa</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FAST_CACHE_REQUIRES_RAW_ISA   (1&lt;&lt;13)</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="initInstanceIsa"><a href="#initInstanceIsa" class="headerlink" title="initInstanceIsa"></a>initInstanceIsa</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="keyword">void</span> </span><br><span class="line">objc_object::initInstanceIsa(Class cls, <span class="keyword">bool</span> hasCxxDtor)</span><br><span class="line">&#123;</span><br><span class="line">    assert(!cls-&gt;instancesRequireRawIsa());</span><br><span class="line">    assert(hasCxxDtor == cls-&gt;hasCxxDtor());</span><br><span class="line">    <span class="comment">// 相当于也是包装了一层</span></span><br><span class="line">    initIsa(cls, <span class="literal">true</span>, hasCxxDtor);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>initInstanceIsa主要是调用initIsa方法，我们在进一步看下这个方法的实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="keyword">void</span> </span><br><span class="line">objc_object::initIsa(Class cls, <span class="keyword">bool</span> nonpointer, <span class="keyword">bool</span> hasCxxDtor) </span><br><span class="line">&#123; </span><br><span class="line">    ASSERT(!isTaggedPointer()); </span><br><span class="line">    <span class="comment">// 如果是非isa_t类型 直接返回 这个cls即可 因为isa中只有一个指针指向isa</span></span><br><span class="line">    <span class="keyword">if</span> (!nonpointer) &#123;</span><br><span class="line">        isa = isa_t((uintptr_t)cls);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        ASSERT(!DisableNonpointerIsa);</span><br><span class="line">        ASSERT(!cls-&gt;instancesRequireRawIsa());</span><br><span class="line">        <span class="comment">// 创建 isa_t 类型临时变量</span></span><br><span class="line">        isa_t newisa(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 配置 magic 表示当前对象已经创建</span></span><br><span class="line">        <span class="comment">// 配置 nonpointer 表示当前对象的 isa 为 isa_t 类型的</span></span><br><span class="line">        newisa.bits = ISA_MAGIC_VALUE;</span><br><span class="line">        <span class="comment">// isa.magic is part of ISA_MAGIC_VALUE</span></span><br><span class="line">        <span class="comment">// isa.nonpointer is part of ISA_MAGIC_VALUE</span></span><br><span class="line">        <span class="comment">// 配置 has_cxx_dtor 表示当前对象是否有 C++ 的析构器</span></span><br><span class="line">        newisa.has_cxx_dtor = hasCxxDtor;</span><br><span class="line">        <span class="comment">// 配置 shiftcls 指向类对象，右移了 3 位是因为类的指针是按照字节（8bits）对齐的，</span></span><br><span class="line">        <span class="comment">// 其指针后三位都是没有意义的 0，因此可以右移 3 位进行消除，以减小无意义的内存占用。</span></span><br><span class="line">        newisa.shiftcls = (uintptr_t)cls &gt;&gt; <span class="number">3</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 将临时变量赋值给结构体成员</span></span><br><span class="line">        isa = newisa;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从上面我们看出如果是isa_t类型，我们主要设置ISA的bits、has_cxx_dtor、shiftcls三个属性。</p>
+<h4 id="hasCustomAWZ"><a href="#hasCustomAWZ" class="headerlink" title="hasCustomAWZ"></a>hasCustomAWZ</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">bool</span> hasCustomAWZ() &#123;</span><br><span class="line">        <span class="keyword">return</span> ! bits.hasDefaultAWZ();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">bool</span> hasDefaultAWZ() &#123;</span><br><span class="line">        <span class="keyword">return</span> data()-&gt;flags &amp; RW_HAS_DEFAULT_AWZ;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line"><span class="comment">// class or superclass has default alloc/allocWithZone: implementation</span></span><br><span class="line"><span class="comment">// Note this is is stored in the metaclass.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RW_HAS_DEFAULT_AWZ    (1&lt;&lt;16)</span></span><br></pre></td></tr></table></figure>
+
+<p>RW_HAS_DEFAULT_AWZ这个标志位表明是cls或者superclass是否有默认的alloc/allocWithZone方法实现，hasCustomAWZ的意思是是否有自定义的AWZ(allocWithZone)方法,在我们前面的<a href="http://www.leewong.cn/2020/10/24/oc-object-structure/">NSObject结构</a>这篇文章中我们介绍过下面这张图</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwly1gk0s5oef3ej30ro0imgtj.jpg"></p>
+<p>在图中我们看到NSObject结构中有一个uint32_t类型的flags,而hasDefaultAWZ方法就是从我们的NSObject结构中通过按位与的方法获取到这个值。</p>
+<h4 id="object-cxxConstructFromClass"><a href="#object-cxxConstructFromClass" class="headerlink" title="object_cxxConstructFromClass"></a>object_cxxConstructFromClass</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 递归调用对象的C++构造方法，从基类到子类的构造方法</span></span><br><span class="line"><span class="keyword">id</span> </span><br><span class="line">object_cxxConstructFromClass(<span class="keyword">id</span> obj, Class cls, <span class="keyword">int</span> flags)</span><br><span class="line">&#123;</span><br><span class="line">    ASSERT(cls-&gt;hasCxxCtor());  <span class="comment">// required for performance, not correctness</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">id</span> (*ctor)(<span class="keyword">id</span>);</span><br><span class="line">    Class supercls;</span><br><span class="line"></span><br><span class="line">    supercls = cls-&gt;superclass;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Call superclasses&#x27; ctors first, if any.</span></span><br><span class="line">    <span class="comment">// 如果父类有C++构造方法</span></span><br><span class="line">    <span class="keyword">if</span> (supercls  &amp;&amp;  supercls-&gt;hasCxxCtor()) &#123;</span><br><span class="line">        <span class="comment">// 调用父类构造方法</span></span><br><span class="line">        <span class="keyword">bool</span> ok = object_cxxConstructFromClass(obj, supercls, flags);</span><br><span class="line">        <span class="comment">// 父类构造方法失败 返回nil</span></span><br><span class="line">        <span class="keyword">if</span> (slowpath(!ok)) <span class="keyword">return</span> <span class="literal">nil</span>;  <span class="comment">// some superclass&#x27;s ctor failed - give up</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Find this class&#x27;s ctor, if any.</span></span><br><span class="line">    <span class="comment">// 父类构造方法调用完成后调用当前类的SEL_cxx_construct方法</span></span><br><span class="line">    ctor = (<span class="keyword">id</span>(*)(<span class="keyword">id</span>))lookupMethodInClassAndLoadCache(cls, SEL_cxx_construct);</span><br><span class="line">    <span class="comment">// 如果当前类的构造为转发方法 那么直接返回 表示没有对应实现</span></span><br><span class="line">    <span class="keyword">if</span> (ctor == (<span class="keyword">id</span>(*)(<span class="keyword">id</span>))_objc_msgForward_impcache) <span class="keyword">return</span> obj;  <span class="comment">// no ctor - ok</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Call this class&#x27;s ctor.</span></span><br><span class="line">    <span class="keyword">if</span> (PrintCxxCtors) &#123;</span><br><span class="line">        _objc_inform(<span class="string">&quot;CXX: calling C++ constructors for class %s&quot;</span>, </span><br><span class="line">                     cls-&gt;nameForLogging());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 调用构造方法 传入参数obj</span></span><br><span class="line">    <span class="keyword">if</span> (fastpath((*ctor)(obj))) <span class="keyword">return</span> obj;  <span class="comment">// ctor called and succeeded - ok</span></span><br><span class="line"></span><br><span class="line">    supercls = cls-&gt;superclass; <span class="comment">// this reload avoids a spill on the stack</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// This class&#x27;s ctor was called and failed.</span></span><br><span class="line">    <span class="comment">// Call superclasses&#x27;s dtors to clean up.</span></span><br><span class="line">    <span class="keyword">if</span> (supercls) object_cxxDestructFromClass(obj, supercls);</span><br><span class="line">    <span class="keyword">if</span> (flags &amp; OBJECT_CONSTRUCT_FREE_ONFAILURE) free(obj);</span><br><span class="line">    <span class="keyword">if</span> (flags &amp; OBJECT_CONSTRUCT_CALL_BADALLOC) &#123;</span><br><span class="line">        <span class="keyword">return</span> _objc_callBadAllocHandler(cls);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="allocWithZone"><a href="#allocWithZone" class="headerlink" title="allocWithZone"></a>allocWithZone</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Replaced by ObjectAlloc</span></span><br><span class="line">+ (<span class="keyword">id</span>)allocWithZone:(<span class="keyword">struct</span> _NSZone *)zone &#123;</span><br><span class="line">    <span class="keyword">return</span> _objc_rootAllocWithZone(<span class="keyword">self</span>, (malloc_zone_t *)zone);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里实际上又回到了上面的_objc_rootAllocWithZone方法，与OBJC2的区别只是是否做了cls为nil的判断以及是否有自定义的allocWithZone的方法。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (slowpath(checkNil &amp;&amp; !cls)) <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line"><span class="comment">// 是否有自定义的allocWithZone方法</span></span><br><span class="line"><span class="keyword">if</span> (fastpath(!cls-&gt;ISA()-&gt;hasCustomAWZ())) &#123;</span><br><span class="line">    <span class="comment">// 直接调用_objc_rootAllocWithZone</span></span><br><span class="line">    <span class="keyword">return</span> _objc_rootAllocWithZone(cls, <span class="literal">nil</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>alloc方法调用完成之后，我们实际上已经开辟了对应的内存空间初始化好了ISA的部分信息，下面我们来看下init方法。</p>
+<h2 id="init"><a href="#init" class="headerlink" title="init"></a>init</h2><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">id</span>)init &#123;</span><br><span class="line">    <span class="keyword">return</span> _objc_rootInit(<span class="keyword">self</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">id</span></span><br><span class="line">_objc_rootInit(<span class="keyword">id</span> obj)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// In practice, it will be hard to rely on this function.</span></span><br><span class="line">    <span class="comment">// Many classes do not properly chain -init calls.</span></span><br><span class="line">    <span class="keyword">return</span> obj;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从这里我们看到init方法实际上并没有实现什么只是将我们在alloc方法创建好的对象返回了。</p>
+<h2 id="new"><a href="#new" class="headerlink" title="new"></a>new</h2><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+ (<span class="keyword">id</span>)new &#123;</span><br><span class="line">    <span class="keyword">return</span> [callAlloc(<span class="keyword">self</span>, <span class="literal">false</span><span class="comment">/*checkNil*/</span>) init];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们看到这个方法实际上就是调用了callAlloc方法然后callAlloc返回的对象在调用init方法。</p>
+<p>至此对象创建的几种方式我们就分析完成了。</p>
+<p>对象创建流程如下(主要是alloc方法)：</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gl58rskmkaj30u00xojzw.jpg"></p>
+<h2 id="对象赋值"><a href="#对象赋值" class="headerlink" title="对象赋值"></a>对象赋值</h2><h3 id="赋值"><a href="#赋值" class="headerlink" title="赋值"></a>赋值</h3><h3 id="拷贝"><a href="#拷贝" class="headerlink" title="拷贝"></a>拷贝</h3><h2 id="对象的销毁"><a href="#对象的销毁" class="headerlink" title="对象的销毁"></a>对象的销毁</h2><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/11/15/runtime-msgsend/" rel="prev" title="Runtime之消息转发">
+                  <i class="fa fa-chevron-left"></i> Runtime之消息转发
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LeeWong</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '5f882cde7fcb86a5d699',
+      clientSecret: '0d812b90fe7a94b3599b62e61b2bbaaa8134baa6',
+      repo        : 'BlogComment',
+      owner       : 'LeeWongSnail',
+      admin       : ['LeeWongSnail'],
+      id          : '5fdabf3c09e85a98638f3fa54a48533a',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
