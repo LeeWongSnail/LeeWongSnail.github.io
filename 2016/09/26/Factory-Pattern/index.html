@@ -68,11 +68,13 @@
 
     
     
-        <link rel="stylesheet" id="hl-default-theme" href="/css/highlight/solarized-dark.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+    
+        <link rel="stylesheet" id="hl-default-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/default.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+        
+            <link rel="stylesheet" id="hl-dark-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/dark.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')!==-1)this.media='all'">
         
     
 
-    
     
 
      
@@ -209,7 +211,7 @@
 <p><img src="https://i.niupic.com/images/2016/09/26/MZGIaS.png" alt="我的pizza"></p>
 <p>但是后来用户给我反馈，因为他们来自不同的地区所以希望我提供，北京口味、东北口味的披萨。</p>
 <p>OK 那么我在点单的时候让用户自主的去选择order(type);<br>那么我的点单的方法改成了这样</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">- (void)order:(NSInteger)aType</span><br><span class="line">&#123;</span><br><span class="line">    Pizza *pizza &#x3D; nil;</span><br><span class="line">    if (type &#x3D;&#x3D; @&quot;东北&quot;) &#123;</span><br><span class="line">        pizza &#x3D; DBPizza();</span><br><span class="line">    &#125; else if (type &#x3D;&#x3D; @&quot;北京&quot;)&#123;</span><br><span class="line">        pizza &#x3D; BJPizza();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs plain">- (void)order:(NSInteger)aType<br>&#123;<br>    Pizza *pizza &#x3D; nil;<br>    if (type &#x3D;&#x3D; @&quot;东北&quot;) &#123;<br>        pizza &#x3D; DBPizza();<br>    &#125; else if (type &#x3D;&#x3D; @&quot;北京&quot;)&#123;<br>        pizza &#x3D; BJPizza();<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
 
 <p>后来生意更好了，全国开了很多分店，就会不断的加入更多的其他口味的pizza，同时也有可能有很多pizza的口味因为不符合要求被下架。所以这可能导致我的点餐方法越来越复杂。</p>
 <p>同时，因为全国都有分店，分店中可能很多同一口味的做法都不同，所以这时候要考虑把这个全国都使用的方法下方到地方，不再做统一的管理。</p>

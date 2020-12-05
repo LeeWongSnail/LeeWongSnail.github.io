@@ -68,11 +68,13 @@
 
     
     
-        <link rel="stylesheet" id="hl-default-theme" href="/css/highlight/solarized-dark.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+    
+        <link rel="stylesheet" id="hl-default-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/default.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+        
+            <link rel="stylesheet" id="hl-dark-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/dark.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')!==-1)this.media='all'">
         
     
 
-    
     
 
      
@@ -203,12 +205,12 @@
         <p>因为公司目前的项目需要一个项目打多个包,打包实际上是一个纯体力活,所以为了提升效率,之前同事写了一个利用Fastlane自动打包的脚本,最近项目不忙,所以看看文档总结一下！</p>
 <a id="more"></a>
 
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><h3 id="确保安装了最新的-Xcode-command-line-tools"><a href="#确保安装了最新的-Xcode-command-line-tools" class="headerlink" title="确保安装了最新的 Xcode command line tools"></a>确保安装了最新的 Xcode command line tools</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">xcode-select --install</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><h3 id="确保安装了最新的-Xcode-command-line-tools"><a href="#确保安装了最新的-Xcode-command-line-tools" class="headerlink" title="确保安装了最新的 Xcode command line tools"></a>确保安装了最新的 Xcode command line tools</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">xcode-select --install<br><br></code></pre></td></tr></table></figure>
 
 <h3 id="安装Fastlane"><a href="#安装Fastlane" class="headerlink" title="安装Fastlane"></a>安装Fastlane</h3><p><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/29284112.jpg" alt="安装Fastlane"></p>
 <p>只需要这两步,安装过程就大功告成,下面开始把玩fastlane</p>
 <h2 id="初始化Fastlane"><a href="#初始化Fastlane" class="headerlink" title="初始化Fastlane"></a>初始化Fastlane</h2><p>进入到你的项目的根目录(与xcodeproj文件同级目录下)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane init</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane init<br></code></pre></td></tr></table></figure>
 
 <p>期间会让你输入 Apple ID 和密码<br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/59536373.jpg" alt="输入密码"></p>
 <p>确认信息<br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/67960903.jpg" alt="确认信息"></p>
@@ -216,36 +218,36 @@
 <p>初始化完成后的目录结构<br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/31492902.jpg" alt="目录结构"></p>
 <p>至此 fastlane就初始化完成了,再接再厉！！！</p>
 <h2 id="截图"><a href="#截图" class="headerlink" title="截图"></a>截图</h2><p>每次发布新版本的时候截图是一件比较恶心的事情(虽然16年更新之后我们只需要上传最大尺寸的机型就可以适配),fastlane也可以为我们解决这件事！</p>
-<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane snapshot init</span><br></pre></td></tr></table></figure>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane snapshot init<br></code></pre></td></tr></table></figure>
 <p>初始化成功之后 我们可以得到<br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/84919492.jpg"></p>
 <h3 id="导入文件"><a href="#导入文件" class="headerlink" title="导入文件"></a>导入文件</h3><p>导入上一步生成的SnapshotHelper.swift文件到你的UITest目录下<br><code>注意:</code>如果你是OC的项目这里要设置一下桥接</p>
 <p><img src="http://upload-images.jianshu.io/upload_images/594219-109d427d7a9e4cb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="桥接"></p>
 <p>注意 对于 SnapshotHelper.swift<br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/54904384.jpg"></p>
 <h3 id="导入头文件"><a href="#导入头文件" class="headerlink" title="导入头文件"></a>导入头文件</h3><p>这个头文件是系统默认生成的，不用我们手动创建，我们在拖入Siwft文件之后，直接引用就可以。 没有智能提示，所以不必惊慌，保证#import’target名称-Swift.h’正确就可以了。</p>
-<h3 id="录制"><a href="#录制" class="headerlink" title="录制"></a>录制</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(void)setUp: 方法在XCTestCase的测试方法调用之前调用，可以在测试之前创建在test case方法中需要用到的一些对象等</span><br><span class="line">(void)tearDown: 当测试全部结束之后调用tearDown方法，法则在全部的test case执行结束之后清理测试现场，释放资源删除不用的对象等</span><br><span class="line">(void)testExample: 测试代码执行性能</span><br></pre></td></tr></table></figure>
+<h3 id="录制"><a href="#录制" class="headerlink" title="录制"></a>录制</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plain">(void)setUp: 方法在XCTestCase的测试方法调用之前调用，可以在测试之前创建在test case方法中需要用到的一些对象等<br>(void)tearDown: 当测试全部结束之后调用tearDown方法，法则在全部的test case执行结束之后清理测试现场，释放资源删除不用的对象等<br>(void)testExample: 测试代码执行性能<br></code></pre></td></tr></table></figure>
 
 
 <h3 id="添加截图代码"><a href="#添加截图代码" class="headerlink" title="添加截图代码"></a>添加截图代码</h3><p>在setUp方法中添加</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">XCUIApplication *app &#x3D; [[XCUIApplication alloc] init];</span><br><span class="line">[Snapshot setupSnapshot:app];</span><br><span class="line">[app launch];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plain">XCUIApplication *app &#x3D; [[XCUIApplication alloc] init];<br>[Snapshot setupSnapshot:app];<br>[app launch];<br></code></pre></td></tr></table></figure>
 
 <p>在在录制步骤产生的步骤代码中加入（testExample中）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Snapshot snapshot:@&quot;01LoginScreen&quot; waitForLoadingIndicator:YES];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">[Snapshot snapshot:@&quot;01LoginScreen&quot; waitForLoadingIndicator:YES];<br></code></pre></td></tr></table></figure>
 
 <p><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/90575579.jpg"></p>
-<h3 id="修改Snapfile文件"><a href="#修改Snapfile文件" class="headerlink" title="修改Snapfile文件"></a>修改Snapfile文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">要截图的设备 默认所有的设备</span><br><span class="line"># A list of devices you want to take the screenshots from</span><br><span class="line"> devices([</span><br><span class="line">   &quot;iPhone 7&quot;,</span><br><span class="line">   &quot;iPhone 7 Plus&quot;,</span><br><span class="line">   &quot;iPhone 6&quot;</span><br><span class="line"> ])</span><br><span class="line"></span><br><span class="line">支持的语言,对于支持多语言的应用比较有利</span><br><span class="line">languages([</span><br><span class="line">  &quot;en-US&quot;,</span><br><span class="line">  #&quot;de-DE&quot;,</span><br><span class="line">  #&quot;it-IT&quot;,</span><br><span class="line">  #[&quot;pt&quot;, &quot;pt_BR&quot;] # Portuguese with Brazilian locale</span><br><span class="line">])</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="修改Snapfile文件"><a href="#修改Snapfile文件" class="headerlink" title="修改Snapfile文件"></a>修改Snapfile文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs plain">要截图的设备 默认所有的设备<br># A list of devices you want to take the screenshots from<br> devices([<br>   &quot;iPhone 7&quot;,<br>   &quot;iPhone 7 Plus&quot;,<br>   &quot;iPhone 6&quot;<br> ])<br><br>支持的语言,对于支持多语言的应用比较有利<br>languages([<br>  &quot;en-US&quot;,<br>  #&quot;de-DE&quot;,<br>  #&quot;it-IT&quot;,<br>  #[&quot;pt&quot;, &quot;pt_BR&quot;] # Portuguese with Brazilian locale<br>])<br><br></code></pre></td></tr></table></figure>
 
-<h3 id="生成截图"><a href="#生成截图" class="headerlink" title="生成截图"></a>生成截图</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane snapshot</span><br></pre></td></tr></table></figure>
+<h3 id="生成截图"><a href="#生成截图" class="headerlink" title="生成截图"></a>生成截图</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane snapshot<br></code></pre></td></tr></table></figure>
 <p><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/99858121.jpg"><br><img src="http://og0h689k8.bkt.clouddn.com/17-10-12/85295801.jpg"></p>
-<h2 id="添加边框"><a href="#添加边框" class="headerlink" title="添加边框"></a>添加边框</h2><h3 id="安装ImageMagick"><a href="#安装ImageMagick" class="headerlink" title="安装ImageMagick"></a>安装ImageMagick</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">brew install libpng jpeg imagemagick</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="添加边框"><a href="#添加边框" class="headerlink" title="添加边框"></a>添加边框</h2><h3 id="安装ImageMagick"><a href="#安装ImageMagick" class="headerlink" title="安装ImageMagick"></a>安装ImageMagick</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">brew install libpng jpeg imagemagick<br><br></code></pre></td></tr></table></figure>
 
 <p>下载最新的边框</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastlane frameit setup</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane frameit setup<br><br></code></pre></td></tr></table></figure>
 
-<h3 id="生成带边框的截图"><a href="#生成带边框的截图" class="headerlink" title="生成带边框的截图"></a>生成带边框的截图</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastlane frameit</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="生成带边框的截图"><a href="#生成带边框的截图" class="headerlink" title="生成带边框的截图"></a>生成带边框的截图</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane frameit<br><br></code></pre></td></tr></table></figure>
 
 <p><img src="http://og0h689k8.bkt.clouddn.com/17-10-13/46969300.jpg" alt="结果"></p>
 <h2 id="pem-生成推送证书"><a href="#pem-生成推送证书" class="headerlink" title="pem 生成推送证书"></a>pem 生成推送证书</h2><p>命令</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane pem<br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>1、创建新的签名请求(signing request)</li>
@@ -256,22 +258,22 @@
 <p><code>pem不会revoke已经存在的证书,也不会下载已经存在的证书,因为私钥仅在创建的机器上可用</code></p>
 <p>实用命令</p>
 <p>如果你已经有一个可用的推送证书(certificate),而且有效期至少还有30天以上，pem就不会创建新的证书。如果你想要创建新的，使用force：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem --force</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane pem --force<br></code></pre></td></tr></table></figure>
 
 <p>还可传参数,如:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem -a com.krausefx.app -u username</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane pem -a com.krausefx.app -u username<br></code></pre></td></tr></table></figure>
 
 <p>生成开发证书:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem --development</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane pem --development<br></code></pre></td></tr></table></figure>
 
 <p>给p12文件设置密码:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem -p &quot;MyPass&quot;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane pem -p &quot;MyPass&quot;<br></code></pre></td></tr></table></figure>
 
 <p>可以指定输出名字:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem -o my.pem</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane pem -o my.pem<br></code></pre></td></tr></table></figure>
 
 <p>列出可用命令选项:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane pem --help</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane pem --help<br></code></pre></td></tr></table></figure>
 
 
 <table>
@@ -323,10 +325,10 @@
 </tr>
 </tbody></table>
 <h2 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h2><p>sign可以创建，更新，下载和修复 provisioning profiles（使用一个命令）。<br>它支持App Store，Ad Hoc，开发和企业配置文件，并支持好的特性，如自动添加所有测试设备。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">下载最新的应用配置文件</span><br><span class="line">更新配置配置文件，当它已过期</span><br><span class="line">修复配置配置文件，当它坏了</span><br><span class="line">创建新的配置配置文件（如果尚不存在）</span><br><span class="line">支持App Store，Ad Hoc和Development Profile</span><br><span class="line">支持多个Apple帐户，将您的凭据安全地存储在钥匙串中</span><br><span class="line">支持多个团队(multiple Teams)</span><br><span class="line">支持企业应用配置(Enterprise Profiles)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs plain">下载最新的应用配置文件<br>更新配置配置文件，当它已过期<br>修复配置配置文件，当它坏了<br>创建新的配置配置文件（如果尚不存在）<br>支持App Store，Ad Hoc和Development Profile<br>支持多个Apple帐户，将您的凭据安全地存储在钥匙串中<br>支持多个团队(multiple Teams)<br>支持企业应用配置(Enterprise Profiles)<br></code></pre></td></tr></table></figure>
 
 <p>进入工程目录后</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane sigh #默认会在当前文件夹下生成针对appstore的&#96;.mobileprovision&#96;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane sigh #默认会在当前文件夹下生成针对appstore的&#96;.mobileprovision&#96;<br></code></pre></td></tr></table></figure>
 
 <table>
 <thead>
@@ -394,7 +396,7 @@
 </tr>
 </tbody></table>
 <p>结合fastlane 使用</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">lane :beta do</span><br><span class="line">  cert</span><br><span class="line">  sigh(force: true)</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plain">lane :beta do<br>  cert<br>  sigh(force: true)<br>end<br></code></pre></td></tr></table></figure>
 
 <p><code>force：true将确保在每次运行时重新生成配置配置文件。 这将使得sign总是使用正确的签名证书(signing certificate),证书将会被安装到本机上。</code></p>
 <p>所有参数</p>
@@ -479,25 +481,25 @@
 </tr>
 </tbody></table>
 <h2 id="自动打包"><a href="#自动打包" class="headerlink" title="自动打包"></a>自动打包</h2><p>用法：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fastlane gym</span><br><span class="line">#fastlane gym --export_method ad-hoc</span><br><span class="line">#fastlane gym --export_method enterprise</span><br><span class="line">#fastlane gym --export_method app-store</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane gym<br>#fastlane gym --export_method ad-hoc<br>#fastlane gym --export_method enterprise<br>#fastlane gym --export_method app-store<br></code></pre></td></tr></table></figure>
 
 <p>当然可以增加一些配置：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastlane gym --workspace &quot;Example.xcworkspace&quot; --scheme &quot;AppName&quot; --clean</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane gym --workspace &quot;Example.xcworkspace&quot; --scheme &quot;AppName&quot; --clean<br><br></code></pre></td></tr></table></figure>
 
 <p>选择Xcode:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DEVELOPER_DIR&#x3D;&quot;&#x2F;Applications&#x2F;Xcode6.2.app&quot; gym</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">DEVELOPER_DIR&#x3D;&quot;&#x2F;Applications&#x2F;Xcode6.2.app&quot; gym<br><br></code></pre></td></tr></table></figure>
 
 <p>列出可用参数列表:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fastlane gym --help</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane gym --help<br></code></pre></td></tr></table></figure>
 
 <p>运行遇到错误,使用verbose模式获取更多信息:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastlane gym --verbose</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane gym --verbose<br><br></code></pre></td></tr></table></figure>
 
 <p>如果您没有上传到App Store或TestFlight，请设置正确的导出方法:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastlane gym --export_method ad-hoc</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane gym --export_method ad-hoc<br><br></code></pre></td></tr></table></figure>
 
 <p>要使用bool参数,确保这么使用gym:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fastlane gym --include_bitcode true --include_symbols false</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">fastlane gym --include_bitcode true --include_symbols false<br><br></code></pre></td></tr></table></figure>
 
 <p>获取xcodebuild输出,请到~/Library/Logs/gym查看。</p>
 <p>gym 的常用参数</p>

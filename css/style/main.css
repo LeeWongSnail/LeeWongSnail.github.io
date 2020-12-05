@@ -1,5 +1,5 @@
 :root {
-  --main-color: #eb5757;
+  --main-color: #fff;
   --bg-color: #f4f4f4;
   --bg-content-color: #fff;
   --bg-menu: #eceef2;
@@ -136,11 +136,6 @@ s {
   box-sizing: border-box;
   font-smoothing: antialiased;
   osx-font-smoothing: grayscale;
-}
-@media screen and (min-width: 1080px) {
-  *[id] {
-    scroll-margin-top: 60px;
-  }
 }
 a {
   color: var(--main-color);
@@ -919,11 +914,6 @@ overflows table td {
 }
 .header .header__right .dropdown-menus .dropdown-menu {
   padding: 10px;
-}
-@media screen and (min-width: 1080px) {
-  .header {
-    position: sticky;
-  }
 }
 @media screen and (max-width: 764px) {
   .navbar__menus {

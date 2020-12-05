@@ -68,11 +68,13 @@
 
     
     
-        <link rel="stylesheet" id="hl-default-theme" href="/css/highlight/solarized-dark.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+    
+        <link rel="stylesheet" id="hl-default-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/default.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+        
+            <link rel="stylesheet" id="hl-dark-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/dark.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')!==-1)this.media='all'">
         
     
 
-    
     
 
      
@@ -231,26 +233,26 @@
 <p>总结：根据上面的描述,我们在每次主分支发布新版本,重构代码版本需要合并新分支代码的时候,我们都要预留大概3-5天的时间去合并代码。耗时又费力。</p>
 <h3 id="mergepbx"><a href="#mergepbx" class="headerlink" title="mergepbx"></a>mergepbx</h3><p>先来介绍一下使用方法：</p>
 <h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><p>可以直接使用 brew 直接安装 mergepbx</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install mergepbx</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">brew install mergepbx<br></code></pre></td></tr></table></figure>
 
-<h4 id="将mergepbx设置添加到〜-gitconfig"><a href="#将mergepbx设置添加到〜-gitconfig" class="headerlink" title="将mergepbx设置添加到〜/ .gitconfig"></a>将mergepbx设置添加到〜/ .gitconfig</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global merge.mergepbx.name“Xcode项目文件合并”</span><br><span class="line">git config --global merge.mergepbx.driver“mergepbx％O％A％B”</span><br></pre></td></tr></table></figure>
+<h4 id="将mergepbx设置添加到〜-gitconfig"><a href="#将mergepbx设置添加到〜-gitconfig" class="headerlink" title="将mergepbx设置添加到〜/ .gitconfig"></a>将mergepbx设置添加到〜/ .gitconfig</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs objc">git config --global merge.mergepbx.name“Xcode项目文件合并”<br>git config --global merge.mergepbx.driver“mergepbx％O％A％B”<br></code></pre></td></tr></table></figure>
 
-<h4 id="配置-gitconfig"><a href="#配置-gitconfig" class="headerlink" title="配置 .gitconfig"></a>配置 .gitconfig</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[合并“mergepbx”]</span><br><span class="line">    name &#x3D; Xcode项目文件合并</span><br><span class="line">    driver &#x3D; mergepbx％O％A％B</span><br></pre></td></tr></table></figure>
+<h4 id="配置-gitconfig"><a href="#配置-gitconfig" class="headerlink" title="配置 .gitconfig"></a>配置 .gitconfig</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plain">[合并“mergepbx”]<br>    name &#x3D; Xcode项目文件合并<br>    driver &#x3D; mergepbx％O％A％B<br></code></pre></td></tr></table></figure>
 
 <h4 id="gitattributes"><a href="#gitattributes" class="headerlink" title=".gitattributes"></a>.gitattributes</h4><p>在项目的目录下(与.git同级)新建一个.gitattributes文件 同时在里面写入</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">* .pbxproj merge &#x3D; mergepbx</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">* .pbxproj merge &#x3D; mergepbx<br></code></pre></td></tr></table></figure>
 
 <h4 id="git-merge"><a href="#git-merge" class="headerlink" title="git merge"></a>git merge</h4><p>这时候 在使用本地分支merge远程 我们惊奇的发现 <code>project.pbxproj</code>这个该死的玩意没有冲突。感觉都已经要成功一半的样子。</p>
 <h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><h4 id="首先看下-gitattributes"><a href="#首先看下-gitattributes" class="headerlink" title="首先看下 .gitattributes"></a>首先看下 <code>.gitattributes</code></h4><p>gitattributes文件中的每一行都是以下格式：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pattern        attr1 attr2 ...</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">pattern        attr1 attr2 ...<br></code></pre></td></tr></table></figure>
 
 <p>.gitattributes实际上是定义在发生冲突时，应该采取的行动，比如merge=ours就表示文件冲突时使用原文件内容，merge=theirs表示使用其他分支的文件内容。</p>
 <p>我们上面的定义表示 在发生冲突的时候使用mergepbx来确定冲突解决方法</p>
 <h4 id="然后我们在来看下-gitconfig"><a href="#然后我们在来看下-gitconfig" class="headerlink" title="然后我们在来看下 .gitconfig"></a>然后我们在来看下 <code>.gitconfig</code></h4><p>这个文件表示 git的配置信息</p>
 <p>我们通过</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global merge.mergepbx.name“Xcode项目文件合并”</span><br><span class="line">git config --global merge.mergepbx.driver“mergepbx％O％A％B”</span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs objc">git config --global merge.mergepbx.name“Xcode项目文件合并”<br>git config --global merge.mergepbx.driver“mergepbx％O％A％B”<br></code></pre></td></tr></table></figure>
 <p>这两句 实际上就是在.gitconfig中添加了</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[合并“mergepbx”]</span><br><span class="line">    name &#x3D; Xcode项目文件合并</span><br><span class="line">    driver &#x3D; mergepbx％O％A％B</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plain">[合并“mergepbx”]<br>    name &#x3D; Xcode项目文件合并<br>    driver &#x3D; mergepbx％O％A％B<br></code></pre></td></tr></table></figure>
 <p>这两行</p>
 <h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><p><a target="_blank" rel="noopener" href="https://qiita.com/kaneshin/items/1deebde685c973fda6b8">pbxprojファイルのマージが便利になるmergepbxをインストールするスクリプト書いた</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/50cc564b58ce">iOSXcodeProject的内部结构分析</a></p>

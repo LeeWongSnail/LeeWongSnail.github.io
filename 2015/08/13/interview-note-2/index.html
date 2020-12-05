@@ -68,11 +68,13 @@
 
     
     
-        <link rel="stylesheet" id="hl-default-theme" href="/css/highlight/solarized-dark.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+    
+        <link rel="stylesheet" id="hl-default-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/default.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+        
+            <link rel="stylesheet" id="hl-dark-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/dark.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')!==-1)this.media='all'">
         
     
 
-    
     
 
      
@@ -269,10 +271,10 @@ objc_storeWeak函数把第二个参数--赋值对象（b）的内存地址作为
     第二种情况a适用assign修饰，在b被置为nil的时候 不会将a指向的对象置为nil，所以默认a仍然指向原来的地址 但是这块地址被释放或者重新利用之后 现存的数据类型和原来的可能不一样了，所以可能出现野指针的问题</code></pre>
 <h3 id="3、objc-initWeak和objc-destroyWeak解释"><a href="#3、objc-initWeak和objc-destroyWeak解释" class="headerlink" title="3、objc_initWeak和objc_destroyWeak解释"></a>3、objc_initWeak和objc_destroyWeak解释</h3><pre><code> 通过objc_initWeak函数初始化“附有weak修饰符的变量（obj1）”，在变量作用域结束时通过objc_destoryWeak函数释放该变量（obj1）。</code></pre>
 <p>方法的内部实现</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">objc_initWeak函数的实现是这样的：在将“附有weak修饰符的变量（obj1）”初始化为0（nil）后，会将“赋值对象”（obj）作为参数，调用objc_storeWeak函数。</span><br><span class="line"></span><br><span class="line">	obj1 &#x3D; 0；</span><br><span class="line">	obj_storeWeak(&amp;obj1, obj)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plain">objc_initWeak函数的实现是这样的：在将“附有weak修饰符的变量（obj1）”初始化为0（nil）后，会将“赋值对象”（obj）作为参数，调用objc_storeWeak函数。<br><br>	obj1 &#x3D; 0；<br>	obj_storeWeak(&amp;obj1, obj)<br></code></pre></td></tr></table></figure>
 
 <p>weak 修饰的指针默认值是 nil （在Objective-C中向nil发送消息是安全的）<br>然后obj_destroyWeak函数将0（nil）作为参数，调用objc_storeWeak函数<br>objc_storeWeak(&amp;obj1, 0);</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">id obj1;</span><br><span class="line">obj1 &#x3D; 0;</span><br><span class="line">objc_storeWeak(&amp;obj1, obj);</span><br><span class="line">&#x2F;* ... obj的引用计数变为0，被置nil ... *&#x2F;</span><br><span class="line">objc_storeWeak(&amp;obj1, 0);</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs plain">id obj1;<br>obj1 &#x3D; 0;<br>objc_storeWeak(&amp;obj1, obj);<br>&#x2F;* ... obj的引用计数变为0，被置nil ... *&#x2F;<br>objc_storeWeak(&amp;obj1, 0);<br></code></pre></td></tr></table></figure>
 <p>objc_storeWeak函数把第二个参数–赋值对象（obj）的内存地址作为键值，将第一个参数–weak修饰的属性变量（obj1）的内存地址注册到 weak 表中。如果第二个参数（obj）为0（nil），那么把变量（obj1）的地址从weak表中删除</p>
 <h3 id="4、能否向编译后得到的类中增加实例变量？能否向运行时创建的类中添加实例变量？为什么？"><a href="#4、能否向编译后得到的类中增加实例变量？能否向运行时创建的类中添加实例变量？为什么？" class="headerlink" title="4、能否向编译后得到的类中增加实例变量？能否向运行时创建的类中添加实例变量？为什么？"></a>4、能否向编译后得到的类中增加实例变量？能否向运行时创建的类中添加实例变量？为什么？</h3><pre><code>不能向编译后得到的类中增加实例变量；</code></pre>
 <p>能向运行时创建的类中添加实例变量；<br>解释下：</p>

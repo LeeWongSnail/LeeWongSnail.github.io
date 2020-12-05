@@ -68,11 +68,13 @@
 
     
     
-        <link rel="stylesheet" id="hl-default-theme" href="/css/highlight/solarized-dark.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+    
+        <link rel="stylesheet" id="hl-default-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/default.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+        
+            <link rel="stylesheet" id="hl-dark-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/dark.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')!==-1)this.media='all'">
         
     
 
-    
     
 
      
@@ -204,21 +206,21 @@
 <a id="more"></a>
 
 <h2 id="Protobuf的安装"><a href="#Protobuf的安装" class="headerlink" title="Protobuf的安装"></a>Protobuf的安装</h2><p>这里推荐使用homebrew安装,如果没有安装,先<a target="_blank" rel="noopener" href="https://brew.sh/index_zh-cn.html">安装</a>吧</p>
-<h3 id="安装protobuf"><a href="#安装protobuf" class="headerlink" title="安装protobuf"></a>安装protobuf</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$brew install protobuf</span><br></pre></td></tr></table></figure>
+<h3 id="安装protobuf"><a href="#安装protobuf" class="headerlink" title="安装protobuf"></a>安装protobuf</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">$brew install protobuf<br></code></pre></td></tr></table></figure>
 
-<h3 id="安装Protobuf-Compiler"><a href="#安装Protobuf-Compiler" class="headerlink" title="安装Protobuf Compiler"></a>安装Protobuf Compiler</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install automake </span><br><span class="line">brew install libtool </span><br><span class="line">brew install protobuf</span><br></pre></td></tr></table></figure>
+<h3 id="安装Protobuf-Compiler"><a href="#安装Protobuf-Compiler" class="headerlink" title="安装Protobuf Compiler"></a>安装Protobuf Compiler</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plain">brew install automake <br>brew install libtool <br>brew install protobuf<br></code></pre></td></tr></table></figure>
 
 <h2 id="Protobuf-使用"><a href="#Protobuf-使用" class="headerlink" title="Protobuf 使用"></a>Protobuf 使用</h2><p>安装完成后我们就可以直接使用了！</p>
 <p><code>注意</code>:上面只是安装了编译环境,可以帮我们将.proto文件编译成我们需要的.h和.m环境</p>
 <h3 id="Protobuf-导入"><a href="#Protobuf-导入" class="headerlink" title="Protobuf 导入"></a>Protobuf 导入</h3><p>下面我们就可以新建一个iOS的工程了,然后使用pod方式管理protobuf</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod &#39;Protobuf&#39;, &#39;~&gt; 3.4.0&#39;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">pod &#39;Protobuf&#39;, &#39;~&gt; 3.4.0&#39;<br></code></pre></td></tr></table></figure>
 
 <h3 id="编写一个proto文件"><a href="#编写一个proto文件" class="headerlink" title="编写一个proto文件"></a>编写一个proto文件</h3><p>这个proto文件就相当于一个类,不过要使用protobuf的语法来定义</p>
 <p>可以简单的这么写：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line">message ChatMessage &#123;</span><br><span class="line">    <span class="built_in">string</span> title = <span class="number">1</span>;</span><br><span class="line">    <span class="built_in">string</span> body = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">syntax = <span class="hljs-string">&quot;proto3&quot;</span>;<br><br>message ChatMessage &#123;<br>    <span class="hljs-built_in">string</span> title = <span class="hljs-number">1</span>;<br>    <span class="hljs-built_in">string</span> body = <span class="hljs-number">2</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>注意：<br><code>使用proto3的时候不需要在变量前面加上required和optional,默认就是optional</code><br>具体的语法规则我们后面介绍</p>
-<h3 id="编译这个proto文件"><a href="#编译这个proto文件" class="headerlink" title="编译这个proto文件"></a>编译这个proto文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">protoc --plugin&#x3D;&#x2F;usr&#x2F;local&#x2F;bin&#x2F;protoc-gen-objc *.proto --objc_out&#x3D;&quot;.&#x2F;*&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="编译这个proto文件"><a href="#编译这个proto文件" class="headerlink" title="编译这个proto文件"></a>编译这个proto文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">protoc --plugin&#x3D;&#x2F;usr&#x2F;local&#x2F;bin&#x2F;protoc-gen-objc *.proto --objc_out&#x3D;&quot;.&#x2F;*&quot;<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>第一个<em>号的地方是你.proto文件所在的位置,<br>第二个</em>所在的地方是你编译完成之后.h和.m要导出的地方</p>
@@ -236,10 +238,10 @@
 <h2 id="简单的使用"><a href="#简单的使用" class="headerlink" title="简单的使用"></a>简单的使用</h2><p>先导入我们生成的.h文件</p>
 <p><code>#import &quot;ProtobufChatmessage.pbobjc.h&quot;</code></p>
 <p>简单的创建一个的对象–序列化成data然后在解析这个data。</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">ChatMessage *message = [[ChatMessage alloc] init];</span><br><span class="line">    message.title = <span class="string">@&quot;Lee&quot;</span>;</span><br><span class="line">    message.body = <span class="string">@&quot;Hom&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSData</span> *data = [message data];</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSError</span> *error = <span class="literal">nil</span>;</span><br><span class="line">    ChatMessage *msg = [ChatMessage parseFromData:data error:&amp;error];</span><br><span class="line">    <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;parseData Error %@&quot;</span>,error.localizedDescription);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;parseData Success&quot;</span>);</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;ChatMessage:title=%@ body=%@&quot;</span>,msg.title,msg.body);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs objc">ChatMessage *message = [[ChatMessage alloc] init];<br>    message.title = <span class="hljs-string">@&quot;Lee&quot;</span>;<br>    message.body = <span class="hljs-string">@&quot;Hom&quot;</span>;<br>    <br>    <span class="hljs-built_in">NSData</span> *data = [message data];<br>    <br>    <br>    <span class="hljs-built_in">NSError</span> *error = <span class="hljs-literal">nil</span>;<br>    ChatMessage *msg = [ChatMessage parseFromData:data error:&amp;error];<br>    <span class="hljs-keyword">if</span> (error) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;parseData Error %@&quot;</span>,error.localizedDescription);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;parseData Success&quot;</span>);<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;ChatMessage:title=%@ body=%@&quot;</span>,msg.title,msg.body);<br>    &#125;<br></code></pre></td></tr></table></figure>
 
 <p>运行结果:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2018-03-31 10:31:00.854929+0800 ProtobufDemo[5901:690009] parseData Success</span><br><span class="line">2018-03-31 10:31:00.855157+0800 ProtobufDemo[5901:690009] ChatMessage:title&#x3D;Lee body&#x3D;Hom</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">2018-03-31 10:31:00.854929+0800 ProtobufDemo[5901:690009] parseData Success<br>2018-03-31 10:31:00.855157+0800 ProtobufDemo[5901:690009] ChatMessage:title&#x3D;Lee body&#x3D;Hom<br></code></pre></td></tr></table></figure>
 
 <p>至此,我们已经成功的使用到了Protobuf,最直观的感觉就是直接从二进制的NSData转变成了我们想要的模型 Cool!!</p>
 <p>Protocol还有很多高深的内容,网上也有很多关于他的文章,喜欢的可以多看看！</p>
@@ -348,9 +350,9 @@
 <h5 id="关于package"><a href="#关于package" class="headerlink" title="关于package"></a>关于package</h5><p>避免名称冲突，可以给每个文件指定一个package名称，对于java解析为java中的包。对于C++则解析为名称空间。</p>
 <h5 id="关于message"><a href="#关于message" class="headerlink" title="关于message"></a>关于message</h5><p>支持嵌套消息，消息可以包含另一个消息作为其字段。也可以在消息内定义一个新的消息。</p>
 <h5 id="关于enum"><a href="#关于enum" class="headerlink" title="关于enum"></a>关于enum</h5><p>枚举的定义和C++相同，但是有一些限制。枚举值必须大于等于0的整数。使用分号(;)分隔枚举变量而不是C++语言中的逗号(,)</p>
-<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1,数据压缩效果好,序列化反序列速度快</span><br><span class="line">2,跨平台,生成一次proto文件,多端使用</span><br></pre></td></tr></table></figure>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">1,数据压缩效果好,序列化反序列速度快<br>2,跨平台,生成一次proto文件,多端使用<br></code></pre></td></tr></table></figure>
 
-<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1,可读性行差(在代码中)</span><br><span class="line">2,最增加App包体积(生成的类本身就代码很多,而且需要使用第三方库)</span><br><span class="line">3,用的人少(在项目交接时,还需要学习这方面的知识)</span><br></pre></td></tr></table></figure>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plain">1,可读性行差(在代码中)<br>2,最增加App包体积(生成的类本身就代码很多,而且需要使用第三方库)<br>3,用的人少(在项目交接时,还需要学习这方面的知识)<br></code></pre></td></tr></table></figure>
 
 <p>本文的Demo,放在<a target="_blank" rel="noopener" href="https://github.com/LeeWongSnail/Blog_Demo/tree/master/ProtobufDemo">这里</a></p>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a target="_blank" rel="noopener" href="http://blog.devzeng.com/blog/ios-protobuf.html">iOS中使用Protocol Buffers</a></p>

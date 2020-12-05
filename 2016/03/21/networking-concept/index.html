@@ -68,11 +68,13 @@
 
     
     
-        <link rel="stylesheet" id="hl-default-theme" href="/css/highlight/solarized-dark.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+    
+        <link rel="stylesheet" id="hl-default-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/default.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+        
+            <link rel="stylesheet" id="hl-dark-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/dark.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')!==-1)this.media='all'">
         
     
 
-    
     
 
      
@@ -204,7 +206,7 @@
 <a id="more"></a>
 
 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">可以设置全局的网络访问属性-- 对某台服务器所有特殊的设置，统一在config中设置</span><br><span class="line"></span><br><span class="line">最重要的一个属性 应用于身份验证的</span><br><span class="line"></span><br><span class="line">	HTTPAdditionalHeaders“”</span><br><span class="line">		 &#x2F;&#x2F; 设置身份验证的数据 - 一旦设置，全局共享的好处！</span><br><span class="line">		 </span><br><span class="line">    NSString *authStr &#x3D; [self base64Encode:@&quot;admin:</span><br><span class="line">    										123456&quot;];</span><br><span class="line">    										</span><br><span class="line">        authStr &#x3D; [@&quot;BASIC &quot; </span><br><span class="line">        				stringByAppendingString:authStr];</span><br><span class="line">        				</span><br><span class="line">        &#x2F;&#x2F; 设置请求头 身份验证 的字段</span><br><span class="line">        </span><br><span class="line">&#x2F;&#x2F;        [request setValue:authStr forHTTPHeaderField:@&quot;Authorization&quot;];</span><br><span class="line"></span><br><span class="line">        config.HTTPAdditionalHeaders &#x3D; @&#123;@&quot;Authorization&quot;: </span><br><span class="line">        								authStr&#125;;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs plain">可以设置全局的网络访问属性-- 对某台服务器所有特殊的设置，统一在config中设置<br><br>最重要的一个属性 应用于身份验证的<br><br>	HTTPAdditionalHeaders“”<br>		 &#x2F;&#x2F; 设置身份验证的数据 - 一旦设置，全局共享的好处！<br>		 <br>    NSString *authStr &#x3D; [self base64Encode:@&quot;admin:<br>    										123456&quot;];<br>    										<br>        authStr &#x3D; [@&quot;BASIC &quot; <br>        				stringByAppendingString:authStr];<br>        				<br>        &#x2F;&#x2F; 设置请求头 身份验证 的字段<br>        <br>&#x2F;&#x2F;        [request setValue:authStr forHTTPHeaderField:@&quot;Authorization&quot;];<br><br>        config.HTTPAdditionalHeaders &#x3D; @&#123;@&quot;Authorization&quot;: <br>        								authStr&#125;;<br><br><br></code></pre></td></tr></table></figure>
 
 
     </div>
