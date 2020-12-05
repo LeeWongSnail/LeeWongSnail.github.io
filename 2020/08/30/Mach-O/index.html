@@ -30,7 +30,7 @@
 <title>Mach-O 探究 | LeeWong</title>
 
 
-    <meta name="keywords" content="iOS">
+    <meta name="keywords" content="Mach-O 加载器, iOS">
 
 
 
@@ -44,38 +44,13 @@
 <meta property="og:site_name" content="LeeWong">
 <meta property="og:description" content="Mach-O为Mach Object文件格式的缩写，它是一种用于可执行文件，目标代码，动态库，内核转储的文件格式。作为a.out格式的替代，Mach-O提供了更强的扩展性，并提升了符号表中信息的访问速度。Mach-O格式为大部分基于Mach内核的操作系统所使用的，包括NeXTSTEP, Mac OS X和iOS，它们都以Mach-O格式作为其可执行文件，动态库，目标代码的文件格式。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xlznb88j30fm0keajq.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xow8jvoj30s40duwhk.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xfafmakj30yq0hqah8.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8xv47qi7j31fg0sc44j.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8yhakxzbj30b50but9m.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8yllkqyyj30ju1000y2.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8xxtz5kij31fa0g6dkw.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi8zwcgxxfj31py0s645r.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi90jod69hj30i808ewfe.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi90uyqf0ij314k0c8n0z.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi914f1x7fj31240ie0vn.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi91bdekm9j31j80u0gy7.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gi939ehxldj31vk0mu7ef.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gi93d875bdj31r60imtgw.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi91tzgretj31oq0j247e.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi91z90xhnj31og0fo43z.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gigtuycksmj30jo0pqgpu.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gih51mnkp7j31n60s6agt.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gih4x7u5ckj31pr0u01b9.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gih63wv6xzj31mv0u04jn.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gih6ao4ee6j31nd0u01b2.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gih6fqzemuj31rl0u0dyd.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gih4rgf693j31lk0u07qb.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gih6sbnruvj31uy0u04gr.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gip6quvmz0j30yk0d6qnx.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gip6q2kpiwj30nw0le4oi.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gld48z8trfj31b80b4q4c.jpg">
 <meta property="article:published_time" content="2020-08-30T08:20:39.000Z">
-<meta property="article:modified_time" content="2020-09-13T11:25:25.969Z">
+<meta property="article:modified_time" content="2020-12-05T09:39:08.965Z">
 <meta property="article:author" content="LeeWong">
-<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="Mach-O 加载器">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/007S8ZIlly1gi8xlznb88j30fm0keajq.jpg">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gld48z8trfj31b80b4q4c.jpg">
 
 
     
@@ -186,6 +161,8 @@
     <div class="post-title__meta">
         <a href="/archives/2020/08/" class="post-meta__date button">2020-08-30</a>
         
+    <span class="separate-dot"></span><a href="/categories/iOS%E9%AB%98%E7%BA%A7%E5%BC%80%E5%8F%91/" class="button">iOS高级开发</a>
+
  
         
     
@@ -225,7 +202,7 @@
 <article class="post content-card">
     <div class="post__header">
     
-        <div class="post-thumbnail" style="background-image: url('https://tva1.sinaimg.cn/large/0081Kckwly1glctu42wokj318g0gldfx.jpg');"></div>
+        <div class="post-thumbnail" style="background-image: url('https://tva1.sinaimg.cn/large/0081Kckwgy1gld48z8trfj31b80b4q4c.jpg');"></div>
     
 </div>
     <div class="post__content">
@@ -633,8 +610,8 @@
 
     </div>
      
-    <div class="post-footer__meta"><p>更新于 2020-09-13</p></div> 
-    <div class="post-meta__cats"></div> 
+    <div class="post-footer__meta"><p>更新于 2020-12-05</p></div> 
+    <div class="post-meta__cats"><a href="/categories/iOS%E9%AB%98%E7%BA%A7%E5%BC%80%E5%8F%91/" class="post-cats__link button">iOS高级开发</a><a href="/tags/Mach-O-%E5%8A%A0%E8%BD%BD%E5%99%A8/" class="post-tags__link button"># Mach-O 加载器</a></div> 
 </article>
 
 
