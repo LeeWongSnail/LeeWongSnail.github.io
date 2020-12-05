@@ -3869,9 +3869,6 @@ LLDB的命令其实还有很多，很多命令我也没玩过。就算玩过的�
       <categories>
         <category>Swift</category>
       </categories>
-      <tags>
-        <tag>Enum,字典转模型</tag>
-      </tags>
   </entry>
   <entry>
     <title>SDWebImage - 缓存管理</title>
@@ -6216,11 +6213,10 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://www.cnblogs.com/ioshe/p/5489086.html">iOS开发-Runtime详解（简书）</a><br><a href="https://opensource.apple.com/source/objc4/">Runtime源码</a><br><a href="http://lizhaoloveit.com/2014/05/11/KVO/">KVO</a><br><a href="https://tech.meituan.com/DiveIntoCategory.html">深入理解Objective-C：Category</a><br><a href="https://www.jianshu.com/p/55f781f8c915">iOS成员属性和成员变量的区别</a></p>
 ]]></content>
       <categories>
-        <category>iOS基础</category>
+        <category>Runtime</category>
       </categories>
       <tags>
-        <tag>Objective-C</tag>
-        <tag>Runtime</tag>
+        <tag>Runtime SEL Method</tag>
       </tags>
   </entry>
   <entry>
@@ -6342,6 +6338,12 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <p>我们也看到，+load方法是先调用了原始类中的+load方法，再调用分类中的load方法。</p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这篇文章我们主要介绍了分类的结构和分类是如何与主类关联的，同时分析了关联对象方法的具体实现。同时在介绍<code>load_images</code>方法时，我们又验证了+load方法的调用时机以及与分类方法链接到主类的执行顺序。</p>
 ]]></content>
+      <categories>
+        <category>Runtime</category>
+      </categories>
+      <tags>
+        <tag>Runtime Category</tag>
+      </tags>
   </entry>
   <entry>
     <title>SideTable结构</title>
@@ -6563,10 +6565,10 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>综上我们讲述了SideTable的结构，以及如何使用SideTable存储和清除对象和指向这些对象的指针地址。从而在侧面验证了弱引用的存储方式以及在对象释放时如何将弱引用的指针置空。读完这篇文章相信你对于SideTable结构和弱引用已经有了一个比较全面的认识。</p>
 ]]></content>
       <categories>
-        <category>iOS进阶</category>
+        <category>Runtime</category>
       </categories>
       <tags>
-        <tag>SideTable</tag>
+        <tag>Runtime SideTable</tag>
       </tags>
   </entry>
   <entry>
@@ -7805,6 +7807,9 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <p>总结上述的整个过程便是在主工程的main函数开始执行之前系统做的所有操作，其中有一些步骤和环境我也不是太清楚，因此需要进一步的完善和梳理。</p>
 <h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a href="https://opensource.apple.com/tarballs/libdispatch/">libdispatch源码</a><br><a href="https://blog.cnbluebox.com/blog/2017/06/20/dyldyu-objc/">dyld与ObjC</a><br><a href="https://www.jianshu.com/p/d2eeb4085af5">iOS App启动时发生了什么?</a><br><a href="https://www.jianshu.com/p/d2eeb4085af5">dyld加载应用启动原理详解</a></p>
 ]]></content>
+      <categories>
+        <category>MACH-O</category>
+      </categories>
       <tags>
         <tag>mach-o</tag>
       </tags>
@@ -8037,6 +8042,12 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <p>我们发现这里方法交换是成功的了！这样也就完成了类方法的交换</p>
 <h3 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h3><p><a href="https://github.com/LeeWongSnail/Blog_Demo/tree/master/MethodSwizzlzeDemo">demo代码地址</a></p>
 ]]></content>
+      <categories>
+        <category>Runtime</category>
+      </categories>
+      <tags>
+        <tag>Runtime ExchangeImplementations</tag>
+      </tags>
   </entry>
   <entry>
     <title>Runtime之消息转发</title>
@@ -8283,6 +8294,12 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <p>至此 消息发送和消息转发的逻辑就整理完成了，后面我们会继续看下Runtime中关联属性相关的实现逻辑。</p>
 <h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a href="http://www.arigrant.com/blog/2013/12/13/a-selector-left-unhandled">Hmmm, What’s that Selector?</a><br><a href="http://yulingtianxia.com/blog/2016/06/15/Objective-C-Message-Sending-and-Forwarding/">Objective-C 消息发送与转发机制原理</a></p>
 ]]></content>
+      <categories>
+        <category>Runtime</category>
+      </categories>
+      <tags>
+        <tag>Runtime msgSend</tag>
+      </tags>
   </entry>
   <entry>
     <title>Runtime之对象的一生</title>
@@ -8488,5 +8505,11 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这篇文章我们从对象的创建以及赋值销毁等方面分析了Runtime的实现，尤其是对于引用计数器的操作。让我们对内存管理有了更清晰的认识。</p>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://blog.csdn.net/u013378438/article/details/86508575">OC对象从创建到销毁</a><br><a href="https://halfrost.com/objc_life/">Objc 对象的今生今世</a></p>
 ]]></content>
+      <categories>
+        <category>Runtime</category>
+      </categories>
+      <tags>
+        <tag>Runtime Retain Release</tag>
+      </tags>
   </entry>
 </search>
