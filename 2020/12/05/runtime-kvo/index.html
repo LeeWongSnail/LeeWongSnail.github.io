@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+    <meta charset="utf-8">
+
+    
+
+    <!-- 渲染优化 -->
+    <meta name="renderer" content="webkit">
+    <meta name="force-rendering" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="HandheldFriendly" content="True" >
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--icon-->
+
+    
+        <link rel="shortcut icon" href="https://tva1.sinaimg.cn/large/0081Kckwly1glcsnw2jatj303k03k748.jpg">
+    
+    
+    
+    
+    
+
+
+    <!-- meta -->
+
+
+<title>Runtime之KVO | LeeWong</title>
+
+
+    <meta name="keywords" content="Runtime KVO, iOS">
+
+
+
+
+    <!-- OpenGraph -->
+ 
+    <meta name="description" content="KVO(Key-Value-Observer)即键值监听，我们在平时的开发中通常用来监听对象属性的变化，比如UIScrollView的ContentOffset,不过同时我们要注意在不需要继续监听的时候及时的移除监听，否则可能会导致崩溃。因此这篇文章让我们更好的了解KVO。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Runtime之KVO">
+<meta property="og:url" content="https://www.leewong.cn/2020/12/05/runtime-kvo/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="KVO(Key-Value-Observer)即键值监听，我们在平时的开发中通常用来监听对象属性的变化，比如UIScrollView的ContentOffset,不过同时我们要注意在不需要继续监听的时候及时的移除监听，否则可能会导致崩溃。因此这篇文章让我们更好的了解KVO。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwly1gldao0qiauj30a403uglp.jpg">
+<meta property="article:published_time" content="2020-12-05T13:19:49.000Z">
+<meta property="article:modified_time" content="2020-12-06T12:52:08.054Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="Runtime KVO">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/0081Kckwly1gldao0qiauj30a403uglp.jpg">
+
+
+    
+<link rel="stylesheet" href="/css/style/main.css">
+ 
+
+
+    
+<link rel="stylesheet" href="/css/style/dark.css">
+
+    
+<script src="/js/darkmode.js"></script>
+
+
+
+    
+    
+    
+        <link rel="stylesheet" id="hl-default-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/default.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+        
+            <link rel="stylesheet" id="hl-dark-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/dark.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')!==-1)this.media='all'">
+        
+    
+
+    
+
+     
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+ 
+
+    <!-- custom head -->
+
+    
+        <meta name="google-site-verification" content="4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU" /> 
+    
+
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+    <body>
+        <div id="app">
+            <header class="header">
+    <div class="header__left">
+        <a href="/" class="button">
+            <span class="logo__text">LeeWong</span>
+        </a>
+    </div>
+    <div class="header__right">
+        
+            <div class="navbar__menus">
+                
+                    <a href="/" class="navbar-menu button">首页</a>
+                
+                    <a href="/tags/" class="navbar-menu button">标签</a>
+                
+                    <a href="/archives/" class="navbar-menu button">归档</a>
+                
+                    <a href="/about/" class="navbar-menu button">关于我</a>
+                
+            </div>
+        
+        
+        
+
+        
+        
+    <a href="javaScript:void(0);" id="btn-toggle-dark">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </a>
+
+
+         
+    <a href="#" class="button" id="b2t" aria-label="回到顶部" title="回到顶部">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="32" height="32">
+            <path d="M233.376 722.752L278.624 768 512 534.624 745.376 768l45.248-45.248L512 444.128zM192 352h640V288H192z" fill="currentColor"></path>
+        </svg>
+    </a>
+
+
+        
+            <a class="dropdown-icon button" id="btn-dropdown" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width='24' height='24' fill="none" stroke="currentColor" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" d="M3.314,4.8h13.372c0.41,0,0.743-0.333,0.743-0.743c0-0.41-0.333-0.743-0.743-0.743H3.314c-0.41,0-0.743,0.333-0.743,0.743C2.571,4.467,2.904,4.8,3.314,4.8z M16.686,15.2H3.314c-0.41,0-0.743,0.333-0.743,0.743s0.333,0.743,0.743,0.743h13.372c0.41,0,0.743-0.333,0.743-0.743S17.096,15.2,16.686,15.2z M16.686,9.257H3.314c-0.41,0-0.743,0.333-0.743,0.743s0.333,0.743,0.743,0.743h13.372c0.41,0,0.743-0.333,0.743-0.743S17.096,9.257,16.686,9.257z"></path></svg></a>
+            <div class="dropdown-menus" id="dropdown-menus">
+                
+                    <a href="/" class="dropdown-menu button">首页</a>
+                
+                    <a href="/tags/" class="dropdown-menu button">标签</a>
+                
+                    <a href="/archives/" class="dropdown-menu button">归档</a>
+                
+                    <a href="/about/" class="dropdown-menu button">关于我</a>
+                
+            </div>
+        
+    </div>
+</header>
+
+
+            <main class="main">
+    
+
+<div class="post-title">
+    <h1 class="post-title__text">
+        Runtime之KVO
+    </h1>
+    <div class="post-title__meta">
+        <a href="/archives/2020/12/" class="post-meta__date button">2020-12-05</a>
+        
+    <span class="separate-dot"></span><a href="/categories/Runtime/" class="button">Runtime</a>
+
+ 
+        
+    
+     
+    <span id="busuanzi_container_page_pv" hidden>
+        <span class="separate-dot"></span>
+        <span></span>
+        <span id="busuanzi_value_page_pv"></span>
+        <span>Views</span>
+    </span>
+
+
+
+ 
+
+ 
+    </div>
+</div>
+
+
+    <aside class="post-side">
+        <div class="post-side__toc">
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#KVO%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">KVO的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E7%9B%91%E5%90%AC"><span class="toc-number">1.1.</span> <span class="toc-text">添加监听</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%91%E5%90%AC%E6%94%B9%E5%8F%98"><span class="toc-number">1.2.</span> <span class="toc-text">监听改变</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#keyPath"><span class="toc-number">1.2.1.</span> <span class="toc-text">keyPath</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#object"><span class="toc-number">1.2.2.</span> <span class="toc-text">object</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#change"><span class="toc-number">1.2.3.</span> <span class="toc-text">change</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#context"><span class="toc-number">1.2.4.</span> <span class="toc-text">context</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A7%BB%E9%99%A4%E7%9B%91%E5%90%AC-removeObserver"><span class="toc-number">1.3.</span> <span class="toc-text">移除监听 removeObserver</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#KVO-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">KVO 如何实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+        </div>
+    </aside>
+    <a class="btn-toc button" id="btn-toc" tabindex="0">
+        <svg viewBox="0 0 1024 1024" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M128 256h64V192H128zM320 256h576V192H320zM128 544h64v-64H128zM320 544h576v-64H320zM128 832h64v-64H128zM320 832h576v-64H320z" fill="currentColor"></path>
+        </svg>
+    </a>
+    <div class="toc-menus" id="toc-menus">
+        <div class="toc-title">文章目录</div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#KVO%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">KVO的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E7%9B%91%E5%90%AC"><span class="toc-number">1.1.</span> <span class="toc-text">添加监听</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%91%E5%90%AC%E6%94%B9%E5%8F%98"><span class="toc-number">1.2.</span> <span class="toc-text">监听改变</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#keyPath"><span class="toc-number">1.2.1.</span> <span class="toc-text">keyPath</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#object"><span class="toc-number">1.2.2.</span> <span class="toc-text">object</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#change"><span class="toc-number">1.2.3.</span> <span class="toc-text">change</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#context"><span class="toc-number">1.2.4.</span> <span class="toc-text">context</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A7%BB%E9%99%A4%E7%9B%91%E5%90%AC-removeObserver"><span class="toc-number">1.3.</span> <span class="toc-text">移除监听 removeObserver</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#KVO-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">KVO 如何实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+
+<article class="post content-card">
+    <div class="post__header">
+    
+        <div class="post-thumbnail" style="background-image: url('https://tva1.sinaimg.cn/large/0081Kckwly1gldao0qiauj30a403uglp.jpg');"></div>
+    
+</div>
+    <div class="post__content">
+        <p>KVO(Key-Value-Observer)即键值监听，我们在平时的开发中通常用来监听对象属性的变化，比如UIScrollView的ContentOffset,不过同时我们要注意在不需要继续监听的时候及时的移除监听，否则可能会导致崩溃。因此这篇文章让我们更好的了解KVO。</p>
+<a id="more"></a>
+
+<h2 id="KVO的使用"><a href="#KVO的使用" class="headerlink" title="KVO的使用"></a>KVO的使用</h2><p>下面我们来看下我们平时使用KVO的方式：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs objc"><span class="hljs-class"><span class="hljs-keyword">@interface</span> <span class="hljs-title">ViewController</span> ()</span><br><span class="hljs-keyword">@property</span> (<span class="hljs-keyword">nonatomic</span>, <span class="hljs-keyword">strong</span>) Person *man;<br><span class="hljs-keyword">@end</span><br><br><span class="hljs-class"><span class="hljs-keyword">@implementation</span> <span class="hljs-title">ViewController</span></span><br><br>- (<span class="hljs-keyword">void</span>)viewDidLoad &#123;<br>    [<span class="hljs-keyword">super</span> viewDidLoad];<br>    <span class="hljs-comment">// Do any additional setup after loading the view.</span><br>    <span class="hljs-keyword">self</span>.man = [[Person alloc] init];<br>    [<span class="hljs-keyword">self</span> addKVO];<br>&#125;<br><br>- (<span class="hljs-keyword">void</span>)addKVO &#123;<br>    [<span class="hljs-keyword">self</span>.man addObserver:<span class="hljs-keyword">self</span> forKeyPath:<span class="hljs-string">@&quot;name&quot;</span> options:<span class="hljs-built_in">NSKeyValueObservingOptionNew</span>|<span class="hljs-built_in">NSKeyValueObservingOptionOld</span> context:<span class="hljs-literal">nil</span>];<br>&#125;<br><br>- (<span class="hljs-keyword">void</span>)removeKVO &#123;<br>    [<span class="hljs-keyword">self</span>.man removeObserver:<span class="hljs-keyword">self</span> forKeyPath:<span class="hljs-string">@&quot;name&quot;</span>];<br>&#125;<br><br>- (<span class="hljs-keyword">void</span>)touchesBegan:(<span class="hljs-built_in">NSSet</span>&lt;<span class="hljs-built_in">UITouch</span> *&gt; *)touches withEvent:(<span class="hljs-built_in">UIEvent</span> *)event &#123;<br>    [<span class="hljs-keyword">super</span> touchesBegan:touches withEvent:event];<br>    <span class="hljs-keyword">self</span>.man.name = <span class="hljs-string">@&quot;LeeWong&quot;</span>;<br>&#125;<br><br>- (<span class="hljs-keyword">void</span>)observeValueForKeyPath:(<span class="hljs-built_in">NSString</span> *)keyPath ofObject:(<span class="hljs-keyword">id</span>)object change:(<span class="hljs-built_in">NSDictionary</span>&lt;<span class="hljs-built_in">NSKeyValueChangeKey</span>,<span class="hljs-keyword">id</span>&gt; *)change context:(<span class="hljs-keyword">void</span> *)context &#123;<br>    <span class="hljs-keyword">if</span> ([keyPath isEqual:<span class="hljs-string">@&quot;name&quot;</span>]) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;keyPath %@ object %@ change%@ context %@&quot;</span>,keyPath,object,change,context);<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">@end</span><br></code></pre></td></tr></table></figure>
+
+<p>每次点击屏幕控制台打印如下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs objc"><span class="hljs-number">2020</span><span class="hljs-number">-12</span><span class="hljs-number">-06</span> <span class="hljs-number">20</span>:<span class="hljs-number">05</span>:<span class="hljs-number">15.531233</span>+<span class="hljs-number">0800</span> Runtime-KVO[<span class="hljs-number">2252</span>:<span class="hljs-number">11056787</span>] keyPath name object &lt;Person: <span class="hljs-number">0x600001028060</span>&gt; change&#123;<br>    kind = <span class="hljs-number">1</span>;<br>    new = LeeWong;<br>    old = <span class="hljs-string">&quot;&lt;null&gt;&quot;</span>;<br>&#125; context <span class="hljs-keyword">self</span><br></code></pre></td></tr></table></figure>
+
+<p>KVO的使用主要有下面三步：</p>
+<h3 id="添加监听"><a href="#添加监听" class="headerlink" title="添加监听"></a>添加监听</h3><p> 我们可以通过调用addObserver方法添加对某个对象的某个属性进行监听,同时我们还可以设置什么情况下会触发我们的监听，这里有一个枚举：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs objc"><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">NS_OPTIONS</span>(<span class="hljs-built_in">NSUInteger</span>, <span class="hljs-built_in">NSKeyValueObservingOptions</span>) &#123;<br>    <span class="hljs-comment">// 属性发生改变时是否需要提供属性的新值</span><br>    <span class="hljs-built_in">NSKeyValueObservingOptionNew</span> = <span class="hljs-number">0x01</span>,<br>    <span class="hljs-comment">// 属性发生改变时是否需要提供属性的旧值</span><br>    <span class="hljs-built_in">NSKeyValueObservingOptionOld</span> = <span class="hljs-number">0x02</span>,<br>    <span class="hljs-comment">// 如果指定，则在添加观察者的时候立即发送一个通知给观察者 并且是在注册观察者方法返回之前</span><br>    <span class="hljs-built_in">NSKeyValueObservingOptionInitial</span> API_AVAILABLE(macos(<span class="hljs-number">10.5</span>), ios(<span class="hljs-number">2.0</span>), watchos(<span class="hljs-number">2.0</span>), tvos(<span class="hljs-number">9.0</span>)) = <span class="hljs-number">0x04</span>,<br>    <span class="hljs-comment">// 并且是在注册观察者方法返回之前这与-willChangeValueForKey:被触发的时间是相对应的</span><br>    <span class="hljs-comment">// 这样，在每次修改属性时，实际上是会发送两条通知</span><br>    <span class="hljs-built_in">NSKeyValueObservingOptionPrior</span> API_AVAILABLE(macos(<span class="hljs-number">10.5</span>), ios(<span class="hljs-number">2.0</span>), watchos(<span class="hljs-number">2.0</span>), tvos(<span class="hljs-number">9.0</span>)) = <span class="hljs-number">0x08</span><br><br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>  对于context这个字段实际上我们可以看做给我们提供了一个在观察者与被观察者之间传值的属性，当多个对象监听同一个对象的某个属性发生改变时可用来区分来源。</p>
+<h3 id="监听改变"><a href="#监听改变" class="headerlink" title="监听改变"></a>监听改变</h3><p>当被监听的属性发生改变时，会触发observeValueForKeyPath方法</p>
+<p>这个方法共有四个参数：</p>
+<h4 id="keyPath"><a href="#keyPath" class="headerlink" title="keyPath"></a>keyPath</h4><p>被监听的属性 </p>
+<h4 id="object"><a href="#object" class="headerlink" title="object"></a>object</h4><p>被监听的属性所属的对象</p>
+<h4 id="change"><a href="#change" class="headerlink" title="change"></a>change</h4><p>本次监听的改变 具体值与添加监听者时NSKeyValueObservingOptions设置有关</p>
+<p>在上面的例子中change对应的值为：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs objc">change&#123;<br>    kind = <span class="hljs-number">1</span>;<br>    new = LeeWong;<br>    old = <span class="hljs-string">&quot;&lt;null&gt;&quot;</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们来看下change中对应信息的key值有哪些分别用来获取哪些value值：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs objc"><span class="hljs-comment">// 属性变化的类型，是一个NSNumber对象，包含NSKeyValueChange枚举相关的值</span><br><span class="hljs-built_in">NSString</span> *<span class="hljs-keyword">const</span> <span class="hljs-built_in">NSKeyValueChangeKindKey</span>;<br> <br><span class="hljs-comment">// 属性的新值。当NSKeyValueChangeKindKey是 NSKeyValueChangeSetting，</span><br><span class="hljs-comment">// 且添加观察的方法设置了NSKeyValueObservingOptionNew时，我们能获取到属性的新值。</span><br><span class="hljs-comment">// 如果NSKeyValueChangeKindKey是NSKeyValueChangeInsertion或者NSKeyValueChangeReplacement，</span><br><span class="hljs-comment">// 且指定了NSKeyValueObservingOptionNew时，则我们能获取到一个NSArray对象，包含被插入的对象或</span><br><span class="hljs-comment">// 用于替换其它对象的对象。</span><br><span class="hljs-built_in">NSString</span> *<span class="hljs-keyword">const</span> <span class="hljs-built_in">NSKeyValueChangeNewKey</span>;<br> <br><span class="hljs-comment">// 属性的旧值。当NSKeyValueChangeKindKey是 NSKeyValueChangeSetting，</span><br><span class="hljs-comment">// 且添加观察的方法设置了NSKeyValueObservingOptionOld时，我们能获取到属性的旧值。</span><br><span class="hljs-comment">// 如果NSKeyValueChangeKindKey是NSKeyValueChangeRemoval或者NSKeyValueChangeReplacement，</span><br><span class="hljs-comment">// 且指定了NSKeyValueObservingOptionOld时，则我们能获取到一个NSArray对象，包含被移除的对象或</span><br><span class="hljs-comment">// 被替换的对象。</span><br><span class="hljs-built_in">NSString</span> *<span class="hljs-keyword">const</span> <span class="hljs-built_in">NSKeyValueChangeOldKey</span>;<br> <br><span class="hljs-comment">// 如果NSKeyValueChangeKindKey的值是NSKeyValueChangeInsertion、NSKeyValueChangeRemoval</span><br><span class="hljs-comment">// 或者NSKeyValueChangeReplacement，则这个key对应的值是一个NSIndexSet对象，</span><br><span class="hljs-comment">// 包含了被插入、移除或替换的对象的索引</span><br><span class="hljs-built_in">NSString</span> *<span class="hljs-keyword">const</span> <span class="hljs-built_in">NSKeyValueChangeIndexesKey</span>;<br> <br><span class="hljs-comment">// 当指定了NSKeyValueObservingOptionPrior选项时，在属性被修改的通知发送前，</span><br><span class="hljs-comment">// 会先发送一条通知给观察者。我们可以使用NSKeyValueChangeNotificationIsPriorKey</span><br><span class="hljs-comment">// 来获取到通知是否是预先发送的，如果是，获取到的值总是@(YES)</span><br><span class="hljs-built_in">NSString</span> *<span class="hljs-keyword">const</span> <span class="hljs-built_in">NSKeyValueChangeNotificationIsPriorKey</span>;<br></code></pre></td></tr></table></figure>
+
+<p>同时，NSKeyValueChangeKindKey对应的枚举有：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs objc"><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">NS_ENUM</span>(<span class="hljs-built_in">NSUInteger</span>, <span class="hljs-built_in">NSKeyValueChange</span>) &#123;<br>    <span class="hljs-comment">//设置一个新值。被监听的属性可以是一个对象，也可以是一对一关系的属性或一对多关系的属性。</span><br>    <span class="hljs-built_in">NSKeyValueChangeSetting</span> = <span class="hljs-number">1</span>,<br>    <span class="hljs-comment">//表示一个对象被插入到一对多关系的属性。</span><br>    <span class="hljs-built_in">NSKeyValueChangeInsertion</span> = <span class="hljs-number">2</span>,<br>    <span class="hljs-comment">// 表示一个对象被从一对多关系的属性中移除。</span><br>    <span class="hljs-built_in">NSKeyValueChangeRemoval</span> = <span class="hljs-number">3</span>,<br>    <span class="hljs-comment">// 表示一个对象在一对多的关系的属性中被替换</span><br>    <span class="hljs-built_in">NSKeyValueChangeReplacement</span> = <span class="hljs-number">4</span>,<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h4 id="context"><a href="#context" class="headerlink" title="context"></a>context</h4><p>额外数据</p>
+<h3 id="移除监听-removeObserver"><a href="#移除监听-removeObserver" class="headerlink" title="移除监听 removeObserver"></a>移除监听 removeObserver</h3><p> 当监听者不需要监听变化时，需要调用removeObserver方法移除监听。需要注意的是，在监听者被释放前，必须要调用removeObserver:forKeyPath:将其移除，否则会crash。我们看下下面这段代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs objc">- (<span class="hljs-keyword">void</span>)addKVOCrashTest &#123;<br>    Person *person = [Person new];<br>    Person *person2 = [Person new];<br>    [person2 addObserver:person forKeyPath:<span class="hljs-string">@&quot;name&quot;</span> options:<span class="hljs-built_in">NSKeyValueObservingOptionNew</span>|<span class="hljs-built_in">NSKeyValueObservingOptionOld</span> context:<span class="hljs-string">@&quot;person&quot;</span>];<br>    person2.name = <span class="hljs-string">@&quot;LeeWong&quot;</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>很明显，上述代码在person释放时并没有移除监听，因此控制台打印如下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs objc">libc++abi.dylib: terminating with uncaught exception of type <span class="hljs-built_in">NSException</span><br>*** Terminating app due to uncaught exception <span class="hljs-string">&#x27;NSInternalInconsistencyException&#x27;</span>, reason: <span class="hljs-string">&#x27;&lt;Person: 0x6000018fc120&gt;: An -observeValueForKeyPath:ofObject:change:context: message was received but not handled.</span><br><span class="hljs-string">Key path: name</span><br><span class="hljs-string">Observed object: &lt;Person: 0x6000018fc100&gt;</span><br><span class="hljs-string">Change: &#123;</span><br><span class="hljs-string">    kind = 1;</span><br><span class="hljs-string">    new = LeeWong;</span><br><span class="hljs-string">    old = &quot;&lt;null&gt;&quot;;</span><br><span class="hljs-string">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>通过上面的描述我们对KVO的使用有了一个基本的了解，下面我们来看下KVO相关的干货。</p>
+<p>待续……</p>
+<h2 id="KVO-如何实现"><a href="#KVO-如何实现" class="headerlink" title="KVO 如何实现"></a>KVO 如何实现</h2><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>
+    </div>
+     
+    <div class="post-footer__meta"><p>更新于 2020-12-06</p></div> 
+    <div class="post-meta__cats"><a href="/categories/Runtime/" class="post-cats__link button">Runtime</a><a href="/tags/Runtime-KVO/" class="post-tags__link button"># Runtime KVO</a></div> 
+</article>
+
+
+    <div class="nav">
+        <div class="nav__prev">
+            
+        </div>
+        <div class="nav__next">
+            
+                <a href="/2020/11/29/runtime-objectlifetime/" class="nav__link">
+                    <div>
+                        <div class="nav__label">
+                            Next Post
+                        </div>
+                        <div class="nav__title">
+                            Runtime之对象的一生
+                        </div>
+                    </div>
+                    <div>
+                        <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M434.944 790.624l-45.248-45.248L623.04 512l-233.376-233.376 45.248-45.248L713.568 512z" fill="#808080"></path></svg>
+                    </div>
+                </a>
+            
+        </div>
+    </div>
+
+
+
+
+
+</main>
+
+            <footer class="footer">
+    
+
+
+    
+    
+    
+        <span id="busuanzi_container_site_uv" hidden>
+            <span></span>
+            <span id="busuanzi_value_site_uv"></span>
+            <span>Viewers</span>
+            
+                <span>&amp;nbsp;&amp;nbsp;&amp;nbsp;|</span>
+            
+        </span>
+    
+    
+        <span id="busuanzi_container_site_pv" hidden>
+            <span></span>
+            <span id="busuanzi_value_site_pv"></span>
+            <span>Views</span>
+            
+        </span>
+    
+ 
+ 
+
+ 
+    
+        
+        <p class="footer-copyright">
+            Copyright © 2015&nbsp;-&nbsp;2020 <a href="/">LeeWong</a>
+        </p>
+    
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme - <a href="https://github.com/ChrAlpha/hexo-theme-cards" target="_blank">Cards</a></p>
+</footer>
+
+        </div>
+         
+
+ 
+    <script>
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <script async src="https://www.google-analytics.com/analytics.js"></script>
+ 
+
+ 
+
+ 
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement('script');
+            hm.src = 'https://hm.baidu.com/hm.js?DR81zbdrQ3';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+ 
+
+  
+
+
+
+ 
+
+
+    
+ 
+
+
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.4.1/dist/jquery.fancybox.min.css">
+
+    
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.4.1/dist/jquery.fancybox.min.js"></script>
+
+    <script>
+        let lazyloadT = Boolean('false'),
+            auto_fancybox = Boolean('false')
+        if (auto_fancybox) {
+            $(".post__content").find('img').each(function () {
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("href", $(this).attr("src"));
+                if (lazyloadT) {
+                    $(element).attr("href", $(this).attr("data-srcset"));
+                }
+                $(this).wrap(element);
+            });
+        } else {
+            $(".post__content").find("fancybox").find('img').each(function () {
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("href", $(this).attr("src"));
+                if (lazyloadT) {
+                    $(element).attr("href", $(this).attr("data-srcset"));
+                }
+                $(this).wrap(element);
+            });
+        }
+    </script>
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+
+    </body>
+</html>
