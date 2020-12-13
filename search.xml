@@ -8180,6 +8180,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://blog.csdn.net/quanqinyang/article/details/45226753">NSKeyValueObserving(KVO)</a></p>
 <p><a href="https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/KeyValueObserving/Articles/KVOCompliance.html#//apple_ref/doc/uid/20002178-BAJEAIEE">Key-Value Observing Programming Guide</a></p>
 <p><a href="https://blog.chenyalun.com/2019/05/31/Key-Value%20Observing%E6%BA%90%E7%A0%81%E5%88%9D%E6%8E%A2/#2-4-NSKeyValueObservationInfo%E7%9A%84%E5%AD%98%E5%82%A8-observationInfo">Key-Value Observing源码初探</a></p>
+<p><a href="https://github.com/LeeWongSnail/Blog_Demo/tree/master/Runtime-KVO">本文demo</a></p>
 ]]></content>
       <categories>
         <category>Runtime</category>
