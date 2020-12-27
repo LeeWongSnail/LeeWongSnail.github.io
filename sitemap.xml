@@ -1124,7 +1124,7 @@
   </url>
   
   <url>
-    <loc>https://www.leewong.cn/tags/Runtime-KVC/</loc>
+    <loc>https://www.leewong.cn/tags/KVC%E3%80%81KVO%E3%80%81%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/</loc>
     <lastmod>2020-12-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -1288,6 +1288,13 @@
   
   <url>
     <loc>https://www.leewong.cn/categories/MACH-O/</loc>
+    <lastmod>2020-12-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.leewong.cn/categories/KVC/</loc>
     <lastmod>2020-12-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

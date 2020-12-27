@@ -8190,7 +8190,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
       </tags>
   </entry>
   <entry>
-    <title>Runtime之KVC实现探究</title>
+    <title>iOS KVC 实现探究</title>
     <url>/2020/12/19/runtime-KVC/</url>
     <content><![CDATA[<p>我们都知道iOS开发中有很多<code>黑魔法</code>，KVC就是其中之一，在平时开发中我们也会使用KVC去获取一些系统未公开的API方法，但同时我们可能要承担一些被拒或者因系统API改变导致的问题。这篇文章我们从源码的角度分析KVC的实现。</p>
 <a id="more"></a>
@@ -8414,10 +8414,10 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <p><a href="https://github.com/LeeWongSnail/Blog_Demo/tree/master/Runtime-KVC">本文demo</a></p>
 ]]></content>
       <categories>
-        <category>Runtime</category>
+        <category>KVC</category>
       </categories>
       <tags>
-        <tag>Runtime KVC</tag>
+        <tag>KVC、KVO、实现原理</tag>
       </tags>
   </entry>
 </search>
