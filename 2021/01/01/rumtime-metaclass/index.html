@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+    <meta charset="utf-8">
+
+    
+
+    <!-- 渲染优化 -->
+    <meta name="renderer" content="webkit">
+    <meta name="force-rendering" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="HandheldFriendly" content="True" >
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--icon-->
+
+    
+        <link rel="shortcut icon" href="https://tva1.sinaimg.cn/large/0081Kckwly1glcsnw2jatj303k03k748.jpg">
+    
+    
+    
+    
+    
+
+
+    <!-- meta -->
+
+
+<title>Runtime之MetaClass | LeeWong</title>
+
+
+    <meta name="keywords" content="metaClass, iOS">
+
+
+
+
+    <!-- OpenGraph -->
+ 
+    <meta name="description" content="对于iOS开发者来说，元类一直是一个在面试时被重点考察的点，为什么在语言设计时要增加元类这个概念？他的优点是什么？他到底有什么作用呢？这篇文章我们从Runtime源码的角度和语言设计的角度来探讨MetaClass存在的原因以及他的存在解决了哪些问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Runtime之MetaClass">
+<meta property="og:url" content="https://www.leewong.cn/2021/01/01/rumtime-metaclass/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="对于iOS开发者来说，元类一直是一个在面试时被重点考察的点，为什么在语言设计时要增加元类这个概念？他的优点是什么？他到底有什么作用呢？这篇文章我们从Runtime源码的角度和语言设计的角度来探讨MetaClass存在的原因以及他的存在解决了哪些问题。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gld61vl0tsj30qo0fkq47.jpg">
+<meta property="article:published_time" content="2021-01-01T10:36:52.000Z">
+<meta property="article:modified_time" content="2021-01-01T15:31:36.507Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="metaClass">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gld61vl0tsj30qo0fkq47.jpg">
+
+
+    
+<link rel="stylesheet" href="/css/style/main.css">
+ 
+
+
+    
+<link rel="stylesheet" href="/css/style/dark.css">
+
+    
+<script src="/js/darkmode.js"></script>
+
+
+
+    
+    
+    
+        <link rel="stylesheet" id="hl-default-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/default.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+        
+            <link rel="stylesheet" id="hl-dark-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/dark.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')!==-1)this.media='all'">
+        
+    
+
+    
+
+     
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+ 
+
+    <!-- custom head -->
+
+    
+        <meta name="google-site-verification" content="4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU" /> 
+    
+
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+    <body>
+        <div id="app">
+            <header class="header">
+    <div class="header__left">
+        <a href="/" class="button">
+            <span class="logo__text">LeeWong</span>
+        </a>
+    </div>
+    <div class="header__right">
+        
+            <div class="navbar__menus">
+                
+                    <a href="/" class="navbar-menu button">首页</a>
+                
+                    <a href="/tags/" class="navbar-menu button">标签</a>
+                
+                    <a href="/archives/" class="navbar-menu button">归档</a>
+                
+                    <a href="/about/" class="navbar-menu button">关于我</a>
+                
+            </div>
+        
+        
+        
+
+        
+        
+    <a href="javaScript:void(0);" id="btn-toggle-dark">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </a>
+
+
+         
+    <a href="#" class="button" id="b2t" aria-label="回到顶部" title="回到顶部">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="32" height="32">
+            <path d="M233.376 722.752L278.624 768 512 534.624 745.376 768l45.248-45.248L512 444.128zM192 352h640V288H192z" fill="currentColor"></path>
+        </svg>
+    </a>
+
+
+        
+            <a class="dropdown-icon button" id="btn-dropdown" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width='24' height='24' fill="none" stroke="currentColor" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" d="M3.314,4.8h13.372c0.41,0,0.743-0.333,0.743-0.743c0-0.41-0.333-0.743-0.743-0.743H3.314c-0.41,0-0.743,0.333-0.743,0.743C2.571,4.467,2.904,4.8,3.314,4.8z M16.686,15.2H3.314c-0.41,0-0.743,0.333-0.743,0.743s0.333,0.743,0.743,0.743h13.372c0.41,0,0.743-0.333,0.743-0.743S17.096,15.2,16.686,15.2z M16.686,9.257H3.314c-0.41,0-0.743,0.333-0.743,0.743s0.333,0.743,0.743,0.743h13.372c0.41,0,0.743-0.333,0.743-0.743S17.096,9.257,16.686,9.257z"></path></svg></a>
+            <div class="dropdown-menus" id="dropdown-menus">
+                
+                    <a href="/" class="dropdown-menu button">首页</a>
+                
+                    <a href="/tags/" class="dropdown-menu button">标签</a>
+                
+                    <a href="/archives/" class="dropdown-menu button">归档</a>
+                
+                    <a href="/about/" class="dropdown-menu button">关于我</a>
+                
+            </div>
+        
+    </div>
+</header>
+
+
+            <main class="main">
+    
+
+<div class="post-title">
+    <h1 class="post-title__text">
+        Runtime之MetaClass
+    </h1>
+    <div class="post-title__meta">
+        <a href="/archives/2021/01/" class="post-meta__date button">2021-01-01</a>
+        
+    <span class="separate-dot"></span><a href="/categories/iOS%E4%BC%98%E5%8C%96/" class="button">iOS优化</a>
+
+ 
+        
+    
+     
+    <span id="busuanzi_container_page_pv" hidden>
+        <span class="separate-dot"></span>
+        <span></span>
+        <span id="busuanzi_value_page_pv"></span>
+        <span>Views</span>
+    </span>
+
+
+
+ 
+
+ 
+    </div>
+</div>
+
+
+    <aside class="post-side">
+        <div class="post-side__toc">
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">测试题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Class-%E6%96%B9%E6%B3%95"><span class="toc-number">1.1.</span> <span class="toc-text">Class 方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#isKindOfClass"><span class="toc-number">1.2.</span> <span class="toc-text">isKindOfClass</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#isMemberOfClass"><span class="toc-number">1.3.</span> <span class="toc-text">isMemberOfClass</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90"><span class="toc-number">1.4.</span> <span class="toc-text">结果分析</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#isKindOfClass-1"><span class="toc-number">1.4.1.</span> <span class="toc-text">isKindOfClass</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#isMemberOfClass-1"><span class="toc-number">1.4.2.</span> <span class="toc-text">isMemberOfClass</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.5.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+        </div>
+    </aside>
+    <a class="btn-toc button" id="btn-toc" tabindex="0">
+        <svg viewBox="0 0 1024 1024" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M128 256h64V192H128zM320 256h576V192H320zM128 544h64v-64H128zM320 544h576v-64H320zM128 832h64v-64H128zM320 832h576v-64H320z" fill="currentColor"></path>
+        </svg>
+    </a>
+    <div class="toc-menus" id="toc-menus">
+        <div class="toc-title">文章目录</div>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">测试题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Class-%E6%96%B9%E6%B3%95"><span class="toc-number">1.1.</span> <span class="toc-text">Class 方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#isKindOfClass"><span class="toc-number">1.2.</span> <span class="toc-text">isKindOfClass</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#isMemberOfClass"><span class="toc-number">1.3.</span> <span class="toc-text">isMemberOfClass</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90"><span class="toc-number">1.4.</span> <span class="toc-text">结果分析</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#isKindOfClass-1"><span class="toc-number">1.4.1.</span> <span class="toc-text">isKindOfClass</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#isMemberOfClass-1"><span class="toc-number">1.4.2.</span> <span class="toc-text">isMemberOfClass</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.5.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+    </div>
+
+
+<article class="post content-card">
+    <div class="post__header">
+    
+        <div class="post-thumbnail" style="background-image: url('https://tva1.sinaimg.cn/large/0081Kckwgy1gld61vl0tsj30qo0fkq47.jpg');"></div>
+    
+</div>
+    <div class="post__content">
+        <p>对于iOS开发者来说，<code>元类</code>一直是一个在面试时被重点考察的点，为什么在语言设计时要增加<code>元类</code>这个概念？他的优点是什么？他到底有什么作用呢？这篇文章我们从Runtime源码的角度和语言设计的角度来探讨MetaClass存在的原因以及他的存在解决了哪些问题。</p>
+<a id="more"></a>
+
+<h3 id="测试题"><a href="#测试题" class="headerlink" title="测试题"></a>测试题</h3><p>下面我们先看一下下面这个题目：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs objc">- (<span class="hljs-keyword">void</span>)classJudge &#123;<br>    Class ccls = [<span class="hljs-built_in">NSObject</span> <span class="hljs-keyword">class</span>];<br>    Class icls =  [Person <span class="hljs-keyword">class</span>];<br>    <br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(ccls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([ccls isKindOfClass:ccls]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isKindOfClass:icls]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([icls isKindOfClass:ccls]));<br>    <br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(ccls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([ccls isMemberOfClass:ccls]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isMemberOfClass:icls]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([icls isMemberOfClass:ccls]));<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>请问上述代码的执行结果是什么？为什么？上面的代码中主要涉及到三个方法</p>
+<ul>
+<li>+class 类方法</li>
+<li>isKindOfClass</li>
+<li>isMemberOfClass</li>
+</ul>
+<p>下面我们带着这些问题，看下上面这三个方法</p>
+<h4 id="Class-方法"><a href="#Class-方法" class="headerlink" title="Class 方法"></a>Class 方法</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs objc">+ (Class)<span class="hljs-keyword">class</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>;<br>&#125;<br><br>- (Class)<span class="hljs-keyword">class</span> &#123;<br>    <span class="hljs-keyword">return</span> object_getClass(<span class="hljs-keyword">self</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>不过我们在NSObject.h中只发现了</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs objc">- (Class)<span class="hljs-keyword">class</span><br></code></pre></td></tr></table></figure>
+
+<p>对象方法的声明，且当我们点击我们自己代码中的方法名进行跳转时也是跳转到了对应的对象方法中，因此我们可以知道在我们平时开发中调用class方法时，都是调用的对象方法(即使是使用类调用)。</p>
+<p>我们看到对于对象方法中实际上是调用了object_getClass方法，因此我们继续看这个方法的实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs objc">Class object_getClass(<span class="hljs-keyword">id</span> obj)<br>&#123;<br>    <span class="hljs-keyword">if</span> (obj) <span class="hljs-keyword">return</span> obj-&gt;getIsa();<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> Nil;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这个方法是返回了当前对象的元类。</p>
+<p>看完了方法的实现我们来分析下我们上面示例代码中获取到的类是什么：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs objc">Class ccls = [<span class="hljs-built_in">NSObject</span> <span class="hljs-keyword">class</span>];<br>Class icls =  [Person <span class="hljs-keyword">class</span>];<br></code></pre></td></tr></table></figure>
+
+<p>根据源码我们很容易得出结论：ccls为NSObject类的元类 icls为Person类的元类</p>
+<h4 id="isKindOfClass"><a href="#isKindOfClass" class="headerlink" title="isKindOfClass"></a>isKindOfClass</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs objc">+ (<span class="hljs-built_in">BOOL</span>)isKindOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">for</span> (Class tcls = <span class="hljs-keyword">self</span>-&gt;ISA(); tcls; tcls = tcls-&gt;superclass) &#123;<br>        <span class="hljs-keyword">if</span> (tcls == cls) <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>&#125;<br><br>- (<span class="hljs-built_in">BOOL</span>)isKindOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">for</span> (Class tcls = [<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>]; tcls; tcls = tcls-&gt;superclass) &#123;<br>        <span class="hljs-keyword">if</span> (tcls == cls) <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>与Class方法相同，在NSObject.h文件中我们只发现了</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs objc">- (<span class="hljs-built_in">BOOL</span>)isKindOfClass:(Class)cls<br></code></pre></td></tr></table></figure>
+
+<p>一个方法的声明，因此我们重点分析下这个方法的实现：</p>
+<ul>
+<li>判断当前类与给定类是否相同 </li>
+<li>如果不相同，则查找当前类的父类是否为给定类</li>
+<li>如果相同，则返回</li>
+<li>如果查找到最后都不等于给定类 则返回NO</li>
+</ul>
+<p>结合我们上面的示例，我们认为</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs objc"><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(ccls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([ccls isKindOfClass:ccls]));<br>  <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isKindOfClass:icls]));<br>  <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([icls isKindOfClass:ccls]));<br></code></pre></td></tr></table></figure>
+
+<p>的结果为：1 1 1<br>原因为：</p>
+<ul>
+<li>1和3均为相同的类 通过因此肯定是相等的</li>
+<li>2 因为Person类是继承自NSObject的因此这里也应该为1</li>
+</ul>
+<h4 id="isMemberOfClass"><a href="#isMemberOfClass" class="headerlink" title="isMemberOfClass"></a>isMemberOfClass</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs objc">+ (<span class="hljs-built_in">BOOL</span>)isMemberOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>-&gt;ISA() == cls;<br>&#125;<br><br>- (<span class="hljs-built_in">BOOL</span>)isMemberOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>] == cls;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>与前面两个方法相同，在NSObject.h文件中我们也是仅发现了对象方法的声明</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs objc">- (<span class="hljs-built_in">BOOL</span>)isMemberOfClass:(Class)aClass;<br></code></pre></td></tr></table></figure>
+
+<p>根据上述源码的实现，isMemberOfClass方法实际是：</p>
+<ul>
+<li>判断当前类的class是否为给给定类</li>
+</ul>
+<p>在结合我们上面的代码示例</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs objc"><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(ccls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([ccls isMemberOfClass:ccls]));<br> <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isMemberOfClass:icls]));<br> <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([icls isMemberOfClass:ccls]));<br></code></pre></td></tr></table></figure>
+
+<p>这里我们判断输出结果应该为： 1 1 1 </p>
+<h4 id="结果分析"><a href="#结果分析" class="headerlink" title="结果分析"></a>结果分析</h4><p>那么我们带着上面的猜测，确认打印输出：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs objc"><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">19</span>:<span class="hljs-number">26</span>:<span class="hljs-number">08.475701</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">5964</span>:<span class="hljs-number">166878</span>] <span class="hljs-built_in">NSObject</span> isKindOfClass <span class="hljs-built_in">NSObject</span>  result <span class="hljs-number">1</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">19</span>:<span class="hljs-number">26</span>:<span class="hljs-number">08.475858</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">5964</span>:<span class="hljs-number">166878</span>] Person isKindOfClass Person  result <span class="hljs-number">0</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">19</span>:<span class="hljs-number">26</span>:<span class="hljs-number">08.475963</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">5964</span>:<span class="hljs-number">166878</span>] Person isKindOfClass <span class="hljs-built_in">NSObject</span>  result <span class="hljs-number">1</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">19</span>:<span class="hljs-number">26</span>:<span class="hljs-number">08.476068</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">5964</span>:<span class="hljs-number">166878</span>] <span class="hljs-built_in">NSObject</span> isMemberOfClass <span class="hljs-built_in">NSObject</span>  result <span class="hljs-number">0</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">19</span>:<span class="hljs-number">26</span>:<span class="hljs-number">08.476188</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">5964</span>:<span class="hljs-number">166878</span>] Person isMemberOfClass Person  result <span class="hljs-number">0</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">19</span>:<span class="hljs-number">26</span>:<span class="hljs-number">08.476315</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">5964</span>:<span class="hljs-number">166878</span>] Person isMemberOfClass <span class="hljs-built_in">NSObject</span>  result <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>结果很意外，我们猜想的是所有结果都为1，但是结果 2、4、5、6的结果均为0，那么我们来分析下原因：</p>
+<h5 id="isKindOfClass-1"><a href="#isKindOfClass-1" class="headerlink" title="isKindOfClass"></a>isKindOfClass</h5><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs objc">Class ccls = [<span class="hljs-built_in">NSObject</span> <span class="hljs-keyword">class</span>];<br>Class icls =  [Person <span class="hljs-keyword">class</span>];<br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isKindOfClass:icls]));<br></code></pre></td></tr></table></figure>
+<p>上面代码的结果为：0,明显我们知道Person类为NSObject类的子类，那么为何此处返回的是0呢？</p>
+<p>我们在来看下isKindOfClass方法的实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs objc">- (<span class="hljs-built_in">BOOL</span>)isKindOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">for</span> (Class tcls = [<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>]; tcls; tcls = tcls-&gt;superclass) &#123;<br>        <span class="hljs-keyword">if</span> (tcls == cls) <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>我们发现</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs objc">Class tcls = [<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>];<br></code></pre></td></tr></table></figure>
+<p>这时候，tcls到底是到底是什么呢？ 因为是对象方法因此这里调用到的是class对象方法，而Class的对象方法实现为：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs objc">- (Class)<span class="hljs-keyword">class</span> &#123;<br>    <span class="hljs-keyword">return</span> object_getClass(<span class="hljs-keyword">self</span>);<br>&#125;<br>Class object_getClass(<span class="hljs-keyword">id</span> obj)<br>&#123;<br>    <span class="hljs-keyword">if</span> (obj) <span class="hljs-keyword">return</span> obj-&gt;getIsa();<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> Nil;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>很明显这里我们得到的变量tcls实际上是类的元类，也就是说我们在for循环里遍历的是元类的superclass,那么for循环里的对比就很明显了 这里是用cls和元类的cls做对比肯定是不相同的。</p>
+<p>那么问题又来了，为什么对于NSObject这个判断条件的结果是正确的呢？</p>
+<p>这里我们就要贴出我们很熟悉的一张图来解释下了？</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/967869-f15ff2bc1baf88d2.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/700"></p>
+<p>对于我们的示例</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwly1gm8j9wl9u3j30mu0ioq4h.jpg"></p>
+<p>首先对于</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs objc">Class ccls = [<span class="hljs-built_in">NSObject</span> <span class="hljs-keyword">class</span>];<br>Class icls =  [Person <span class="hljs-keyword">class</span>];<br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isKindOfClass:icls]));<br></code></pre></td></tr></table></figure>
+
+<p>我们在isKindOfClass方法中实际上对比的是</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs objc"><span class="hljs-keyword">if</span> (icls == object_getClass(<span class="hljs-keyword">self</span>)) &#123;<br>    <span class="hljs-comment">// icls 是否等于icls的metacls</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对于NSObject,NSObject的元类的superclass依然是NSObject(这里是一个闭环)，因此对于NSObject来说上述代码比较结果为YES，而对于Person类对比Person类和Person的元类(以及元类的父类 RootClass为NSObject)是否相等答案显然是NO。</p>
+<p>而对于</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs objc">[Person Class] == object_getClass([<span class="hljs-built_in">NSObject</span> <span class="hljs-keyword">class</span>]) <br></code></pre></td></tr></table></figure>
+
+<p>我们实际上比较的是NSobject类和Person的元类的父类(一直向上搜索)即NSObject类。而对于</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs objc">[Person Class] == object_getClass([Person <span class="hljs-keyword">class</span>]) <br></code></pre></td></tr></table></figure>
+
+<p>实际比较的是Person类和Person类的元类的父类(一直向上搜索)即NSObject类 因此这里返回的是NO。</p>
+<h5 id="isMemberOfClass-1"><a href="#isMemberOfClass-1" class="headerlink" title="isMemberOfClass"></a>isMemberOfClass</h5><p>根据isKindOfClass的提示我们来重新分析下isMemberOfClass方法的实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs objc">+ (<span class="hljs-built_in">BOOL</span>)isMemberOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>-&gt;ISA() == cls;<br>&#125;<br><br>- (<span class="hljs-built_in">BOOL</span>)isMemberOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>] == cls;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上面的分析我们已经知道我们实际上调用的是对象方法<code>- (BOOL)isMemberOfClass:(Class)cls</code>,我们发现isMemberOfClass的判断条件为</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs objc">[<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>] == cls<br></code></pre></td></tr></table></figure>
+
+<p>对于下面这几种情况</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs objc"><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(ccls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([ccls isMemberOfClass:ccls]));<br><br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isMemberOfClass:icls]));<br><br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([icls isMemberOfClass:ccls]));<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>NSObject == object_getClass([NSObject class]) 结果为NO</li>
+<li>Person == object_getClass([Person class]) 结果为NO</li>
+<li>Person == object_getClass([NSObject class]) 结果也为NO</li>
+</ul>
+<p>我们发现实际上isMemberOfClass并没有像isKindOfClass那样递归的去查找父类，而是只判断了当前类。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过对上面题目的分析，我们了解了这两个重要方法的实现：</p>
+<ul>
+<li>isKindOfClass</li>
+</ul>
+<p>[A isKindOfClass: B];</p>
+<p>B类是否为A类的元类或者A类元类的父类,这里因为NSObject的元类的superClass就是NSObject因此对于<code>[[NSObjec class] isKindOfClass:[NSObject class]]</code>返回是YES，更清晰的来说只有在判断某个类是否为NSObject类时这个条件才成立，为此我们特地做下面的测试：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs objc">Class ccls = [<span class="hljs-built_in">NSObject</span> <span class="hljs-keyword">class</span>];<br>Class icls =  [Person <span class="hljs-keyword">class</span>];<br>Class scls =  [Female <span class="hljs-keyword">class</span>];<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([icls isKindOfClass:ccls]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(scls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([scls isKindOfClass:icls]));<br></code></pre></td></tr></table></figure>
+
+<p>结果：1，0。<br>这也验证了我们上面的结论</p>
+<ul>
+<li>isMemberOfClass</li>
+</ul>
+<p>[A isMemberOfClass: B]</p>
+<p>B 类是否为A类元类 对于类方法的调用中这个条件是永远都不成立的。无论A与B之间是否存在继承或者被继承关系。</p>
+<ul>
+<li>对象方法</li>
+</ul>
+<p>实际我们平时开发中最常用的是</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs objc">- (<span class="hljs-keyword">void</span>)instanceTest &#123;<br>    Female *f = [Female new];<br>    <br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>([f <span class="hljs-keyword">class</span>]),<span class="hljs-built_in">NSStringFromClass</span>([Person <span class="hljs-keyword">class</span>]),@([f isKindOfClass:[Person <span class="hljs-keyword">class</span>]]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>([f <span class="hljs-keyword">class</span>]),<span class="hljs-built_in">NSStringFromClass</span>([Person <span class="hljs-keyword">class</span>]),@([f isMemberOfClass:[Person <span class="hljs-keyword">class</span>]]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>([f <span class="hljs-keyword">class</span>]),<span class="hljs-built_in">NSStringFromClass</span>([Female <span class="hljs-keyword">class</span>]),@([f isMemberOfClass:[Female <span class="hljs-keyword">class</span>]]));<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>打印结果：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs objc"><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">23</span>:<span class="hljs-number">27</span>:<span class="hljs-number">53.040093</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">8537</span>:<span class="hljs-number">312528</span>] Female isKindOfClass Person  result <span class="hljs-number">1</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">23</span>:<span class="hljs-number">27</span>:<span class="hljs-number">53.040223</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">8537</span>:<span class="hljs-number">312528</span>] Female isMemberOfClass Person  result <span class="hljs-number">0</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">23</span>:<span class="hljs-number">27</span>:<span class="hljs-number">53.040337</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">8537</span>:<span class="hljs-number">312528</span>] Female isMemberOfClass Female  result <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p>这里我们套用上面的结论：</p>
+<ul>
+<li>对于isKindOfClass 我们比较的是对象f的元类(即Female类)及其父类是否为Person类 很显然返回值为YES</li>
+<li>对于isMemberOfClass 我们比较的是f的元类是否为Person类 很明显这里应该是Female类因此第二行输出NO，第三行输出YES。</li>
+</ul>
+
+    </div>
+     
+    <div class="post-footer__meta"><p>更新于 2021-01-01</p></div> 
+    <div class="post-meta__cats"><a href="/categories/iOS%E4%BC%98%E5%8C%96/" class="post-cats__link button">iOS优化</a><a href="/tags/metaClass/" class="post-tags__link button"># metaClass</a></div> 
+</article>
+
+
+    <div class="nav">
+        <div class="nav__prev">
+            
+        </div>
+        <div class="nav__next">
+            
+                <a href="/2020/12/19/runtime-KVC/" class="nav__link">
+                    <div>
+                        <div class="nav__label">
+                            Next Post
+                        </div>
+                        <div class="nav__title">
+                            iOS KVC 实现探究
+                        </div>
+                    </div>
+                    <div>
+                        <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M434.944 790.624l-45.248-45.248L623.04 512l-233.376-233.376 45.248-45.248L713.568 512z" fill="#808080"></path></svg>
+                    </div>
+                </a>
+            
+        </div>
+    </div>
+
+
+
+
+
+</main>
+
+            <footer class="footer">
+    
+
+
+    
+    
+    
+        <span id="busuanzi_container_site_uv" hidden>
+            <span></span>
+            <span id="busuanzi_value_site_uv"></span>
+            <span>Viewers</span>
+            
+                <span>|</span>
+            
+        </span>
+    
+    
+        <span id="busuanzi_container_site_pv" hidden>
+            <span></span>
+            <span id="busuanzi_value_site_pv"></span>
+            <span>Views</span>
+            
+        </span>
+    
+ 
+ 
+
+ 
+    
+        
+        <p class="footer-copyright">
+            Copyright © 2015&nbsp;-&nbsp;2021 <a href="/">LeeWong</a>
+        </p>
+    
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme - <a href="https://github.com/ChrAlpha/hexo-theme-cards" target="_blank">Cards</a></p>
+</footer>
+
+        </div>
+         
+
+ 
+    <script>
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <script async src="https://www.google-analytics.com/analytics.js"></script>
+ 
+
+ 
+
+ 
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement('script');
+            hm.src = 'https://hm.baidu.com/hm.js?DR81zbdrQ3';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+ 
+
+  
+
+
+
+ 
+
+
+    
+ 
+
+
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.4.1/dist/jquery.fancybox.min.css">
+
+    
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.4.1/dist/jquery.fancybox.min.js"></script>
+
+    <script>
+        let lazyloadT = Boolean('false'),
+            auto_fancybox = Boolean('false')
+        if (auto_fancybox) {
+            $(".post__content").find('img').each(function () {
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("href", $(this).attr("src"));
+                if (lazyloadT) {
+                    $(element).attr("href", $(this).attr("data-srcset"));
+                }
+                $(this).wrap(element);
+            });
+        } else {
+            $(".post__content").find("fancybox").find('img').each(function () {
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("href", $(this).attr("src"));
+                if (lazyloadT) {
+                    $(element).attr("href", $(this).attr("data-srcset"));
+                }
+                $(this).wrap(element);
+            });
+        }
+    </script>
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+
+    </body>
+</html>

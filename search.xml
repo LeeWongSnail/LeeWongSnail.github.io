@@ -8420,4 +8420,148 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
         <tag>KVC、KVO、实现原理</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Runtime之MetaClass</title>
+    <url>/2021/01/01/rumtime-metaclass/</url>
+    <content><![CDATA[<p>对于iOS开发者来说，<code>元类</code>一直是一个在面试时被重点考察的点，为什么在语言设计时要增加<code>元类</code>这个概念？他的优点是什么？他到底有什么作用呢？这篇文章我们从Runtime源码的角度和语言设计的角度来探讨MetaClass存在的原因以及他的存在解决了哪些问题。</p>
+<a id="more"></a>
+
+<h3 id="测试题"><a href="#测试题" class="headerlink" title="测试题"></a>测试题</h3><p>下面我们先看一下下面这个题目：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">- (<span class="hljs-keyword">void</span>)classJudge &#123;<br>    Class ccls = [<span class="hljs-built_in">NSObject</span> <span class="hljs-keyword">class</span>];<br>    Class icls =  [Person <span class="hljs-keyword">class</span>];<br>    <br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(ccls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([ccls isKindOfClass:ccls]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isKindOfClass:icls]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([icls isKindOfClass:ccls]));<br>    <br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(ccls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([ccls isMemberOfClass:ccls]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isMemberOfClass:icls]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([icls isMemberOfClass:ccls]));<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>请问上述代码的执行结果是什么？为什么？上面的代码中主要涉及到三个方法</p>
+<ul>
+<li>+class 类方法</li>
+<li>isKindOfClass</li>
+<li>isMemberOfClass</li>
+</ul>
+<p>下面我们带着这些问题，看下上面这三个方法</p>
+<h4 id="Class-方法"><a href="#Class-方法" class="headerlink" title="Class 方法"></a>Class 方法</h4><figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">+ (Class)<span class="hljs-keyword">class</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>;<br>&#125;<br><br>- (Class)<span class="hljs-keyword">class</span> &#123;<br>    <span class="hljs-keyword">return</span> object_getClass(<span class="hljs-keyword">self</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>不过我们在NSObject.h中只发现了</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">- (Class)<span class="hljs-keyword">class</span><br></code></pre></td></tr></table></figure>
+
+<p>对象方法的声明，且当我们点击我们自己代码中的方法名进行跳转时也是跳转到了对应的对象方法中，因此我们可以知道在我们平时开发中调用class方法时，都是调用的对象方法(即使是使用类调用)。</p>
+<p>我们看到对于对象方法中实际上是调用了object_getClass方法，因此我们继续看这个方法的实现：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">Class object_getClass(<span class="hljs-keyword">id</span> obj)<br>&#123;<br>    <span class="hljs-keyword">if</span> (obj) <span class="hljs-keyword">return</span> obj-&gt;getIsa();<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> Nil;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这个方法是返回了当前对象的元类。</p>
+<p>看完了方法的实现我们来分析下我们上面示例代码中获取到的类是什么：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">Class ccls = [<span class="hljs-built_in">NSObject</span> <span class="hljs-keyword">class</span>];<br>Class icls =  [Person <span class="hljs-keyword">class</span>];<br></code></pre></td></tr></table></figure>
+
+<p>根据源码我们很容易得出结论：ccls为NSObject类的元类 icls为Person类的元类</p>
+<h4 id="isKindOfClass"><a href="#isKindOfClass" class="headerlink" title="isKindOfClass"></a>isKindOfClass</h4><figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">+ (<span class="hljs-built_in">BOOL</span>)isKindOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">for</span> (Class tcls = <span class="hljs-keyword">self</span>-&gt;ISA(); tcls; tcls = tcls-&gt;superclass) &#123;<br>        <span class="hljs-keyword">if</span> (tcls == cls) <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>&#125;<br><br>- (<span class="hljs-built_in">BOOL</span>)isKindOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">for</span> (Class tcls = [<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>]; tcls; tcls = tcls-&gt;superclass) &#123;<br>        <span class="hljs-keyword">if</span> (tcls == cls) <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>与Class方法相同，在NSObject.h文件中我们只发现了</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">- (<span class="hljs-built_in">BOOL</span>)isKindOfClass:(Class)cls<br></code></pre></td></tr></table></figure>
+
+<p>一个方法的声明，因此我们重点分析下这个方法的实现：</p>
+<ul>
+<li>判断当前类与给定类是否相同 </li>
+<li>如果不相同，则查找当前类的父类是否为给定类</li>
+<li>如果相同，则返回</li>
+<li>如果查找到最后都不等于给定类 则返回NO</li>
+</ul>
+<p>结合我们上面的示例，我们认为</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc"><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(ccls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([ccls isKindOfClass:ccls]));<br>  <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isKindOfClass:icls]));<br>  <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([icls isKindOfClass:ccls]));<br></code></pre></td></tr></table></figure>
+
+<p>的结果为：1 1 1<br>原因为：</p>
+<ul>
+<li>1和3均为相同的类 通过因此肯定是相等的</li>
+<li>2 因为Person类是继承自NSObject的因此这里也应该为1</li>
+</ul>
+<h4 id="isMemberOfClass"><a href="#isMemberOfClass" class="headerlink" title="isMemberOfClass"></a>isMemberOfClass</h4><figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">+ (<span class="hljs-built_in">BOOL</span>)isMemberOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>-&gt;ISA() == cls;<br>&#125;<br><br>- (<span class="hljs-built_in">BOOL</span>)isMemberOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>] == cls;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>与前面两个方法相同，在NSObject.h文件中我们也是仅发现了对象方法的声明</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">- (<span class="hljs-built_in">BOOL</span>)isMemberOfClass:(Class)aClass;<br></code></pre></td></tr></table></figure>
+
+<p>根据上述源码的实现，isMemberOfClass方法实际是：</p>
+<ul>
+<li>判断当前类的class是否为给给定类</li>
+</ul>
+<p>在结合我们上面的代码示例</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc"><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(ccls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([ccls isMemberOfClass:ccls]));<br> <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isMemberOfClass:icls]));<br> <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([icls isMemberOfClass:ccls]));<br></code></pre></td></tr></table></figure>
+
+<p>这里我们判断输出结果应该为： 1 1 1 </p>
+<h4 id="结果分析"><a href="#结果分析" class="headerlink" title="结果分析"></a>结果分析</h4><p>那么我们带着上面的猜测，确认打印输出：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc"><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">19</span>:<span class="hljs-number">26</span>:<span class="hljs-number">08.475701</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">5964</span>:<span class="hljs-number">166878</span>] <span class="hljs-built_in">NSObject</span> isKindOfClass <span class="hljs-built_in">NSObject</span>  result <span class="hljs-number">1</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">19</span>:<span class="hljs-number">26</span>:<span class="hljs-number">08.475858</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">5964</span>:<span class="hljs-number">166878</span>] Person isKindOfClass Person  result <span class="hljs-number">0</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">19</span>:<span class="hljs-number">26</span>:<span class="hljs-number">08.475963</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">5964</span>:<span class="hljs-number">166878</span>] Person isKindOfClass <span class="hljs-built_in">NSObject</span>  result <span class="hljs-number">1</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">19</span>:<span class="hljs-number">26</span>:<span class="hljs-number">08.476068</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">5964</span>:<span class="hljs-number">166878</span>] <span class="hljs-built_in">NSObject</span> isMemberOfClass <span class="hljs-built_in">NSObject</span>  result <span class="hljs-number">0</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">19</span>:<span class="hljs-number">26</span>:<span class="hljs-number">08.476188</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">5964</span>:<span class="hljs-number">166878</span>] Person isMemberOfClass Person  result <span class="hljs-number">0</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">19</span>:<span class="hljs-number">26</span>:<span class="hljs-number">08.476315</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">5964</span>:<span class="hljs-number">166878</span>] Person isMemberOfClass <span class="hljs-built_in">NSObject</span>  result <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>结果很意外，我们猜想的是所有结果都为1，但是结果 2、4、5、6的结果均为0，那么我们来分析下原因：</p>
+<h5 id="isKindOfClass-1"><a href="#isKindOfClass-1" class="headerlink" title="isKindOfClass"></a>isKindOfClass</h5><figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">Class ccls = [<span class="hljs-built_in">NSObject</span> <span class="hljs-keyword">class</span>];<br>Class icls =  [Person <span class="hljs-keyword">class</span>];<br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isKindOfClass:icls]));<br></code></pre></td></tr></table></figure>
+<p>上面代码的结果为：0,明显我们知道Person类为NSObject类的子类，那么为何此处返回的是0呢？</p>
+<p>我们在来看下isKindOfClass方法的实现：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">- (<span class="hljs-built_in">BOOL</span>)isKindOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">for</span> (Class tcls = [<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>]; tcls; tcls = tcls-&gt;superclass) &#123;<br>        <span class="hljs-keyword">if</span> (tcls == cls) <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>我们发现</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">Class tcls = [<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>];<br></code></pre></td></tr></table></figure>
+<p>这时候，tcls到底是到底是什么呢？ 因为是对象方法因此这里调用到的是class对象方法，而Class的对象方法实现为：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">- (Class)<span class="hljs-keyword">class</span> &#123;<br>    <span class="hljs-keyword">return</span> object_getClass(<span class="hljs-keyword">self</span>);<br>&#125;<br>Class object_getClass(<span class="hljs-keyword">id</span> obj)<br>&#123;<br>    <span class="hljs-keyword">if</span> (obj) <span class="hljs-keyword">return</span> obj-&gt;getIsa();<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> Nil;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>很明显这里我们得到的变量tcls实际上是类的元类，也就是说我们在for循环里遍历的是元类的superclass,那么for循环里的对比就很明显了 这里是用cls和元类的cls做对比肯定是不相同的。</p>
+<p>那么问题又来了，为什么对于NSObject这个判断条件的结果是正确的呢？</p>
+<p>这里我们就要贴出我们很熟悉的一张图来解释下了？</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/967869-f15ff2bc1baf88d2.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/700"></p>
+<p>对于我们的示例</p>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwly1gm8j9wl9u3j30mu0ioq4h.jpg"></p>
+<p>首先对于</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">Class ccls = [<span class="hljs-built_in">NSObject</span> <span class="hljs-keyword">class</span>];<br>Class icls =  [Person <span class="hljs-keyword">class</span>];<br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isKindOfClass:icls]));<br></code></pre></td></tr></table></figure>
+
+<p>我们在isKindOfClass方法中实际上对比的是</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc"><span class="hljs-keyword">if</span> (icls == object_getClass(<span class="hljs-keyword">self</span>)) &#123;<br>    <span class="hljs-comment">// icls 是否等于icls的metacls</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对于NSObject,NSObject的元类的superclass依然是NSObject(这里是一个闭环)，因此对于NSObject来说上述代码比较结果为YES，而对于Person类对比Person类和Person的元类(以及元类的父类 RootClass为NSObject)是否相等答案显然是NO。</p>
+<p>而对于</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">[Person Class] == object_getClass([<span class="hljs-built_in">NSObject</span> <span class="hljs-keyword">class</span>]) <br></code></pre></td></tr></table></figure>
+
+<p>我们实际上比较的是NSobject类和Person的元类的父类(一直向上搜索)即NSObject类。而对于</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">[Person Class] == object_getClass([Person <span class="hljs-keyword">class</span>]) <br></code></pre></td></tr></table></figure>
+
+<p>实际比较的是Person类和Person类的元类的父类(一直向上搜索)即NSObject类 因此这里返回的是NO。</p>
+<h5 id="isMemberOfClass-1"><a href="#isMemberOfClass-1" class="headerlink" title="isMemberOfClass"></a>isMemberOfClass</h5><p>根据isKindOfClass的提示我们来重新分析下isMemberOfClass方法的实现：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">+ (<span class="hljs-built_in">BOOL</span>)isMemberOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>-&gt;ISA() == cls;<br>&#125;<br><br>- (<span class="hljs-built_in">BOOL</span>)isMemberOfClass:(Class)cls &#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>] == cls;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上面的分析我们已经知道我们实际上调用的是对象方法<code>- (BOOL)isMemberOfClass:(Class)cls</code>,我们发现isMemberOfClass的判断条件为</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">[<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>] == cls<br></code></pre></td></tr></table></figure>
+
+<p>对于下面这几种情况</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc"><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(ccls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([ccls isMemberOfClass:ccls]));<br><br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([icls isMemberOfClass:icls]));<br><br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([icls isMemberOfClass:ccls]));<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>NSObject == object_getClass([NSObject class]) 结果为NO</li>
+<li>Person == object_getClass([Person class]) 结果为NO</li>
+<li>Person == object_getClass([NSObject class]) 结果也为NO</li>
+</ul>
+<p>我们发现实际上isMemberOfClass并没有像isKindOfClass那样递归的去查找父类，而是只判断了当前类。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过对上面题目的分析，我们了解了这两个重要方法的实现：</p>
+<ul>
+<li>isKindOfClass</li>
+</ul>
+<p>[A isKindOfClass: B];</p>
+<p>B类是否为A类的元类或者A类元类的父类,这里因为NSObject的元类的superClass就是NSObject因此对于<code>[[NSObjec class] isKindOfClass:[NSObject class]]</code>返回是YES，更清晰的来说只有在判断某个类是否为NSObject类时这个条件才成立，为此我们特地做下面的测试：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">Class ccls = [<span class="hljs-built_in">NSObject</span> <span class="hljs-keyword">class</span>];<br>Class icls =  [Person <span class="hljs-keyword">class</span>];<br>Class scls =  [Female <span class="hljs-keyword">class</span>];<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(icls),<span class="hljs-built_in">NSStringFromClass</span>(ccls),@([icls isKindOfClass:ccls]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(scls),<span class="hljs-built_in">NSStringFromClass</span>(icls),@([scls isKindOfClass:icls]));<br></code></pre></td></tr></table></figure>
+
+<p>结果：1，0。<br>这也验证了我们上面的结论</p>
+<ul>
+<li>isMemberOfClass</li>
+</ul>
+<p>[A isMemberOfClass: B]</p>
+<p>B 类是否为A类元类 对于类方法的调用中这个条件是永远都不成立的。无论A与B之间是否存在继承或者被继承关系。</p>
+<ul>
+<li>对象方法</li>
+</ul>
+<p>实际我们平时开发中最常用的是</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">- (<span class="hljs-keyword">void</span>)instanceTest &#123;<br>    Female *f = [Female new];<br>    <br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isKindOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>([f <span class="hljs-keyword">class</span>]),<span class="hljs-built_in">NSStringFromClass</span>([Person <span class="hljs-keyword">class</span>]),@([f isKindOfClass:[Person <span class="hljs-keyword">class</span>]]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>([f <span class="hljs-keyword">class</span>]),<span class="hljs-built_in">NSStringFromClass</span>([Person <span class="hljs-keyword">class</span>]),@([f isMemberOfClass:[Person <span class="hljs-keyword">class</span>]]));<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;%@ isMemberOfClass %@  result %@&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>([f <span class="hljs-keyword">class</span>]),<span class="hljs-built_in">NSStringFromClass</span>([Female <span class="hljs-keyword">class</span>]),@([f isMemberOfClass:[Female <span class="hljs-keyword">class</span>]]));<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>打印结果：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc"><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">23</span>:<span class="hljs-number">27</span>:<span class="hljs-number">53.040093</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">8537</span>:<span class="hljs-number">312528</span>] Female isKindOfClass Person  result <span class="hljs-number">1</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">23</span>:<span class="hljs-number">27</span>:<span class="hljs-number">53.040223</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">8537</span>:<span class="hljs-number">312528</span>] Female isMemberOfClass Person  result <span class="hljs-number">0</span><br><span class="hljs-number">2021</span><span class="hljs-number">-01</span><span class="hljs-number">-01</span> <span class="hljs-number">23</span>:<span class="hljs-number">27</span>:<span class="hljs-number">53.040337</span>+<span class="hljs-number">0800</span> MetaClassDemo[<span class="hljs-number">8537</span>:<span class="hljs-number">312528</span>] Female isMemberOfClass Female  result <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p>这里我们套用上面的结论：</p>
+<ul>
+<li>对于isKindOfClass 我们比较的是对象f的元类(即Female类)及其父类是否为Person类 很显然返回值为YES</li>
+<li>对于isMemberOfClass 我们比较的是f的元类是否为Person类 很明显这里应该是Female类因此第二行输出NO，第三行输出YES。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>iOS优化</category>
+      </categories>
+      <tags>
+        <tag>metaClass</tag>
+      </tags>
+  </entry>
 </search>
