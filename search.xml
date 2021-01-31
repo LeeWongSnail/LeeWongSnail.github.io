@@ -8557,4 +8557,130 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
         <tag>metaClass</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Gif展示对比和优化</title>
+    <url>/2021/01/31/gifshowupgrade/</url>
+    <content><![CDATA[<p>由于前两年的大量需求开发导致我们核心业务中功能堆积非常严重，同时也衍生出了很多性能相关的问题，近期开始着手安排现有功能的优化，而优化的第一步先从图片展示开始。</p>
+<h3 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h3><p>我们APP中的某个页面是支持展示动态背景，即gif图片的展示，而且因为图片中包含用户希望展示的某些信息，因此产品要求图片的质量必须要求非常高，因此我们不能将图片过度压缩。</p>
+<p>鉴于我们的图片资源全部都存放在阿里云中，阿里云也支持图片的缩放和裁剪功能，因此首先对于图片的缩放我们是直接使用了阿里云自带动态拼接图片地址参数的方式实现，根据图片展示时的大小动态配置图片地址。</p>
+<p>举个🌰：</p>
+<p>我们有一张全屏展示的图片，那么在iPhone X上他展示的图片地址为：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">http:<span class="hljs-comment">//res.xxx.com.cn/a6a5526e-c226-4e83-b53a-93f1c0cb6141.gif?t=1606124930287&amp;x-oss-process=image/resize,m_mfit,w_1125,h_2436</span><br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到图片地址后面是拼接了我们根据屏幕获取到的宽高然后乘屏幕的系数(1x,2x,3x)。</p>
+<p>项目中目前使用的图片展示和下载库为SDWebImage,以上面的图为例，展示过程中CPU和内存占用如下图(未加载图片前内存占用8.4M)：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>内存</th>
+<th>CPU</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FLAnimatedImageView</td>
+<td>13.1M</td>
+<td>8%</td>
+</tr>
+</tbody></table>
+<p>对于这张图片的信息：</p>
+<table>
+<thead>
+<tr>
+<th>大小</th>
+<th>尺寸</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1.1M</td>
+<td>404x702</td>
+</tr>
+</tbody></table>
+<p>当然在优化过程中由于设计部门提出iOS端在动画展示过程中卡顿的问题，我们升级了SDWebImage至最新版本，我们惊喜的发现动图展示不卡了，但是内存消耗确非常感人。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>内存</th>
+<th>CPU</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SDAnimatedImageView</td>
+<td>36.7M</td>
+<td>0%</td>
+</tr>
+</tbody></table>
+<p>通过对比我们发现，升级后的SD,Gif图片展示不再卡顿的原因是将图片放到了缓存中，因此CPU利用率也降低了，但是内存(32.3M)接近之前版本(4.7M)的7倍。</p>
+<p>因此，这篇文章主要也是针对这个问题，看下市面上几个常用的图片加载库，在展示图片过程中的性能比较。</p>
+<h3 id="性能对比"><a href="#性能对比" class="headerlink" title="性能对比"></a>性能对比</h3><p>在iOS开发中我们常用的图片展示库主要有：YYWebImage/SDWebImage/FLAnimateImage</p>
+<p>那么我们通过展示同一张动图和静图来对比下这三个三方的性能：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEly1gn75c238aqj30k40c4mxk.jpg"></p>
+<p>接着我们在来看下静态图的性能对比(都是使用UIImageView展示)：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEly1gn75pihwbwj30k40c4mxi.jpg"></p>
+<h3 id="计数选型"><a href="#计数选型" class="headerlink" title="计数选型"></a>计数选型</h3>]]></content>
+  </entry>
+  <entry>
+    <title>为什么要存在MetaClass</title>
+    <url>/2018/05/02/why-metaclass/</url>
+    <content><![CDATA[<p>最近去外面面试了一次,有一个问题觉得很有意思:OC中为什么要存在metaClass,在类的结构上这么设计的原因是什么？metaClass中都有什么？有什么优点？</p>
+<p>这篇文章我们就来讨论一下上面的这几个问题！</p>
+<a id="more"></a>
+
+<h2 id="了解-MetaClass"><a href="#了解-MetaClass" class="headerlink" title="了解 MetaClass"></a>了解 MetaClass</h2><h3 id="MetaClass结构"><a href="#MetaClass结构" class="headerlink" title="MetaClass结构"></a>MetaClass结构</h3><p>下面我们先来看看这个类的结构:</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc"><span class="hljs-keyword">struct</span> objc_class &#123;<br>    Class isa  OBJC_ISA_AVAILABILITY;<br>    <span class="hljs-meta">#<span class="hljs-meta-keyword">if</span> !__OBJC2__</span><br>    Class super_class   OBJC2_UNAVAILABLE;<br>    <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *name    OBJC2_UNAVAILABLE;<br>    <span class="hljs-keyword">long</span> version        OBJC2_UNAVAILABLE;<br>    <span class="hljs-keyword">long</span> info           OBJC2_UNAVAILABLE;<br>    <span class="hljs-keyword">long</span> instance_size  OBJC2_UNAVAILABLE;<br>    <span class="hljs-keyword">struct</span> objc_ivar_list *ivars    OBJC2_UNAVAILABLE;<br>    <span class="hljs-keyword">struct</span> objc_method_list **methodLists   OBJC2_UNAVAILABLE;<br>    <span class="hljs-keyword">struct</span> objc_cache *cache                OBJC2_UNAVAILABLE;<br>    <span class="hljs-keyword">struct</span> objc_protocol_list *protocols    OBJC2_UNAVAILABLE;<br>    <span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span><br>&#125; OBJC2_UNAVAILABLE;<br></code></pre></td></tr></table></figure>
+
+<p>metaClass 也是objc_class 因此结构大概也是这样的！,不过就目前所知到的<code>metaClass</code>是用来存放类方法的！ 因为OC中没有类属性因此 objc_ivar_list 为空！</p>
+<h3 id="MetaClass的创建"><a href="#MetaClass的创建" class="headerlink" title="MetaClass的创建"></a>MetaClass的创建</h3><p>首先了解一点,在OC中每一个类都有一个对应的MetaClass！ 因此 我们在创建一个类的时候,就会一起创建这个类的元类。</p>
+<p>因此,我们可以看一下当我们动态创建一个类的时候 运行时实际上都做了什么！</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">Class objc_allocateClassPair(Class superclass, <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *name, <br>                             size_t extraBytes)<br>&#123;<br>    Class cls, meta;<br><br>    rwlock_writer_t lock(runtimeLock);<br><br>    <span class="hljs-comment">// Fail if the class name is in use.</span><br>    <span class="hljs-comment">// Fail if the superclass isn&#x27;t kosher.</span><br>    <span class="hljs-keyword">if</span> (getClass(name)  ||  !verifySuperclass(superclass, <span class="hljs-literal">true</span><span class="hljs-comment">/*rootOK*/</span>)) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// Allocate new classes.</span><br>    cls  = alloc_class_for_subclass(superclass, extraBytes);<br>    meta = alloc_class_for_subclass(superclass, extraBytes);<br><br>    <span class="hljs-comment">// fixme mangle the name if it looks swift-y?</span><br>    objc_initializeClassPair_internal(superclass, name, cls, meta);<br><br>    <span class="hljs-keyword">return</span> cls;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上面的代码中我们可以很明显的看出:</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">cls  = alloc_class_for_subclass(superclass, extraBytes);<br>meta = alloc_class_for_subclass(superclass, extraBytes);<br></code></pre></td></tr></table></figure>
+<p><code>cls</code>和<code>meta</code>的创建方法和参数完全一致！</p>
+<h3 id="怎么获取一个类的MetaClass"><a href="#怎么获取一个类的MetaClass" class="headerlink" title="怎么获取一个类的MetaClass"></a>怎么获取一个类的MetaClass</h3><p><code>objc_getMetaClass(const char * _Nonnull name)</code></p>
+<p>我们来看一下这个方法的实现</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">Class objc_getMetaClass(<span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *aClassName)<br>&#123;<br>    Class cls;<br><br>    <span class="hljs-keyword">if</span> (!aClassName) <span class="hljs-keyword">return</span> Nil;<br><br>    cls = objc_getClass (aClassName);<br>    <span class="hljs-keyword">if</span> (!cls)<br>    &#123;<br>        _objc_inform (<span class="hljs-string">&quot;class `%s&#x27; not linked into application&quot;</span>, aClassName);<br>        <span class="hljs-keyword">return</span> Nil;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> cls-&gt;ISA();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>先是使用<code>objc_getClass</code>获取类名对应的类 然后直接利用<code>cls-&gt;ISA()</code>获取这个类对应的元类</p>
+<h3 id="判断一个类是否为元类"><a href="#判断一个类是否为元类" class="headerlink" title="判断一个类是否为元类"></a>判断一个类是否为元类</h3><p><code>bool class_isMetaClass(Class _Nullable cls)</code></p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc"><br><span class="hljs-built_in">BOOL</span> class_isMetaClass(Class cls)<br>&#123;<br>    <span class="hljs-keyword">if</span> (!cls) <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>    <span class="hljs-keyword">return</span> cls-&gt;isMetaClass();<br>&#125;<br><br><span class="hljs-keyword">bool</span> isMetaClass() &#123;<br>   assert(<span class="hljs-keyword">this</span>);<br>   assert(isRealized());<br>   <span class="hljs-keyword">return</span> data()-&gt;ro-&gt;flags &amp; RO_META;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上面的代码我们可以看出 判断是否为元类的条件是 <code>data()-&gt;ro-&gt;flags &amp; RO_META</code>。那么这个类的flags是什么时候设置的呢？</p>
+<p>找了好久,我们在<code>objc_initializeClassPair_internal</code>方法中找到了下面这段代码</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><code class="hljs objc">cls_ro_w-&gt;flags = <span class="hljs-number">0</span>;<br>meta_ro_w-&gt;flags = RO_META;<br><span class="hljs-keyword">if</span> (!superclass) &#123;<br>   cls_ro_w-&gt;flags |= RO_ROOT;<br>   meta_ro_w-&gt;flags |= RO_ROOT;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>那么这个方法什么时候被调用呢? 追踪了一下我们发现 是在<code>objc_initializeClassPair_internal</code>这个方法中被调用的！ 这个方法是不是很熟悉呢！ 他就是<code>objc_allocateClassPair</code>中的最后一句代码。</p>
+<h2 id="MetaClass-存在的意义是什么呢？"><a href="#MetaClass-存在的意义是什么呢？" class="headerlink" title="MetaClass 存在的意义是什么呢？"></a>MetaClass 存在的意义是什么呢？</h2><p>实际上如果没有元类的存在,而是在class中增加一个classmethodlist用来存放这个类的类方法,也是可以达到我们想要实现的目的。</p>
+<p>那么MetaClass存在的意义到底是什么呢？</p>
+<p>为了更好的了解MetaClass存在的原因,我们先看一下他的作用:</p>
+<p>先看一下下面这张图片:</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/967869-f15ff2bc1baf88d2.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/700" alt="metaclass"></p>
+<h4 id="一切皆对象的思想"><a href="#一切皆对象的思想" class="headerlink" title="一切皆对象的思想"></a>一切皆对象的思想</h4><p>我们都知道对象里有一个isa指针</p>
+<p><code>ISA指针 实际上就是 is a 的缩写。表示这个对象是一个什么</code></p>
+<p>从上面的图上我们也可以看出最顶层的RootMetaClass的isa指向知己superClass指向RootClass,这就形成了一个闭环。</p>
+<p>加入 我们将元类去掉,那么我们类的ISA指针应该指向什么呢？如果没办法指向一个RootMetaClass那表明这个类是一个什么类型的对象呢？</p>
+<p>当然这个是根据结论反推原因,是不太合逻辑的,但是 更容易被我们理解。</p>
+<h4 id="从Smalltalk重新认识面向对象"><a href="#从Smalltalk重新认识面向对象" class="headerlink" title="从Smalltalk重新认识面向对象"></a>从Smalltalk重新认识面向对象</h4><p>以前谈到面向对象，总会提到，面向对象三特征：封装、继承、多态。但其实，面向对象中也分流派，如C++这种来自Simula的设计思想的，更注重的是类的划分，因为方法调用是静态的。而如Objective-C这种借鉴Smalltalk的，更注重的是消息传递，是动态响应消息。</p>
+<p>而面向对象三种特征，更基于的是类的划分而提出的。</p>
+<p>这两种思想最大的不同，我认为是自上而下和自下而上的思考方式。</p>
+<ul>
+<li>类的划分，要求类的设计者是以一个很高的层次去设计这个类，提取出类的特性和本质，进行类的构建。<code>知道类型才可以去发送消息给对象</code>。</li>
+<li>消息传递，要求的是类的设计者以消息为起点去构建类，也就是对外界的变化进行响应，而不关心自身的类型，设计接口。尝试理解消息，无法处理则进行特殊处理。</li>
+</ul>
+<p>消息传递对于面向对象的设计，其实在于给出一种对消息的解决方案。而面向对象优点之一的复用，在这种设计里，更多在于复用解决方案，而不是单纯的类本身。这种思想就如设计组件一般，关心接口，关心组合而非类本身。其实之所以有MetaClass这种设计，我的理解并不是先有MetaClass，而是在万物都是对象的Smalltalk里，向对象发送消息的基本解决方案是统一的，希望复用的。而实例和类之间用的这一套通过isa指针指向的Class单例中存储方法列表和查询方法的解决方案的流程，是应该在类上复用的，而MetaClass就顺理成章出现罢了。</p>
+<p>上面这部分是摘自:<a href="https://www.jianshu.com/p/ea7c42e16da8">Why is MetaClass in Objective-C</a></p>
+<h3 id="维基百科的解释"><a href="#维基百科的解释" class="headerlink" title="维基百科的解释"></a>维基百科的解释</h3><figure class="highlight plain"><table><tr><td class="code"><pre><code class="hljs plain"><br>Metaclasses in Objective-C are almost the same as those in Smalltalk-80—not surprising since Objective-C borrows a lot from Smalltalk. Like Smalltalk, in Objective-C, the instance variables and methods are defined by an object&#39;s class. A class is an object, hence it is an instance of a metaclass.(OC中的Metaclasses 基本上和Smalltalk-80相同,鉴于OC从Smalltalk中借鉴了很多因此这并不令人干到奇怪。类似Smalltalk 在OC中实例的变量和方法被定义在对象的类中,class也是一个对象,于是class是mataclass的一个实例。)<br><br>Like Smalltalk, in Objective-C, class methods are simply methods called on the class object, hence a class&#39;s class methods must be defined as instance methods in its metaclass. Because different classes can have different sets of class methods, each class must have its own separate metaclass. Classes and metaclasses are always created as a pair: the runtime has functions objc_allocateClassPair() and objc_registerClassPair() to create and register class-metaclass pairs, respectively.(类似Smalltalk,在OC中类方法通过类对象调用,于是一个类的类方法必须在metaclass中以实例方法的形式定义。因为不同的类可以后不同的类方法集合，每一个类必须有自己独立的metaClass。Class和class-metaClass一起被创建和注册)<br><br>There are no names for the metaclasses; however, a pointer to any class object can be referred to with the generic type Class (similar to the type id being used for a pointer to any object). (metaClass没有名字,然而,指向任何类对象的指针可以用泛型类型引用)（类似id可以指向所有的对象）<br><br>Because class methods are inherited through inheritance, like Smalltalk, metaclasses must follow an inheritance scheme paralleling that of classes (e.g. if class A&#39;s parent class is class B, then A&#39;s metaclass&#39;s parent class is B&#39;s metaclass), except that of the root class.(因为,类方法通过继承获取,类似Smalltalk,元类必须遵循与类类似的继承方案<br><br>Unlike Smalltalk, the metaclass of the root class inherits from the root class (usually NSObject using the Cocoa framework) itself. This ensures that all class objects are ultimately instances of the root class, so that you can use the instance methods of the root class, usually useful utility methods for objects, on class objects themselves.(与Smalltalk不同,根类的metaclass继承自根类本身,这就确保了所有的类对象都是根类的对象。以便您可以使用根类的实例方法，通常是对象的有用实用工具方法，以及类对象本身。)<br><br>Since metaclass objects do not behave differently (you cannot add class methods for a metaclass, so metaclass objects all have the same methods), they are all instances of the same class—the metaclass of the root class (unlike Smalltalk). Thus, the metaclass of the root class is an instance of itself. The reason for this is that all metaclasses inherit from root class; hence, they must inherit the class methods of the root class.<br>(由于元类对象行为不同(你不能为元类添加类方法，所以元类对象都有相同的方法),它们都是同一类的实例 - 根类的元类（与Smalltalk不同）因此，根类的元类是它自己的一个实例。原因是所有元类都继承自根类;因此，他们必须继承根类的类方法。)<br></code></pre></td></tr></table></figure>
+
+<h3 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h3><p>回到一开始那个问题，为什么要设计MetaClass，去掉把类方法放到类里面行不行？</p>
+<p>我的理解是，可以，但不Smalltalk。这样的设计是C++那种自上而下的设计方式，类方法也是类的一种特征描述。而Smalltalk的精髓正在于消息传递，复用消息传递才是根本目的，而MetaClass只不过是因此需要的一个工具罢了。</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://www.jianshu.com/p/ea7c42e16da8">Why is MetaClass in Objective-C</a><br><a href="https://blog.csdn.net/myan/article/details/5928531">function/bind的救赎（上）</a></p>
+]]></content>
+      <categories>
+        <category>iOS优化</category>
+      </categories>
+      <tags>
+        <tag>metaClass</tag>
+      </tags>
+  </entry>
 </search>
