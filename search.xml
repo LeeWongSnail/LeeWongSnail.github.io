@@ -8703,7 +8703,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <p>这里也找到了<a href="https://abhimuralidharan.medium.com/finite-length-tasks-in-background-ios-swift-60f2db4fa01b">Finite-Length Tasks in background iOS swift</a>供大家参考。</p>
 <p>那么系统是否有提供通知，我们可以动态监听应用进入了挂起态呢？<br>在了解挂起态后，我们应该可以猜得到系统并不会给我们提供这个通知，因为在这个阶段App是不允许执行任何操作的，因此即使系统为开发者提供了这个通知，App也是无法监听并执行相应操作的。</p>
 <p>这里找到了<a href="http://www.codingexplorer.com/execution-states-swift-ios-app/">Execution States for a Swift iOS App</a>这篇文章，其中介绍了<code>Not Running</code>、<code>Suspended</code>、<code>Background</code>、<code>Inactive</code>、<code>Inactive</code> 这几种状态有兴趣的可以了解下。</p>
-<h3 id="场景分析"><a href="#场景分析" class="headerlink" title="场景分析"></a>场景分析</h3><p>经过上面的介绍，我们已经有了这方面的只是储备，那么在回到我们的crash上。</p>
+<h3 id="场景分析"><a href="#场景分析" class="headerlink" title="场景分析"></a>场景分析</h3><p>经过上面的介绍，我们已经有了这方面的只是储备，那么在回到我们的crash上。下面是我对这次崩溃场景的猜测：<code>App进入启动后，进入我们从接口获取数据保存到数据库的操作，对于数据较多的用户这里可能会持续时间较久，在这个过程中用户进入了后台，接口获取和保存数据库操作持续进行中，在某个接口请求完成后刚好到达临界时间，系统即将把App置为挂起状态。此时接口完成后的数据库操作，刚好导致了App持有数据库锁，因此系统将App强杀，并Report了上面的Crash</code></p>
 <h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a href="https://stackoverflow.com/questions/24244875/how-can-i-tell-if-my-app-has-suspended">How can I tell if my app has suspended?</a></p>
 <p><a href="https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background/about_the_background_execution_sequence">About the Background Execution Sequence</a></p>
 <p><a href="https://stackoverflow.com/questions/40630504/springboard-crashing-when-adding-a-lot-of-triggers-to-unusernotificationcenter">Springboard crashing when adding a lot of triggers to UNUserNotificationCenter</a></p>
