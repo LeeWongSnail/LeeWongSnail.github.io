@@ -8718,7 +8718,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <p><a href="https://developer.apple.com/documentation/xcode/understanding-the-exception-types-in-a-crash-report">Understanding the Exception Types in a Crash Report</a></p>
 ]]></content>
       <tags>
-        <tag>3735883980</tag>
+        <tag>deadlock、后台crash</tag>
       </tags>
   </entry>
 </search>
