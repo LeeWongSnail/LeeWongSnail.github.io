@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+    <meta charset="utf-8">
+
+    
+
+    <!-- 渲染优化 -->
+    <meta name="renderer" content="webkit">
+    <meta name="force-rendering" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="HandheldFriendly" content="True" >
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--icon-->
+
+    
+        <link rel="shortcut icon" href="https://tva1.sinaimg.cn/large/0081Kckwly1glcsnw2jatj303k03k748.jpg">
+    
+    
+    
+    
+    
+
+
+    <!-- meta -->
+
+
+<title>0xdead10cc 问题修复 | LeeWong</title>
+
+
+    <meta name="keywords" content="3735883980, iOS">
+
+
+
+
+    <!-- OpenGraph -->
+ 
+    <meta name="description" content="近期我们新做了一个需求，其中一个实现是需要在启动和使用这个功能时，从网络获取大量数据，然后将数据保存到数据库中。后续操作我们均从数据库获取。但是该需求上线后，Xcode中反馈了很多0xdead10cc问题。因此本篇文章主要是介绍对0xdead10cc的了解。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="0xdead10cc 问题修复">
+<meta property="og:url" content="https://www.leewong.cn/2021/09/12/0xdead10cc-fix/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="近期我们新做了一个需求，其中一个实现是需要在启动和使用这个功能时，从网络获取大量数据，然后将数据保存到数据库中。后续操作我们均从数据库获取。但是该需求上线后，Xcode中反馈了很多0xdead10cc问题。因此本篇文章主要是介绍对0xdead10cc的了解。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gltj8h40qoj30dw05kq36.jpg">
+<meta property="article:published_time" content="2021-09-11T23:55:38.000Z">
+<meta property="article:modified_time" content="2021-09-12T01:34:57.910Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="3735883980">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/0081Kckwgy1gltj8h40qoj30dw05kq36.jpg">
+
+
+    
+<link rel="stylesheet" href="/css/style/main.css">
+ 
+
+
+    
+<link rel="stylesheet" href="/css/style/dark.css">
+
+    
+<script src="/js/darkmode.js"></script>
+
+
+
+    
+    
+    
+        <link rel="stylesheet" id="hl-default-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/default.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+        
+            <link rel="stylesheet" id="hl-dark-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/dark.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')!==-1)this.media='all'">
+        
+    
+
+    
+
+     
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+ 
+
+    <!-- custom head -->
+
+    
+        <meta name="google-site-verification" content="4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU" /> 
+    
+
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+    <body>
+        <div id="app">
+            <header class="header">
+    <div class="header__left">
+        <a href="/" class="button">
+            <span class="logo__text">LeeWong</span>
+        </a>
+    </div>
+    <div class="header__right">
+        
+            <div class="navbar__menus">
+                
+                    <a href="/" class="navbar-menu button">首页</a>
+                
+                    <a href="/tags/" class="navbar-menu button">标签</a>
+                
+                    <a href="/archives/" class="navbar-menu button">归档</a>
+                
+                    <a href="/about/" class="navbar-menu button">关于我</a>
+                
+            </div>
+        
+        
+        
+
+        
+        
+    <a href="javaScript:void(0);" id="btn-toggle-dark">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </a>
+
+
+         
+    <a href="#" class="button" id="b2t" aria-label="回到顶部" title="回到顶部">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="32" height="32">
+            <path d="M233.376 722.752L278.624 768 512 534.624 745.376 768l45.248-45.248L512 444.128zM192 352h640V288H192z" fill="currentColor"></path>
+        </svg>
+    </a>
+
+
+        
+            <a class="dropdown-icon button" id="btn-dropdown" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width='24' height='24' fill="none" stroke="currentColor" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" d="M3.314,4.8h13.372c0.41,0,0.743-0.333,0.743-0.743c0-0.41-0.333-0.743-0.743-0.743H3.314c-0.41,0-0.743,0.333-0.743,0.743C2.571,4.467,2.904,4.8,3.314,4.8z M16.686,15.2H3.314c-0.41,0-0.743,0.333-0.743,0.743s0.333,0.743,0.743,0.743h13.372c0.41,0,0.743-0.333,0.743-0.743S17.096,15.2,16.686,15.2z M16.686,9.257H3.314c-0.41,0-0.743,0.333-0.743,0.743s0.333,0.743,0.743,0.743h13.372c0.41,0,0.743-0.333,0.743-0.743S17.096,9.257,16.686,9.257z"></path></svg></a>
+            <div class="dropdown-menus" id="dropdown-menus">
+                
+                    <a href="/" class="dropdown-menu button">首页</a>
+                
+                    <a href="/tags/" class="dropdown-menu button">标签</a>
+                
+                    <a href="/archives/" class="dropdown-menu button">归档</a>
+                
+                    <a href="/about/" class="dropdown-menu button">关于我</a>
+                
+            </div>
+        
+    </div>
+</header>
+
+
+            <main class="main">
+    
+
+<div class="post-title">
+    <h1 class="post-title__text">
+        0xdead10cc 问题修复
+    </h1>
+    <div class="post-title__meta">
+        <a href="/archives/2021/09/" class="post-meta__date button">2021-09-12</a>
+        
+ 
+        
+    
+     
+    <span id="busuanzi_container_page_pv" hidden>
+        <span class="separate-dot"></span>
+        <span></span>
+        <span id="busuanzi_value_page_pv"></span>
+        <span>Views</span>
+    </span>
+
+
+
+ 
+
+ 
+    </div>
+</div>
+
+
+    <aside class="post-side">
+        <div class="post-side__toc">
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A1%AE%E5%AE%9A%E5%8E%9F%E5%9B%A0"><span class="toc-number">1.</span> <span class="toc-text">确定原因</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E5%82%A8%E5%A4%87"><span class="toc-number">2.</span> <span class="toc-text">知识储备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">场景分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">4.</span> <span class="toc-text">参考文章</span></a></li></ol>
+        </div>
+    </aside>
+    <a class="btn-toc button" id="btn-toc" tabindex="0">
+        <svg viewBox="0 0 1024 1024" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M128 256h64V192H128zM320 256h576V192H320zM128 544h64v-64H128zM320 544h576v-64H320zM128 832h64v-64H128zM320 832h576v-64H320z" fill="currentColor"></path>
+        </svg>
+    </a>
+    <div class="toc-menus" id="toc-menus">
+        <div class="toc-title">文章目录</div>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A1%AE%E5%AE%9A%E5%8E%9F%E5%9B%A0"><span class="toc-number">1.</span> <span class="toc-text">确定原因</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E5%82%A8%E5%A4%87"><span class="toc-number">2.</span> <span class="toc-text">知识储备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">场景分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">4.</span> <span class="toc-text">参考文章</span></a></li></ol>
+    </div>
+
+
+<article class="post content-card">
+    <div class="post__header">
+    
+        <div class="post-thumbnail" style="background-image: url('https://tva1.sinaimg.cn/large/0081Kckwgy1gltj8h40qoj30dw05kq36.jpg');"></div>
+    
+</div>
+    <div class="post__content">
+        <p>近期我们新做了一个需求，其中一个实现是需要在启动和使用这个功能时，从网络获取大量数据，然后将数据保存到数据库中。后续操作我们均从数据库获取。但是该需求上线后，Xcode中反馈了很多<code>0xdead10cc</code>问题。因此本篇文章主要是介绍对<code>0xdead10cc</code>的了解。</p>
+<a id="more"></a>
+
+<h3 id="确定原因"><a href="#确定原因" class="headerlink" title="确定原因"></a>确定原因</h3><p>首先先放出一张Xcode中Crash的堆栈信息<br><img src="https://tva1.sinaimg.cn/large/008i3skNly1gu9ehbwjmyj61fy0bogoo02.jpg" alt="crash"><br>我们看到Crash信息中我们可以明确地看到Crash的原因：<br><code>Termination Reason: Namespace RUNNINGBOARD, Code 0xdead10cc</code>。<br>我们先来看下这到底是一个什么错误。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; The exception code<br><br>0xdead10cc (pronounced “dead lock”). The operating system terminated the app <br>because it held on to a file lock or SQLite database lock during suspension. <br>Request additional background execution time on the main thread with <br>beginBackgroundTask(withName:expirationHandler:). Make this request well before <br>starting to write to the file in order to complete those operations and <br>relinquish the lock before the app suspends. In an app extension, <br>use beginActivity(options:reason:) to mange this work.<br></code></pre></td></tr></table></figure>
+<p>通过上面的描述我们可以知道，0xdead10cc这个错误出现的原因是：<code>在App被挂起期间，操作系统发现App依然持有一个文件锁或者数据库锁</code></p>
+<p>而从堆栈信息中，我们可以看到在崩溃前的确是在执行数据库相关操作，那么这个Crash崩溃的原因应该是在挂起期间依然持有了数据库锁(进行数据库操作)</p>
+<h3 id="知识储备"><a href="#知识储备" class="headerlink" title="知识储备"></a>知识储备</h3><p>首先我们应该明白什么是suspension状态，下面是官网截图</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gudji193ocj60nr0pbjsp02.jpg" alt="应用状态分析"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs plain">The following figure shows the state transitions for scenes. When the user or <br>system requests a new scene for your app, UIKit creates it and puts it in the <br>unattached state. User-requested scenes move quickly to the foreground, where they <br>appear onscreen. A system-requested scene typically moves to the background so<br> that it can process an event. For example, the system might launch the scene in <br> the background to process a location event. When the user dismisses your app&#39;s <br> UI, UIKit moves the associated scene to the background state and eventually to <br> the suspended state. UIKit can disconnect a background or suspended scene at any <br> time to reclaim its resources, returning that scene to the unattached state.<br><br></code></pre></td></tr></table></figure>
+<p>我们只需要重点看下这句话即可：<br><code>When the user your app&#39;s UI, UIKit moves the associated scene to the background state and eventually to the suspended state. </code> </p>
+<p>当用户离开了你的APP，UIKit就会将相关的场景切换到后台状态，最终进入到挂起状态<br>对于当应用即进入后台时应该进行什么操作，苹果官方也给我们提供了详细的描述: <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background">Preparing Your UI to Run in the Background</a></p>
+<p>我们都知道在我们进入后台时，App的代码是可以继续执行的，但是挂起态明显不可以，那么从后台状态到挂起态，我们有多久的时间可以继续执行任务呢？</p>
+<p>这一点官方文档并没有明确的解释，只是提示我们要<code>As Soon As Possible</code>,因此对于没有申请后台执行时间的APP来说，我们最好尽可能快的在APP进入后台时取消可能会继续持有的资源。当然如果APP需要可以申请额外的后台运行时间，但是时间也是有限的。</p>
+<p>这里也找到了<a target="_blank" rel="noopener" href="https://abhimuralidharan.medium.com/finite-length-tasks-in-background-ios-swift-60f2db4fa01b">Finite-Length Tasks in background iOS swift</a>供大家参考。</p>
+<p>那么系统是否有提供通知，我们可以动态监听应用进入了挂起态呢？<br>在了解挂起态后，我们应该可以猜得到系统并不会给我们提供这个通知，因为在这个阶段App是不允许执行任何操作的，因此即使系统为开发者提供了这个通知，App也是无法监听并执行相应操作的。</p>
+<p>这里找到了<a target="_blank" rel="noopener" href="http://www.codingexplorer.com/execution-states-swift-ios-app/">Execution States for a Swift iOS App</a>这篇文章，其中介绍了<code>Not Running</code>、<code>Suspended</code>、<code>Background</code>、<code>Inactive</code>、<code>Inactive</code> 这几种状态有兴趣的可以了解下。</p>
+<h3 id="场景分析"><a href="#场景分析" class="headerlink" title="场景分析"></a>场景分析</h3><p>经过上面的介绍，我们已经有了这方面的只是储备，那么在回到我们的crash上。</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/24244875/how-can-i-tell-if-my-app-has-suspended">How can I tell if my app has suspended?</a></p>
+<p><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background/about_the_background_execution_sequence">About the Background Execution Sequence</a></p>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/40630504/springboard-crashing-when-adding-a-lot-of-triggers-to-unusernotificationcenter">Springboard crashing when adding a lot of triggers to UNUserNotificationCenter</a></p>
+
+    </div>
+     
+    <div class="post-footer__meta"><p>更新于 2021-09-12</p></div> 
+    <div class="post-meta__cats"><a href="/tags/3735883980/" class="post-tags__link button"># 3735883980</a></div> 
+</article>
+
+
+    <div class="nav">
+        <div class="nav__prev">
+            
+        </div>
+        <div class="nav__next">
+            
+                <a href="/2021/01/31/gifshowupgrade/" class="nav__link">
+                    <div>
+                        <div class="nav__label">
+                            Next Post
+                        </div>
+                        <div class="nav__title">
+                            Gif展示对比和优化
+                        </div>
+                    </div>
+                    <div>
+                        <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M434.944 790.624l-45.248-45.248L623.04 512l-233.376-233.376 45.248-45.248L713.568 512z" fill="#808080"></path></svg>
+                    </div>
+                </a>
+            
+        </div>
+    </div>
+
+
+
+
+
+</main>
+
+            <footer class="footer">
+    
+
+
+    
+    
+    
+        <span id="busuanzi_container_site_uv" hidden>
+            <span></span>
+            <span id="busuanzi_value_site_uv"></span>
+            <span>Viewers</span>
+            
+                <span>|</span>
+            
+        </span>
+    
+    
+        <span id="busuanzi_container_site_pv" hidden>
+            <span></span>
+            <span id="busuanzi_value_site_pv"></span>
+            <span>Views</span>
+            
+        </span>
+    
+ 
+ 
+
+ 
+    
+        
+        <p class="footer-copyright">
+            Copyright © 2015&nbsp;-&nbsp;2021 <a href="/">LeeWong</a>
+        </p>
+    
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme - <a href="https://github.com/ChrAlpha/hexo-theme-cards" target="_blank">Cards</a></p>
+</footer>
+
+        </div>
+         
+
+ 
+    <script>
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <script async src="https://www.google-analytics.com/analytics.js"></script>
+ 
+
+ 
+
+ 
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement('script');
+            hm.src = 'https://hm.baidu.com/hm.js?DR81zbdrQ3';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+ 
+
+  
+
+
+
+ 
+
+
+    
+ 
+
+
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.4.1/dist/jquery.fancybox.min.css">
+
+    
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.4.1/dist/jquery.fancybox.min.js"></script>
+
+    <script>
+        let lazyloadT = Boolean('false'),
+            auto_fancybox = Boolean('false')
+        if (auto_fancybox) {
+            $(".post__content").find('img').each(function () {
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("href", $(this).attr("src"));
+                if (lazyloadT) {
+                    $(element).attr("href", $(this).attr("data-srcset"));
+                }
+                $(this).wrap(element);
+            });
+        } else {
+            $(".post__content").find("fancybox").find('img').each(function () {
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("href", $(this).attr("src"));
+                if (lazyloadT) {
+                    $(element).attr("href", $(this).attr("data-srcset"));
+                }
+                $(this).wrap(element);
+            });
+        }
+    </script>
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+
+    </body>
+</html>

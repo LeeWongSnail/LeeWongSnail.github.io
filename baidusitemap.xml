@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://www.leewong.cn/2021/09/12/0xdead10cc-fix/</loc>
+    <lastmod>2021-09-12</lastmod>
+  </url>
+  <url>
+    <loc>https://www.leewong.cn/2018/09/30/xcode-shortcuts/</loc>
+    <lastmod>2021-04-03</lastmod>
+  </url>
+  <url>
     <loc>https://www.leewong.cn/2021/01/31/gifshowupgrade/</loc>
     <lastmod>2021-01-31</lastmod>
   </url>
@@ -198,10 +206,6 @@
   </url>
   <url>
     <loc>https://www.leewong.cn/2016/01/26/SDWebImage-1/</loc>
-    <lastmod>2020-12-05</lastmod>
-  </url>
-  <url>
-    <loc>https://www.leewong.cn/2018/09/30/xcode-shortcuts/</loc>
     <lastmod>2020-12-05</lastmod>
   </url>
   <url>

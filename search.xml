@@ -3443,7 +3443,7 @@ LLDB的命令其实还有很多，很多命令我也没玩过。就算玩过的�
 
 
 <h3 id="删除一行代码"><a href="#删除一行代码" class="headerlink" title="删除一行代码"></a>删除一行代码</h3><p><code>ctrl+k</code> 删除光标之后的内容<br>如果要删除整行代码 那么需要保证光标在行首 </p>
-<p><img src="https://ws1.sinaimg.cn/large/006tNc79ly1fvrrr4tzmtg30h505kaai.gif" alt="删除一行"></p>
+<p><img src="c" alt="删除一行"></p>
 <h3 id="将光标跳转至行首"><a href="#将光标跳转至行首" class="headerlink" title="将光标跳转至行首"></a>将光标跳转至行首</h3><p><code>ctrl+a</code><br><code>cmd+&lt;- cmd+-&gt;</code> 光标跳转至行首或者行尾</p>
 <p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fvrrvlx9wag30su0e6gop.gif" alt="回到行首或者行尾"></p>
 <h3 id="查看工程文件"><a href="#查看工程文件" class="headerlink" title="查看工程文件"></a>查看工程文件</h3><p><code>command+1</code></p>
@@ -8681,6 +8681,35 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
       </categories>
       <tags>
         <tag>metaClass</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0xdead10cc 问题修复</title>
+    <url>/2021/09/12/0xdead10cc-fix/</url>
+    <content><![CDATA[<p>近期我们新做了一个需求，其中一个实现是需要在启动和使用这个功能时，从网络获取大量数据，然后将数据保存到数据库中。后续操作我们均从数据库获取。但是该需求上线后，Xcode中反馈了很多<code>0xdead10cc</code>问题。因此本篇文章主要是介绍对<code>0xdead10cc</code>的了解。</p>
+<a id="more"></a>
+
+<h3 id="确定原因"><a href="#确定原因" class="headerlink" title="确定原因"></a>确定原因</h3><p>首先先放出一张Xcode中Crash的堆栈信息<br><img src="https://tva1.sinaimg.cn/large/008i3skNly1gu9ehbwjmyj61fy0bogoo02.jpg" alt="crash"><br>我们看到Crash信息中我们可以明确地看到Crash的原因：<br><code>Termination Reason: Namespace RUNNINGBOARD, Code 0xdead10cc</code>。<br>我们先来看下这到底是一个什么错误。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><code class="hljs plain">&gt; The exception code<br><br>0xdead10cc (pronounced “dead lock”). The operating system terminated the app <br>because it held on to a file lock or SQLite database lock during suspension. <br>Request additional background execution time on the main thread with <br>beginBackgroundTask(withName:expirationHandler:). Make this request well before <br>starting to write to the file in order to complete those operations and <br>relinquish the lock before the app suspends. In an app extension, <br>use beginActivity(options:reason:) to mange this work.<br></code></pre></td></tr></table></figure>
+<p>通过上面的描述我们可以知道，0xdead10cc这个错误出现的原因是：<code>在App被挂起期间，操作系统发现App依然持有一个文件锁或者数据库锁</code></p>
+<p>而从堆栈信息中，我们可以看到在崩溃前的确是在执行数据库相关操作，那么这个Crash崩溃的原因应该是在挂起期间依然持有了数据库锁(进行数据库操作)</p>
+<h3 id="知识储备"><a href="#知识储备" class="headerlink" title="知识储备"></a>知识储备</h3><p>首先我们应该明白什么是suspension状态，下面是官网截图</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gudji193ocj60nr0pbjsp02.jpg" alt="应用状态分析"></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><code class="hljs plain">The following figure shows the state transitions for scenes. When the user or <br>system requests a new scene for your app, UIKit creates it and puts it in the <br>unattached state. User-requested scenes move quickly to the foreground, where they <br>appear onscreen. A system-requested scene typically moves to the background so<br> that it can process an event. For example, the system might launch the scene in <br> the background to process a location event. When the user dismisses your app&#39;s <br> UI, UIKit moves the associated scene to the background state and eventually to <br> the suspended state. UIKit can disconnect a background or suspended scene at any <br> time to reclaim its resources, returning that scene to the unattached state.<br><br></code></pre></td></tr></table></figure>
+<p>我们只需要重点看下这句话即可：<br><code>When the user your app&#39;s UI, UIKit moves the associated scene to the background state and eventually to the suspended state. </code> </p>
+<p>当用户离开了你的APP，UIKit就会将相关的场景切换到后台状态，最终进入到挂起状态<br>对于当应用即进入后台时应该进行什么操作，苹果官方也给我们提供了详细的描述: <a href="https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background">Preparing Your UI to Run in the Background</a></p>
+<p>我们都知道在我们进入后台时，App的代码是可以继续执行的，但是挂起态明显不可以，那么从后台状态到挂起态，我们有多久的时间可以继续执行任务呢？</p>
+<p>这一点官方文档并没有明确的解释，只是提示我们要<code>As Soon As Possible</code>,因此对于没有申请后台执行时间的APP来说，我们最好尽可能快的在APP进入后台时取消可能会继续持有的资源。当然如果APP需要可以申请额外的后台运行时间，但是时间也是有限的。</p>
+<p>这里也找到了<a href="https://abhimuralidharan.medium.com/finite-length-tasks-in-background-ios-swift-60f2db4fa01b">Finite-Length Tasks in background iOS swift</a>供大家参考。</p>
+<p>那么系统是否有提供通知，我们可以动态监听应用进入了挂起态呢？<br>在了解挂起态后，我们应该可以猜得到系统并不会给我们提供这个通知，因为在这个阶段App是不允许执行任何操作的，因此即使系统为开发者提供了这个通知，App也是无法监听并执行相应操作的。</p>
+<p>这里找到了<a href="http://www.codingexplorer.com/execution-states-swift-ios-app/">Execution States for a Swift iOS App</a>这篇文章，其中介绍了<code>Not Running</code>、<code>Suspended</code>、<code>Background</code>、<code>Inactive</code>、<code>Inactive</code> 这几种状态有兴趣的可以了解下。</p>
+<h3 id="场景分析"><a href="#场景分析" class="headerlink" title="场景分析"></a>场景分析</h3><p>经过上面的介绍，我们已经有了这方面的只是储备，那么在回到我们的crash上。</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a href="https://stackoverflow.com/questions/24244875/how-can-i-tell-if-my-app-has-suspended">How can I tell if my app has suspended?</a></p>
+<p><a href="https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background/about_the_background_execution_sequence">About the Background Execution Sequence</a></p>
+<p><a href="https://stackoverflow.com/questions/40630504/springboard-crashing-when-adding-a-lot-of-triggers-to-unusernotificationcenter">Springboard crashing when adding a lot of triggers to UNUserNotificationCenter</a></p>
+]]></content>
+      <tags>
+        <tag>3735883980</tag>
       </tags>
   </entry>
 </search>
