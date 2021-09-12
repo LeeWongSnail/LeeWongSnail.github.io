@@ -8684,7 +8684,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
       </tags>
   </entry>
   <entry>
-    <title>0xdead10cc 问题修复</title>
+    <title>0xdead10cc问题调研</title>
     <url>/2021/09/12/0xdead10cc-fix/</url>
     <content><![CDATA[<p>近期我们新做了一个需求，其中一个实现是需要在启动和使用这个功能时，从网络获取大量数据，然后将数据保存到数据库中。后续操作我们均从数据库获取。但是该需求上线后，Xcode中反馈了很多<code>0xdead10cc</code>问题。因此本篇文章主要是介绍对<code>0xdead10cc</code>的了解。</p>
 <a id="more"></a>
