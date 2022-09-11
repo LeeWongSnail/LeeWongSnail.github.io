@@ -8725,6 +8725,8 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
     <title>iOS文本导出为Docx文件</title>
     <url>/2022/09/11/iOS-how-to-create-Docx/</url>
     <content><![CDATA[<p>近期的需求中有一项任务是将用户输入的文字和图片写入Word文件并支持导出，对于苹果和微软的爱恨情仇很早就知道，iOS文本写入Word难度可想而知，所以在接到这个需求的第一时间，我就明确要求这个需求要先调研，然后再开始。所以这篇文章也算是对我调研结果的一个总结。</p>
+<a id="more"></a>
+
 <h2 id="技术方案"><a href="#技术方案" class="headerlink" title="技术方案"></a>技术方案</h2><p>之前知识做过将文字写到txt文件中，因为txt文件是纯文本且不包含文本格式，所以非常简单因此我最先想到的就是尝试直接将文本写到Word文件中，如果这个方案不行，那就只能通过其他方式转了，例如html。经过一番谷歌搜索，基本确定了下面几个方向</p>
 <ul>
 <li>文本直接写入Word文件</li>
@@ -8831,7 +8833,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <p><a href="https://www.jianshu.com/p/96362c83e9d9">docx文件基本结构</a></p>
 ]]></content>
       <tags>
-        <tag>docx, word, iOS</tag>
+        <tag>docX, Word, iOS</tag>
       </tags>
   </entry>
 </search>
