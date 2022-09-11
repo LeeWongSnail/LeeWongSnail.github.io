@@ -8825,6 +8825,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 </tr>
 </tbody></table>
 <p>根据你的需求，选择一个合适你的方案吧！</p>
+<p>这是我封装的pod库，有用请自取<a href="https://github.com/LeeWongSnail/DocxCreator">DocxCreator</a></p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://sebsauvage.net/wiki/doku.php?id=word_document_generation">Word document generation</a></p>
 <p><a href="https://stackoverflow.com/questions/38751495/create-a-word-document-swift">Create a word document, Swift</a></p>
 <p><a href="https://github.com/OfficeDev/Open-XML-SDK">Open-XML-SDK</a></p>
