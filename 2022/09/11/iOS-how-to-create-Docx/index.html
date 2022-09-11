@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+    <meta charset="utf-8">
+
+    
+
+    <!-- 渲染优化 -->
+    <meta name="renderer" content="webkit">
+    <meta name="force-rendering" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="HandheldFriendly" content="True" >
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--icon-->
+
+    
+        <link rel="shortcut icon" href="https://tva1.sinaimg.cn/large/0081Kckwly1glcsnw2jatj303k03k748.jpg">
+    
+    
+    
+    
+    
+
+
+    <!-- meta -->
+
+
+<title>iOS文本导出为Docx文件 | LeeWong</title>
+
+
+    <meta name="keywords" content="docx, word, iOS, iOS">
+
+
+
+
+    <!-- OpenGraph -->
+ 
+    <meta name="description" content="近期的需求中有一项任务是将用户输入的文字和图片写入Word文件并支持导出，对于苹果和微软的爱恨情仇很早就知道，iOS文本写入Word难度可想而知，所以在接到这个需求的第一时间，我就明确要求这个需求要先调研，然后再开始。所以这篇文章也算是对我调研结果的一个总结。 技术方案之前知识做过将文字写到txt文件中，因为txt文件是纯文本且不包含文本格式，所以非常简单因此我最先想到的就是尝试直接将文本写到Wo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS文本导出为Docx文件">
+<meta property="og:url" content="https://www.leewong.cn/2022/09/11/iOS-how-to-create-Docx/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="近期的需求中有一项任务是将用户输入的文字和图片写入Word文件并支持导出，对于苹果和微软的爱恨情仇很早就知道，iOS文本写入Word难度可想而知，所以在接到这个需求的第一时间，我就明确要求这个需求要先调研，然后再开始。所以这篇文章也算是对我调研结果的一个总结。 技术方案之前知识做过将文字写到txt文件中，因为txt文件是纯文本且不包含文本格式，所以非常简单因此我最先想到的就是尝试直接将文本写到Wo">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/e6c9d24ely1h62iv20g4uj20zf0jcdgg.jpg">
+<meta property="article:published_time" content="2022-09-11T03:21:34.000Z">
+<meta property="article:modified_time" content="2022-09-11T03:51:39.743Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="docx, word, iOS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/e6c9d24ely1h62iv20g4uj20zf0jcdgg.jpg">
+
+
+    
+<link rel="stylesheet" href="/css/style/main.css">
+ 
+
+
+    
+<link rel="stylesheet" href="/css/style/dark.css">
+
+    
+<script src="/js/darkmode.js"></script>
+
+
+
+    
+    
+    
+        <link rel="stylesheet" id="hl-default-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/default.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+        
+            <link rel="stylesheet" id="hl-dark-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/dark.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')!==-1)this.media='all'">
+        
+    
+
+    
+
+     
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+ 
+
+    <!-- custom head -->
+
+    
+        <meta name="google-site-verification" content="4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU" /> 
+    
+
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+    <body>
+        <div id="app">
+            <header class="header">
+    <div class="header__left">
+        <a href="/" class="button">
+            <span class="logo__text">LeeWong</span>
+        </a>
+    </div>
+    <div class="header__right">
+        
+            <div class="navbar__menus">
+                
+                    <a href="/" class="navbar-menu button">首页</a>
+                
+                    <a href="/tags/" class="navbar-menu button">标签</a>
+                
+                    <a href="/archives/" class="navbar-menu button">归档</a>
+                
+                    <a href="/about/" class="navbar-menu button">关于我</a>
+                
+            </div>
+        
+        
+        
+
+        
+        
+    <a href="javaScript:void(0);" id="btn-toggle-dark">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </a>
+
+
+         
+    <a href="#" class="button" id="b2t" aria-label="回到顶部" title="回到顶部">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="32" height="32">
+            <path d="M233.376 722.752L278.624 768 512 534.624 745.376 768l45.248-45.248L512 444.128zM192 352h640V288H192z" fill="currentColor"></path>
+        </svg>
+    </a>
+
+
+        
+            <a class="dropdown-icon button" id="btn-dropdown" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width='24' height='24' fill="none" stroke="currentColor" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" d="M3.314,4.8h13.372c0.41,0,0.743-0.333,0.743-0.743c0-0.41-0.333-0.743-0.743-0.743H3.314c-0.41,0-0.743,0.333-0.743,0.743C2.571,4.467,2.904,4.8,3.314,4.8z M16.686,15.2H3.314c-0.41,0-0.743,0.333-0.743,0.743s0.333,0.743,0.743,0.743h13.372c0.41,0,0.743-0.333,0.743-0.743S17.096,15.2,16.686,15.2z M16.686,9.257H3.314c-0.41,0-0.743,0.333-0.743,0.743s0.333,0.743,0.743,0.743h13.372c0.41,0,0.743-0.333,0.743-0.743S17.096,9.257,16.686,9.257z"></path></svg></a>
+            <div class="dropdown-menus" id="dropdown-menus">
+                
+                    <a href="/" class="dropdown-menu button">首页</a>
+                
+                    <a href="/tags/" class="dropdown-menu button">标签</a>
+                
+                    <a href="/archives/" class="dropdown-menu button">归档</a>
+                
+                    <a href="/about/" class="dropdown-menu button">关于我</a>
+                
+            </div>
+        
+    </div>
+</header>
+
+
+            <main class="main">
+    
+
+<div class="post-title">
+    <h1 class="post-title__text">
+        iOS文本导出为Docx文件
+    </h1>
+    <div class="post-title__meta">
+        <a href="/archives/2022/09/" class="post-meta__date button">2022-09-11</a>
+        
+ 
+        
+    
+     
+    <span id="busuanzi_container_page_pv" hidden>
+        <span class="separate-dot"></span>
+        <span></span>
+        <span id="busuanzi_value_page_pv"></span>
+        <span>Views</span>
+    </span>
+
+
+
+ 
+
+ 
+    </div>
+</div>
+
+
+    <aside class="post-side">
+        <div class="post-side__toc">
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88"><span class="toc-number">1.</span> <span class="toc-text">技术方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%A1%88%E9%AA%8C%E8%AF%81"><span class="toc-number">2.</span> <span class="toc-text">方案验证</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E6%9C%AC%E7%9B%B4%E6%8E%A5%E5%86%99%E5%85%A5Excel"><span class="toc-number">2.1.</span> <span class="toc-text">文本直接写入Excel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTML"><span class="toc-number">2.2.</span> <span class="toc-text">HTML</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9C%9F%E6%AD%A3%E7%9A%84Word"><span class="toc-number">2.3.</span> <span class="toc-text">真正的Word</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Word%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="toc-number">2.3.1.</span> <span class="toc-text">Word文件结构</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%BC%96%E8%BE%91Word"><span class="toc-number">2.4.</span> <span class="toc-text">如何编辑Word</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A9%BADocx%E6%96%87%E4%BB%B6%E8%B5%84%E6%BA%90"><span class="toc-number">2.4.1.</span> <span class="toc-text">空Docx文件资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%96%E8%BE%91-word-document-xml-%E6%96%87%E4%BB%B6"><span class="toc-number">2.4.2.</span> <span class="toc-text">编辑 word&#x2F;document.xml 文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8E%8B%E7%BC%A9%E6%96%87%E4%BB%B6%E4%B8%BA-zip"><span class="toc-number">2.4.3.</span> <span class="toc-text">压缩文件为 zip</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E5%90%8E%E7%BC%80"><span class="toc-number">2.4.4.</span> <span class="toc-text">修改文件后缀</span></a></li></ol></li></ol></li></ol>
+        </div>
+    </aside>
+    <a class="btn-toc button" id="btn-toc" tabindex="0">
+        <svg viewBox="0 0 1024 1024" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M128 256h64V192H128zM320 256h576V192H320zM128 544h64v-64H128zM320 544h576v-64H320zM128 832h64v-64H128zM320 832h576v-64H320z" fill="currentColor"></path>
+        </svg>
+    </a>
+    <div class="toc-menus" id="toc-menus">
+        <div class="toc-title">文章目录</div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88"><span class="toc-number">1.</span> <span class="toc-text">技术方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%A1%88%E9%AA%8C%E8%AF%81"><span class="toc-number">2.</span> <span class="toc-text">方案验证</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E6%9C%AC%E7%9B%B4%E6%8E%A5%E5%86%99%E5%85%A5Excel"><span class="toc-number">2.1.</span> <span class="toc-text">文本直接写入Excel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTML"><span class="toc-number">2.2.</span> <span class="toc-text">HTML</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9C%9F%E6%AD%A3%E7%9A%84Word"><span class="toc-number">2.3.</span> <span class="toc-text">真正的Word</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Word%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="toc-number">2.3.1.</span> <span class="toc-text">Word文件结构</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%BC%96%E8%BE%91Word"><span class="toc-number">2.4.</span> <span class="toc-text">如何编辑Word</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A9%BADocx%E6%96%87%E4%BB%B6%E8%B5%84%E6%BA%90"><span class="toc-number">2.4.1.</span> <span class="toc-text">空Docx文件资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%96%E8%BE%91-word-document-xml-%E6%96%87%E4%BB%B6"><span class="toc-number">2.4.2.</span> <span class="toc-text">编辑 word&#x2F;document.xml 文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8E%8B%E7%BC%A9%E6%96%87%E4%BB%B6%E4%B8%BA-zip"><span class="toc-number">2.4.3.</span> <span class="toc-text">压缩文件为 zip</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E5%90%8E%E7%BC%80"><span class="toc-number">2.4.4.</span> <span class="toc-text">修改文件后缀</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+
+<article class="post content-card">
+    <div class="post__header">
+    
+        <div class="post-thumbnail" style="background-image: url('https://tva1.sinaimg.cn/large/e6c9d24ely1h62iv20g4uj20zf0jcdgg.jpg');"></div>
+    
+</div>
+    <div class="post__content">
+        <p>近期的需求中有一项任务是将用户输入的文字和图片写入Word文件并支持导出，对于苹果和微软的爱恨情仇很早就知道，iOS文本写入Word难度可想而知，所以在接到这个需求的第一时间，我就明确要求这个需求要先调研，然后再开始。所以这篇文章也算是对我调研结果的一个总结。</p>
+<h2 id="技术方案"><a href="#技术方案" class="headerlink" title="技术方案"></a>技术方案</h2><p>之前知识做过将文字写到txt文件中，因为txt文件是纯文本且不包含文本格式，所以非常简单因此我最先想到的就是尝试直接将文本写到Word文件中，如果这个方案不行，那就只能通过其他方式转了，例如html。经过一番谷歌搜索，基本确定了下面几个方向</p>
+<ul>
+<li>文本直接写入Word文件</li>
+<li>将文本写入html模板中 在写入Word文件</li>
+<li>其他库实现</li>
+</ul>
+<p>下面我们根据上面的几个方向一次来看这几种方式的实现</p>
+<h2 id="方案验证"><a href="#方案验证" class="headerlink" title="方案验证"></a>方案验证</h2><h3 id="文本直接写入Excel"><a href="#文本直接写入Excel" class="headerlink" title="文本直接写入Excel"></a>文本直接写入Excel</h3><p>方法很简单，我们直接看代码</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs swift"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">writeToWordFile</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 首先尝试直接文档</span><br>    <span class="hljs-keyword">let</span> text = <span class="hljs-string">&quot;下面我们直接将这段文字写入到Word文档中，然后通过手机端和Mac端查看是否可以打开这个docx文件&quot;</span><br>    <span class="hljs-keyword">let</span> path = <span class="hljs-type">NSHomeDirectory</span>().appending(<span class="hljs-string">&quot;/Documents&quot;</span>)<br>    <span class="hljs-keyword">let</span> filePath = path.appending(<span class="hljs-string">&quot;/1.docx&quot;</span>)<br>    <span class="hljs-keyword">try</span>? text.write(toFile: filePath, atomically: <span class="hljs-literal">true</span>, encoding: .utf8)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>通过沙盒路径我们找到了我们新写的这个文件</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h61cxsh61xj20qs0jct9f.jpg" alt="沙盒文件"></p>
+<p>当我们使用Mac的office组件打开时提示</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h61czu49qaj20nu09kmxk.jpg" alt="打开Word文件"><br>因此这种方式应该是不行的。</p>
+<p><em>但是</em>，我这里是直接将文字写成docx文件，那如果我在项目里放一个模型，然后往模型文件里写呢？<br>我先找一个空的Word文件，将其放到项目中，然后将这个文件拷贝到沙盒中然后再写入内容到这个文件中<br><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h61d33nz8qj20qg0i2gmm.jpg" alt="模板文件"></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs swift"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">writeToWord</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 现将示例文件拷贝到沙盒位置 有问题 无法打开对应文件</span><br>    <span class="hljs-keyword">let</span> text = <span class="hljs-string">&quot;下面我们直接将这段文字写入到Word文档中，然后通过手机端和Mac端查看是否可以打开这个docx文件&quot;</span><br>    <span class="hljs-keyword">let</span> examplePath = <span class="hljs-type">Bundle</span>.main.path(forResource: <span class="hljs-string">&quot;example.docx&quot;</span>, ofType: <span class="hljs-literal">nil</span>)<br>    <span class="hljs-keyword">let</span> destinationPath = <span class="hljs-type">NSHomeDirectory</span>().appending(<span class="hljs-string">&quot;/Documents&quot;</span>).appending(<span class="hljs-string">&quot;/2.docx&quot;</span>)<br>    <span class="hljs-keyword">try</span>? <span class="hljs-type">FileManager</span>.<span class="hljs-keyword">default</span>.copyItem(atPath: examplePath!, toPath: destinationPath)<br>    <span class="hljs-keyword">let</span> data = text.data(using: .utf8)<br>    <span class="hljs-keyword">try</span>? data?.write(to: <span class="hljs-type">URL</span>(fileURLWithPath: destinationPath), options: .atomic)<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>我们发现实际结果与前面的方式是相同的。我们都无法打开对应文件，而且这里<code>writetofile</code>应该是重新生成的文件，因为模板文件大小为<code>12KB</code>,但是写操作完成时文件变成了<code>173字节</code>。</p>
+<p>没关系，我们还有另外一种方式就是通过数据流的形式写入到已存在的文件中，这里要用到的是<code>FileHandle</code>:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs swift"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">fileHandlerWrite</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">let</span> text = <span class="hljs-string">&quot;若为购买过其它非intro offer（连续月、单年、单月）后降级的用户，\n则两次弹窗均给出连续包年intro offer（和现有收银台一致）的sku&quot;</span><br>    <span class="hljs-keyword">let</span> examplePath = <span class="hljs-type">Bundle</span>.main.path(forResource: <span class="hljs-string">&quot;example.docx&quot;</span>, ofType: <span class="hljs-literal">nil</span>)<br>    <span class="hljs-keyword">let</span> destinationPath = <span class="hljs-type">NSHomeDirectory</span>().appending(<span class="hljs-string">&quot;/Documents&quot;</span>).appending(<span class="hljs-string">&quot;/3.docx&quot;</span>)<br>    <span class="hljs-keyword">try</span>? <span class="hljs-type">FileManager</span>.<span class="hljs-keyword">default</span>.copyItem(atPath: examplePath!, toPath: destinationPath)<br>    <span class="hljs-keyword">let</span> fileHandle = <span class="hljs-type">FileHandle</span>(forWritingAtPath: destinationPath)!<br>    fileHandle.seekToEndOfFile()<br>    fileHandle.write(text.data(using: .utf8)!)<br>    <span class="hljs-keyword">try</span>? fileHandle.close()<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>但是结果一样，仍然无法打开文件，因此这了可以认为此方法行不通:broken_heart: 。如果大家有更好的方式也可以评论指出。</p>
+<p>不过，当我尝试将文件后缀改为doc时，我发现打开文件时会提示<br><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h61dep5l6lj20yk0u0di6.jpg" alt="doc文件打开提示"><br>当我选择其他编码，并选择有边框中的<code>UTF-8</code>时，我是可以打开文件的。但是目前绝大多数都是使用docx，因此这里也不深入的去讨论doc和docx的区别了。</p>
+<h3 id="HTML"><a href="#HTML" class="headerlink" title="HTML"></a>HTML</h3><p>既然直接写入文件的方式不行，那么我们必须借助其他手段来实现我们的目的，首先想到的是html,同时我们在网上也搜到了部分方法</p>
+<p>我们先来看下效果再去分析实现，</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs swift"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">writeHtmlFile</span><span class="hljs-params">()</span></span> &#123;<br>     <span class="hljs-keyword">let</span> text = <span class="hljs-string">&quot;&lt;html xmlns:o=&#x27;urn:schemas-microsoft-com:office:office&#x27; xmlns:w=&#x27;urn:schemas-microsoft-com:office:word&#x27; xmlns=&#x27;http://www.w3.org/TR/REC-html40&#x27;&gt; 既然直接写入文件的方式不行，那么我们必须借助其他手段来实现我们的目的，首先想到的是html&lt;/html&gt;&quot;</span><br>     <span class="hljs-keyword">let</span> path = <span class="hljs-type">NSHomeDirectory</span>().appending(<span class="hljs-string">&quot;/Documents&quot;</span>)<br>     <span class="hljs-keyword">let</span> filePath = path.appending(<span class="hljs-string">&quot;/1.doc&quot;</span>)<br>     <span class="hljs-keyword">try</span>? text.write(toFile: filePath, atomically: <span class="hljs-literal">true</span>, encoding: .utf8)<br> &#125;<br></code></pre></td></tr></table></figure>
+<p>上面代码中html格式为</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">xmlns:o</span>=<span class="hljs-string">&#x27;urn:schemas-microsoft-com:office:office&#x27;</span> <span class="hljs-attr">xmlns:w</span>=<span class="hljs-string">&#x27;urn:schemas-microsoft-com:office:word&#x27;</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&#x27;http://www.w3.org/TR/REC-html40&#x27;</span>&gt;</span><br>    // 文件内容<br><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>我们通过将上面这段包含html标签和格式的文本写入到一个<code>doc文件</code>中,就可以生成一个Word文档，我们打开这个docx文档看下<br><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h61nqozpihj20wk0u0tag.jpg" alt="html简单doc文件"></p>
+<p>通过上面的方法，我们验证了可以通过html的方式去写Word文件的思路，既然文本都可以写那么图片呢, 我们知道在写html的时候我们嵌入图片一般都是通过图片路径的方式嵌入到html文件中，但是我们如果是通过改后缀的方式生成Word文件，这就要求我们必须只有一个文件，因此我这里尝试使用直接嵌入图片的base64数据实现</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">xmlns:o</span>=<span class="hljs-string">&#x27;urn:schemas-microsoft-com:office:office&#x27;</span> <span class="hljs-attr">xmlns:w</span>=<span class="hljs-string">&#x27;urn:schemas-microsoft-com:office:word&#x27;</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&#x27;http://www.w3.org/TR/REC-html40&#x27;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Title level 1<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;data:image/jpeg;base64,xxxxx&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span><br><br></code></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://tool.chinaz.com/tools/imgtobase">本地图片生成base64 传送门</a></p>
+<p>我们在打开我们生成的<code>doc</code>文件，可以看到图片已经被展示到正确的位置了</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h61o8zzy12j20wk0u0mz2.jpg" alt="带图片的doc文件"></p>
+<p><code>格局打开</code>,既然我们都用了html 那么是否html中的其他标签我们都可以使用呢？下面我来来搞一个复杂的例子试试</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">xmlns:o</span>=<span class="hljs-string">&#x27;urn:schemas-microsoft-com:office:office&#x27;</span> <span class="hljs-attr">xmlns:w</span>=<span class="hljs-string">&#x27;urn:schemas-microsoft-com:office:word&#x27;</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&#x27;http://www.w3.org/TR/REC-html40&#x27;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Title level 1<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Title level 1<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Title level 2<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">h3</span>&gt;</span>Title level 3<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Text in level 3<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>2nd title level 2<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">h3</span>&gt;</span>Another level 3 title<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span><br> <br>List:<br><span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>element 1<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>element 2<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>element 3<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>element 4<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>element 5<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>element 6<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>element 7<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>element 8<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>      <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>element 9<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>element 10<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span><br> <br><span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;100%&quot;</span>,<span class="hljs-attr">border</span>=<span class="hljs-string">&quot;1&quot;</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">thead</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;background-color:#A0A0FF;&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">nowrap</span>&gt;</span>Column A<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">nowrap</span>&gt;</span>Column B<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">nowrap</span>&gt;</span>Column C<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">thead</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>A1<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>B1<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>C1<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>A2<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>B2<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>C2<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>A3<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>B3<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>C3<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;data:image/jpeg;xxx&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span><br><br></code></pre></td></tr></table></figure>
+<p>这时候我们在打开对应Word文件 可以发现,html的这些标签都可以支持<br><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h61ojh7xibj20wk0u0q5e.jpg" alt="支持html标签的Word"></p>
+<p>那么我们是找到了完美的方案了吗？ <strong>不不不</strong>，如果你仔细看上面的内容你会发现，上面html保存的时候我都保存成了doc文件，而对于最新的docx类型呢？</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h61om1ke9tj20nu09kaah.jpg" alt="无法打开"></p>
+<p>:sob: :sob: :sob: :sob: </p>
+<p>别放弃，我们继续看其他方法</p>
+<h3 id="真正的Word"><a href="#真正的Word" class="headerlink" title="真正的Word"></a>真正的Word</h3><h4 id="Word文件结构"><a href="#Word文件结构" class="headerlink" title="Word文件结构"></a>Word文件结构</h4><p>这里的实现主要是参考了 stackoverflow中的这个<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/38751495/create-a-word-document-swift">问题</a>,回答问题的大佬给出了这段解释，Word文件包含了复杂的文件格式，具体可以通过将一个Word文档修改后缀为zip，然后解压查看</p>
+<blockquote>
+<p>Unfortunately, it is nearly impossible to create a .docx file in Swift, given how complicated they are (you can see for yourself by changing the file extension on any old .docx file to .zip, which will reveal their inner structure). The next best thing is to simply create a .txt file, which can also be opened into Pages (though sadly not Docs). If you’re looking for a more polished format, complete with formatting and possibly even images, you could choose to create a .pdf file.</p>
+</blockquote>
+<p>我们随便将一个docx，修改后缀后，解压可以看到下面的文件结构:<br><img src="https://tva1.sinaimg.cn/large/e6c9d24ely1h61n0dafkcj20p209w3z4.jpg" alt="Word文件结果"></p>
+<p>通过查找文件夹中文件的内容我们发现，我们实际写入的文本内容在<code>word/document.xml</code>文件中，如下图<br><img src="https://tva1.sinaimg.cn/large/e6c9d24ely1h62evxaacuj21yc0u0kcz.jpg" alt="xml文件内容"></p>
+<p>那我们只要能够将我们想写入的内容添加到这个文件中就可以完美实现了，废话不多说直接试一下</p>
+<p>我们先新建一个docx文档(包含图片) 如下图<br><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h62gp0839yj20wo0u00w9.jpg" alt="docx文档"><br>我们打开<code>word/document.xml</code>发现文字实际已经直接写在了文件中</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">w:p</span> <span class="hljs-attr">w:rsidR</span>=<span class="hljs-string">&quot;00EB53D0&quot;</span> <span class="hljs-attr">w:rsidRDefault</span>=<span class="hljs-string">&quot;00D6373D&quot;</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">w:r</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">w:rPr</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">w:rFonts</span> <span class="hljs-attr">w:hint</span>=<span class="hljs-string">&quot;eastAsia&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">w:rPr</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">w:t</span>&gt;</span>1<span class="hljs-tag">&lt;/<span class="hljs-name">w:t</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">w:r</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">w:r</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">w:t</span>&gt;</span>234567<span class="hljs-tag">&lt;/<span class="hljs-name">w:t</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">w:r</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">w:p</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">w:p</span> <span class="hljs-attr">w:rsidR</span>=<span class="hljs-string">&quot;00D6373D&quot;</span> <span class="hljs-attr">w:rsidRDefault</span>=<span class="hljs-string">&quot;00D6373D&quot;</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">w:pPr</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">w:rPr</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">w:b</span>/&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">w:sz</span> <span class="hljs-attr">w:val</span>=<span class="hljs-string">&quot;32&quot;</span>/&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">w:szCs</span> <span class="hljs-attr">w:val</span>=<span class="hljs-string">&quot;32&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">w:rPr</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">w:pPr</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">w:r</span> <span class="hljs-attr">w:rsidRPr</span>=<span class="hljs-string">&quot;00D6373D&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">w:rPr</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">w:rFonts</span> <span class="hljs-attr">w:hint</span>=<span class="hljs-string">&quot;eastAsia&quot;</span>/&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">w:b</span>/&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">w:sz</span> <span class="hljs-attr">w:val</span>=<span class="hljs-string">&quot;32&quot;</span>/&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">w:szCs</span> <span class="hljs-attr">w:val</span>=<span class="hljs-string">&quot;32&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">w:rPr</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">w:t</span>&gt;</span>啊啊啊啊没有了对吧<span class="hljs-tag">&lt;/<span class="hljs-name">w:t</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">w:r</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">w:p</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<p>那么如果我们要写入文字时就要按照这种格式写入，不过相对于使用Word软件直接生成的，咱们自己写可以相对简单写，比如对文字Font和等都没有要求。</p>
+<p>接着我们在来看下图片是如何保存的呢？我们在来看下xml文件中对应内容</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">pic:pic</span> <span class="hljs-attr">xmlns:pic</span>=<span class="hljs-string">&quot;http://schemas.openxmlformats.org/drawingml/2006/picture&quot;</span>&gt;</span><br>                  <span class="hljs-tag">&lt;<span class="hljs-name">pic:nvPicPr</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">pic:cNvPr</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;1&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;test.jpg&quot;</span>/&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">pic:cNvPicPr</span>/&gt;</span><br>                  <span class="hljs-tag">&lt;/<span class="hljs-name">pic:nvPicPr</span>&gt;</span><br>                  <span class="hljs-tag">&lt;<span class="hljs-name">pic:blipFill</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">a:blip</span> <span class="hljs-attr">r:embed</span>=<span class="hljs-string">&quot;rId4&quot;</span>&gt;</span><br>                      <span class="hljs-tag">&lt;<span class="hljs-name">a:extLst</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">a:ext</span> <span class="hljs-attr">uri</span>=<span class="hljs-string">&quot;&#123;28A0092B-C50C-407E-A947-70E740481C1C&#125;&quot;</span>&gt;</span><br>                          <span class="hljs-tag">&lt;<span class="hljs-name">a14:useLocalDpi</span> <span class="hljs-attr">xmlns:a14</span>=<span class="hljs-string">&quot;http://schemas.microsoft.com/office/drawing/2010/main&quot;</span> <span class="hljs-attr">val</span>=<span class="hljs-string">&quot;0&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">a14:useLocalDpi</span>&gt;</span><br>                        <span class="hljs-tag">&lt;/<span class="hljs-name">a:ext</span>&gt;</span><br>                      <span class="hljs-tag">&lt;/<span class="hljs-name">a:extLst</span>&gt;</span><br>                    <span class="hljs-tag">&lt;/<span class="hljs-name">a:blip</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">a:stretch</span>&gt;</span><br>                      <span class="hljs-tag">&lt;<span class="hljs-name">a:fillRect</span>/&gt;</span><br>                    <span class="hljs-tag">&lt;/<span class="hljs-name">a:stretch</span>&gt;</span><br>                  <span class="hljs-tag">&lt;/<span class="hljs-name">pic:blipFill</span>&gt;</span><br>                  <span class="hljs-tag">&lt;<span class="hljs-name">pic:spPr</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">a:xfrm</span>&gt;</span><br>                      <span class="hljs-tag">&lt;<span class="hljs-name">a:off</span> <span class="hljs-attr">x</span>=<span class="hljs-string">&quot;0&quot;</span> <span class="hljs-attr">y</span>=<span class="hljs-string">&quot;0&quot;</span>/&gt;</span><br>                      <span class="hljs-tag">&lt;<span class="hljs-name">a:ext</span> <span class="hljs-attr">cx</span>=<span class="hljs-string">&quot;5080000&quot;</span> <span class="hljs-attr">cy</span>=<span class="hljs-string">&quot;3175000&quot;</span>/&gt;</span><br>                    <span class="hljs-tag">&lt;/<span class="hljs-name">a:xfrm</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">a:prstGeom</span> <span class="hljs-attr">prst</span>=<span class="hljs-string">&quot;rect&quot;</span>&gt;</span><br>                      <span class="hljs-tag">&lt;<span class="hljs-name">a:avLst</span>/&gt;</span><br>                    <span class="hljs-tag">&lt;/<span class="hljs-name">a:prstGeom</span>&gt;</span><br>                  <span class="hljs-tag">&lt;/<span class="hljs-name">pic:spPr</span>&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">pic:pic</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<p>我们发现xml文件中有踢掉一个标识符 <code>&lt;a:blip r:embed=&quot;rId4&quot;&gt;</code>, 然后我们需要知道<code>rId4 </code>表示的是哪一个资源，我们打开<code>document.xml.rels</code>文件</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">Relationships</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&quot;http://schemas.openxmlformats.org/package/2006/relationships&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">Relationship</span> <span class="hljs-attr">Id</span>=<span class="hljs-string">&quot;rId3&quot;</span> <span class="hljs-attr">Type</span>=<span class="hljs-string">&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings&quot;</span> <span class="hljs-attr">Target</span>=<span class="hljs-string">&quot;webSettings.xml&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">Relationship</span> <span class="hljs-attr">Id</span>=<span class="hljs-string">&quot;rId2&quot;</span> <span class="hljs-attr">Type</span>=<span class="hljs-string">&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings&quot;</span> <span class="hljs-attr">Target</span>=<span class="hljs-string">&quot;settings.xml&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">Relationship</span> <span class="hljs-attr">Id</span>=<span class="hljs-string">&quot;rId1&quot;</span> <span class="hljs-attr">Type</span>=<span class="hljs-string">&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles&quot;</span> <span class="hljs-attr">Target</span>=<span class="hljs-string">&quot;styles.xml&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">Relationship</span> <span class="hljs-attr">Id</span>=<span class="hljs-string">&quot;rId6&quot;</span> <span class="hljs-attr">Type</span>=<span class="hljs-string">&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme&quot;</span> <span class="hljs-attr">Target</span>=<span class="hljs-string">&quot;theme/theme1.xml&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">Relationship</span> <span class="hljs-attr">Id</span>=<span class="hljs-string">&quot;rId5&quot;</span> <span class="hljs-attr">Type</span>=<span class="hljs-string">&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable&quot;</span> <span class="hljs-attr">Target</span>=<span class="hljs-string">&quot;fontTable.xml&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">Relationship</span> <span class="hljs-attr">Id</span>=<span class="hljs-string">&quot;rId4&quot;</span> <span class="hljs-attr">Type</span>=<span class="hljs-string">&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/image&quot;</span> <span class="hljs-attr">Target</span>=<span class="hljs-string">&quot;media/image1.jpg&quot;</span>/&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">Relationships</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到 <code>rId4</code>表示的是<code>&quot;media/image1.jpg&quot;</code>,然后我们到media文件夹下，果然发现了image1.jpg这张图片，对应的恰好使我们添加到Word文件中的那张图片，这样我们图片的添加方式也找到了。</p>
+<p>如果你对于docx中的xml文件标签不熟悉，请参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/renfufei/article/details/77481753">Word-docx文件图片信息格式分析</a></p>
+<h3 id="如何编辑Word"><a href="#如何编辑Word" class="headerlink" title="如何编辑Word"></a>如何编辑Word</h3><p>根据第一步的讲解，我们导出一个docx文件，那么我们应该有下面几步:</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h62h9nz9gwj20dm0k6dgo.jpg" alt="生成Word文件步骤"></p>
+<h4 id="空Docx文件资源"><a href="#空Docx文件资源" class="headerlink" title="空Docx文件资源"></a>空Docx文件资源</h4><p>这一步较为简单，实际上我们新建一个空的文件并进行解压就可以得到，注意这些文件要放到bundle中，生成文件时先拷贝到沙盒，在修改沙盒中的文件。</p>
+<h4 id="编辑-word-document-xml-文件"><a href="#编辑-word-document-xml-文件" class="headerlink" title="编辑 word/document.xml 文件"></a>编辑 word/document.xml 文件</h4><p>这一步应该是最难的，在我们搜索时发现了已有的库<a target="_blank" rel="noopener" href="https://github.com/shinjukunian/DocX">DocX</a>,唯一的缺点就是目前只支持Swift Package，鉴于我们项目中是直接使用的Cocoapods,因此，我这里直接将用到的三个库，封装为一个pod，大家可以直接使用。</p>
+<h4 id="压缩文件为-zip"><a href="#压缩文件为-zip" class="headerlink" title="压缩文件为 zip"></a>压缩文件为 zip</h4><p>压缩文件，我们也不多说，这里直接用的三方<a target="_blank" rel="noopener" href="https://github.com/weichsel/ZIPFoundation">ZipFoundation</a></p>
+<h4 id="修改文件后缀"><a href="#修改文件后缀" class="headerlink" title="修改文件后缀"></a>修改文件后缀</h4><p>这一步也很简单这里不做赘述</p>
+<p>我们来简单看下上面四个步骤的代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><code class="hljs swift"> <span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">writeToDocx</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-keyword">var</span> attributeString = <span class="hljs-type">NSMutableAttributedString</span>(string: <span class="hljs-string">&quot;1.在QQ上或者微信上搜索关键词“班级群”，一些群无需验证或群管理不到位，骗子就能轻易混进群中。进群后，他们往往潜伏在群里，观察一段时间。 2.骗子趁学生玩手机游戏时，以“免费赠送游戏皮肤、验证身份”为由，要求对方发送班级微信群日常聊天截图和微信群聊二维码，借此混入班级微信群。3.学生、家长和老师的QQ、微信等社交账号被盗，个人信息泄露。进入班级微信群后，骗子还会拉入同伙，克隆班主任的头像和昵称，冒充老师在群里发送有关学校收取书本费、资料费、报名费等信息，同伙则在群里发送缴费截屏，家长见老师发布通知往往不会核实真假，向骗子提供的二维码转账汇款或者在群里发送缴费红包。收取的费用从几十到几百元不等，不易引起家长怀疑。\n&quot;</span>)<br>        <span class="hljs-keyword">let</span> attachment = <span class="hljs-type">NSTextAttachment</span>()<br>        attachment.image = <span class="hljs-type">UIImage</span>(named: <span class="hljs-string">&quot;1&quot;</span>)!<br>        attachment.bounds = <span class="hljs-type">CGRect</span>(origin: .zero, size: <span class="hljs-type">CGSize</span>(width: <span class="hljs-number">300</span>, height: <span class="hljs-number">300</span>))<br>        <span class="hljs-keyword">let</span> attributeImageText = <span class="hljs-type">NSAttributedString</span>(attachment: attachment)<br>        attributeString.append(attributeImageText)<br>        <span class="hljs-keyword">self</span>.textView.attributedText=attributeString<br>        <span class="hljs-keyword">self</span>.textView.backgroundColor = .white<br>        <br>        <span class="hljs-keyword">let</span> temp=<span class="hljs-type">FileManager</span>.<span class="hljs-keyword">default</span>.temporaryDirectory.appendingPathComponent(<span class="hljs-type">UUID</span>().uuidString).appendingPathExtension(<span class="hljs-string">&quot;docx&quot;</span>)<br>        <span class="hljs-keyword">try</span>? <span class="hljs-type">DocXWriter</span>.write(pages: [attributeString, attributeString], to: temp)<br>  &#125;<br><br>  <span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">func</span> <span class="hljs-title">write</span>(<span class="hljs-title">pages</span>:[<span class="hljs-title">NSAttributedString</span>], <span class="hljs-title">to</span> <span class="hljs-title">url</span>:<span class="hljs-title">URL</span>, <span class="hljs-title">options</span>:<span class="hljs-title">DocXOptions</span> = <span class="hljs-title">DocXOptions</span>()) <span class="hljs-title">throws</span></span>&#123;<br>        <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> first=pages.first <span class="hljs-keyword">else</span> &#123;<span class="hljs-keyword">return</span>&#125;<br>        <span class="hljs-keyword">let</span> result=<span class="hljs-type">NSMutableAttributedString</span>(attributedString: first)<br>        <span class="hljs-keyword">let</span> pageSeperator=<span class="hljs-type">NSAttributedString</span>(string: <span class="hljs-string">&quot;\r&quot;</span>, attributes: [.breakType:<span class="hljs-type">BreakType</span>.page])<br>        <br>        <span class="hljs-keyword">for</span> page <span class="hljs-keyword">in</span> pages.<span class="hljs-built_in">dropFirst</span>()&#123;<br>            result.append(pageSeperator)<br>            result.append(page)<br>        &#125;<br>        <br>        <span class="hljs-keyword">try</span> result.writeDocX(to: url, options: options)<br>  &#125;<br><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">writeDocX_builtin</span><span class="hljs-params">(to url: URL, options:DocXOptions = DocXOptions<span class="hljs-params">()</span></span></span>) <span class="hljs-keyword">throws</span>&#123;<br>        <span class="hljs-keyword">let</span> tempURL=<span class="hljs-keyword">try</span> <span class="hljs-type">FileManager</span>.<span class="hljs-keyword">default</span>.url(<span class="hljs-keyword">for</span>: .itemReplacementDirectory, <span class="hljs-keyword">in</span>: .userDomainMask, appropriateFor: url, create: <span class="hljs-literal">true</span>)<br>        <br>        <span class="hljs-keyword">defer</span>&#123;<br>            <span class="hljs-keyword">try</span>? <span class="hljs-type">FileManager</span>.<span class="hljs-keyword">default</span>.removeItem(at: tempURL)<br>        &#125;<br>        <br>        <span class="hljs-keyword">let</span> docURL=tempURL.appendingPathComponent(<span class="hljs-type">UUID</span>().uuidString, isDirectory: <span class="hljs-literal">true</span>)<br>        <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> blankURL=<span class="hljs-type">Bundle</span>.blankDocumentURL <span class="hljs-keyword">else</span>&#123;<span class="hljs-keyword">throw</span> <span class="hljs-type">DocXSavingErrors</span>.noBlankDocument&#125;<br>        <span class="hljs-keyword">try</span> <span class="hljs-type">FileManager</span>.<span class="hljs-keyword">default</span>.copyItem(at: blankURL, to: docURL)<br><br>        <span class="hljs-keyword">let</span> docPath=docURL.appendingPathComponent(<span class="hljs-string">&quot;word&quot;</span>).appendingPathComponent(<span class="hljs-string">&quot;document&quot;</span>).appendingPathExtension(<span class="hljs-string">&quot;xml&quot;</span>)<br>        <br>        <span class="hljs-keyword">let</span> linkURL=docURL.appendingPathComponent(<span class="hljs-string">&quot;word&quot;</span>).appendingPathComponent(<span class="hljs-string">&quot;_rels&quot;</span>).appendingPathComponent(<span class="hljs-string">&quot;document.xml.rels&quot;</span>)<br>        <span class="hljs-keyword">let</span> mediaURL=docURL.appendingPathComponent(<span class="hljs-string">&quot;word&quot;</span>).appendingPathComponent(<span class="hljs-string">&quot;media&quot;</span>, isDirectory: <span class="hljs-literal">true</span>)<br>        <span class="hljs-keyword">let</span> propsURL=docURL.appendingPathComponent(<span class="hljs-string">&quot;docProps&quot;</span>).appendingPathComponent(<span class="hljs-string">&quot;core&quot;</span>).appendingPathExtension(<span class="hljs-string">&quot;xml&quot;</span>)<br>        <br>        <br>        <span class="hljs-keyword">let</span> linkData=<span class="hljs-keyword">try</span> <span class="hljs-type">Data</span>(contentsOf: linkURL)<br>        <span class="hljs-keyword">var</span> docOptions=<span class="hljs-type">AEXMLOptions</span>()<br>        docOptions.parserSettings.shouldTrimWhitespace=<span class="hljs-literal">false</span><br>        docOptions.documentHeader.standalone=<span class="hljs-string">&quot;yes&quot;</span><br>        <span class="hljs-keyword">let</span> linkDocument=<span class="hljs-keyword">try</span> <span class="hljs-type">AEXMLDocument</span>(xml: linkData, options: docOptions)<br>        <span class="hljs-keyword">let</span> linkRelations=<span class="hljs-keyword">self</span>.prepareLinks(linkXML: linkDocument, mediaURL: mediaURL)<br>        <span class="hljs-keyword">let</span> updatedLinks=linkDocument.xmlCompact<br>        <span class="hljs-keyword">try</span> updatedLinks.write(to: linkURL, atomically: <span class="hljs-literal">true</span>, encoding: .utf8)<br>        <br>        <span class="hljs-keyword">let</span> xmlData = <span class="hljs-keyword">try</span> <span class="hljs-keyword">self</span>.docXDocument(linkRelations: linkRelations)<br>        <br>        <span class="hljs-keyword">try</span> xmlData.write(to: docPath, atomically: <span class="hljs-literal">true</span>, encoding: .utf8)<br>        <br>        <span class="hljs-keyword">let</span> metaData=options.xml.xmlCompact<br>        <span class="hljs-keyword">try</span> metaData.write(to: propsURL, atomically: <span class="hljs-literal">true</span>, encoding: .utf8)<br><br>        <span class="hljs-keyword">let</span> zipURL=tempURL.appendingPathComponent(<span class="hljs-type">UUID</span>().uuidString).appendingPathExtension(<span class="hljs-string">&quot;zip&quot;</span>)<br>        <span class="hljs-keyword">try</span> <span class="hljs-type">FileManager</span>.<span class="hljs-keyword">default</span>.zipItem(at: docURL, to: zipURL, shouldKeepParent: <span class="hljs-literal">false</span>, compressionMethod: .deflate, progress: <span class="hljs-literal">nil</span>)<br><br>        <span class="hljs-keyword">try</span> <span class="hljs-type">FileManager</span>.<span class="hljs-keyword">default</span>.copyItem(at: zipURL, to: url)<br>    &#125;<br><br></code></pre></td></tr></table></figure>
+
+
+<p>至此我们就完成了docx的写入!,如果想更详细的了解写入的过程，大家可以仔细看下<code>Word文件结构</code>的文章和<code>docx</code>这个库，相信你们可以做的更好。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>对于上面的几种方法我们做一个利弊总结:</p>
+<table>
+<thead>
+<tr>
+<th align="left">方法</th>
+<th align="left">优点</th>
+<th align="left">缺点</th>
+<th align="left">建议</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">直接写入</td>
+<td align="left">简单，纯文本写入doc可行</td>
+<td align="left">不支持图片，不支持docx格式</td>
+<td align="left">不建议使用，因为生成的文件打不开</td>
+</tr>
+<tr>
+<td align="left">html</td>
+<td align="left">简单快捷，支持html的格式，样式较多</td>
+<td align="left">不支持docx格式</td>
+<td align="left">可接受不支持docx的话 推荐使用</td>
+</tr>
+<tr>
+<td align="left">修改内部结构</td>
+<td align="left">完美支持docx格式，使用封装库可直接将富文本转换为word文档</td>
+<td align="left">如果要增加样式支持 门槛较高需要了解Word文件格式</td>
+<td align="left">没有硬伤，但是后续扩展成本较高</td>
+</tr>
+</tbody></table>
+<p>根据你的需求，选择一个合适你的方案吧！</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p><a target="_blank" rel="noopener" href="https://sebsauvage.net/wiki/doku.php?id=word_document_generation">Word document generation</a></p>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/38751495/create-a-word-document-swift">Create a word document, Swift</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/OfficeDev/Open-XML-SDK">Open-XML-SDK</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/renfufei/article/details/77481753">Word-docx文件图片信息格式分析</a></p>
+<p><a target="_blank" rel="noopener" href="https://kodango.com/talking-about-the-structure-of-word-document">浅谈 Word 文档结构</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/96362c83e9d9">docx文件基本结构</a></p>
+
+    </div>
+     
+    <div class="post-footer__meta"><p>更新于 2022-09-11</p></div> 
+    <div class="post-meta__cats"><a href="/tags/docx-word-iOS/" class="post-tags__link button"># docx, word, iOS</a></div> 
+</article>
+
+
+    <div class="nav">
+        <div class="nav__prev">
+            
+        </div>
+        <div class="nav__next">
+            
+                <a href="/2021/09/12/0xdead10cc-fix/" class="nav__link">
+                    <div>
+                        <div class="nav__label">
+                            Next Post
+                        </div>
+                        <div class="nav__title">
+                            0xdead10cc问题调研
+                        </div>
+                    </div>
+                    <div>
+                        <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M434.944 790.624l-45.248-45.248L623.04 512l-233.376-233.376 45.248-45.248L713.568 512z" fill="#808080"></path></svg>
+                    </div>
+                </a>
+            
+        </div>
+    </div>
+
+
+
+
+
+</main>
+
+            <footer class="footer">
+    
+
+
+    
+    
+    
+        <span id="busuanzi_container_site_uv" hidden>
+            <span></span>
+            <span id="busuanzi_value_site_uv"></span>
+            <span>Viewers</span>
+            
+                <span>|</span>
+            
+        </span>
+    
+    
+        <span id="busuanzi_container_site_pv" hidden>
+            <span></span>
+            <span id="busuanzi_value_site_pv"></span>
+            <span>Views</span>
+            
+        </span>
+    
+ 
+ 
+
+ 
+    
+        
+        <p class="footer-copyright">
+            Copyright © 2015&nbsp;-&nbsp;2022 <a href="/">LeeWong</a>
+        </p>
+    
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme - <a href="https://github.com/ChrAlpha/hexo-theme-cards" target="_blank">Cards</a></p>
+</footer>
+
+        </div>
+         
+
+ 
+    <script>
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <script async src="https://www.google-analytics.com/analytics.js"></script>
+ 
+
+ 
+
+ 
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement('script');
+            hm.src = 'https://hm.baidu.com/hm.js?DR81zbdrQ3';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+ 
+
+  
+
+
+
+ 
+
+
+    
+ 
+
+
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.4.1/dist/jquery.fancybox.min.css">
+
+    
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.4.1/dist/jquery.fancybox.min.js"></script>
+
+    <script>
+        let lazyloadT = Boolean('false'),
+            auto_fancybox = Boolean('false')
+        if (auto_fancybox) {
+            $(".post__content").find('img').each(function () {
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("href", $(this).attr("src"));
+                if (lazyloadT) {
+                    $(element).attr("href", $(this).attr("data-srcset"));
+                }
+                $(this).wrap(element);
+            });
+        } else {
+            $(".post__content").find("fancybox").find('img').each(function () {
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("href", $(this).attr("src"));
+                if (lazyloadT) {
+                    $(element).attr("href", $(this).attr("data-srcset"));
+                }
+                $(this).wrap(element);
+            });
+        }
+    </script>
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+
+    </body>
+</html>
