@@ -8767,7 +8767,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 <p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h61om1ke9tj20nu09kaah.jpg" alt="无法打开"></p>
 <p>:sob: :sob: :sob: :sob: </p>
 <p>别放弃，我们继续看其他方法</p>
-<h3 id="真正的Word"><a href="#真正的Word" class="headerlink" title="真正的Word"></a>真正的Word</h3><h4 id="Word文件结构"><a href="#Word文件结构" class="headerlink" title="Word文件结构"></a>Word文件结构</h4><p>这里的实现主要是参考了 stackoverflow中的这个<a href="https://stackoverflow.com/questions/38751495/create-a-word-document-swift">问题</a>,回答问题的大佬给出了这段解释，Word文件包含了复杂的文件格式，具体可以通过将一个Word文档修改后缀为zip，然后解压查看</p>
+<h3 id="直接编辑Word内容"><a href="#直接编辑Word内容" class="headerlink" title="直接编辑Word内容"></a>直接编辑Word内容</h3><p>这里的实现主要是参考了 stackoverflow中的这个<a href="https://stackoverflow.com/questions/38751495/create-a-word-document-swift">问题</a>,回答问题的大佬给出了这段解释，Word文件包含了复杂的文件格式，具体可以通过将一个Word文档修改后缀为zip，然后解压查看</p>
 <blockquote>
 <p>Unfortunately, it is nearly impossible to create a .docx file in Swift, given how complicated they are (you can see for yourself by changing the file extension on any old .docx file to .zip, which will reveal their inner structure). The next best thing is to simply create a .txt file, which can also be opened into Pages (though sadly not Docs). If you’re looking for a more polished format, complete with formatting and possibly even images, you could choose to create a .pdf file.</p>
 </blockquote>
@@ -8795,7 +8795,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 
 
 <p>至此我们就完成了docx的写入!,如果想更详细的了解写入的过程，大家可以仔细看下<code>Word文件结构</code>的文章和<code>docx</code>这个库，相信你们可以做的更好。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>对于上面的几种方法我们做一个利弊总结:</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于上面的几种方法我们做一个利弊总结:</p>
 <table>
 <thead>
 <tr>
@@ -8825,7 +8825,7 @@ forwardInvocation: 的同时也要重写 methodSignatureForSelector: 方法，�
 </tr>
 </tbody></table>
 <p>根据你的需求，选择一个合适你的方案吧！</p>
-<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p><a href="https://sebsauvage.net/wiki/doku.php?id=word_document_generation">Word document generation</a></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://sebsauvage.net/wiki/doku.php?id=word_document_generation">Word document generation</a></p>
 <p><a href="https://stackoverflow.com/questions/38751495/create-a-word-document-swift">Create a word document, Swift</a></p>
 <p><a href="https://github.com/OfficeDev/Open-XML-SDK">Open-XML-SDK</a></p>
 <p><a href="https://blog.csdn.net/renfufei/article/details/77481753">Word-docx文件图片信息格式分析</a></p>
