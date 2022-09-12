@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+    <meta charset="utf-8">
+
+    
+
+    <!-- 渲染优化 -->
+    <meta name="renderer" content="webkit">
+    <meta name="force-rendering" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="HandheldFriendly" content="True" >
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--icon-->
+
+    
+        <link rel="shortcut icon" href="https://tva1.sinaimg.cn/large/0081Kckwly1glcsnw2jatj303k03k748.jpg">
+    
+    
+    
+    
+    
+
+
+    <!-- meta -->
+
+
+<title>修改证件照背景颜色 | LeeWong</title>
+
+
+    <meta name="keywords" content="iOS 证件照 背景颜色, iOS">
+
+
+
+
+    <!-- OpenGraph -->
+ 
+    <meta name="description" content="近期我们的某个需求中有一个需求是需要替换证件照背景颜色，且我们不希望使用三方框架，且需要使用原生来实现，之前并未接触过此类图片处理相关的任务，因此需要仔细调研下各类实现方式，确认是否满足产品要求。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="修改证件照背景颜色">
+<meta property="og:url" content="https://www.leewong.cn/2022/07/12/change-image-backgroundColor/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="近期我们的某个需求中有一个需求是需要替换证件照背景颜色，且我们不希望使用三方框架，且需要使用原生来实现，之前并未接触过此类图片处理相关的任务，因此需要仔细调研下各类实现方式，确认是否满足产品要求。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/e6c9d24ely1h646nqnf5dj21400q5dhu.jpg">
+<meta property="article:published_time" content="2022-07-12T14:05:49.000Z">
+<meta property="article:modified_time" content="2022-09-12T14:20:31.078Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="iOS 证件照 背景颜色">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/e6c9d24ely1h646nqnf5dj21400q5dhu.jpg">
+
+
+    
+<link rel="stylesheet" href="/css/style/main.css">
+ 
+
+
+    
+<link rel="stylesheet" href="/css/style/dark.css">
+
+    
+<script src="/js/darkmode.js"></script>
+
+
+
+    
+    
+    
+        <link rel="stylesheet" id="hl-default-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/default.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+        
+            <link rel="stylesheet" id="hl-dark-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/dark.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')!==-1)this.media='all'">
+        
+    
+
+    
+
+     
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+ 
+
+    <!-- custom head -->
+
+    
+        <meta name="google-site-verification" content="4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU" /> 
+    
+
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+    <body>
+        <div id="app">
+            <header class="header">
+    <div class="header__left">
+        <a href="/" class="button">
+            <span class="logo__text">LeeWong</span>
+        </a>
+    </div>
+    <div class="header__right">
+        
+            <div class="navbar__menus">
+                
+                    <a href="/" class="navbar-menu button">首页</a>
+                
+                    <a href="/tags/" class="navbar-menu button">标签</a>
+                
+                    <a href="/archives/" class="navbar-menu button">归档</a>
+                
+                    <a href="/about/" class="navbar-menu button">关于我</a>
+                
+            </div>
+        
+        
+        
+
+        
+        
+    <a href="javaScript:void(0);" id="btn-toggle-dark">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </a>
+
+
+         
+    <a href="#" class="button" id="b2t" aria-label="回到顶部" title="回到顶部">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="32" height="32">
+            <path d="M233.376 722.752L278.624 768 512 534.624 745.376 768l45.248-45.248L512 444.128zM192 352h640V288H192z" fill="currentColor"></path>
+        </svg>
+    </a>
+
+
+        
+            <a class="dropdown-icon button" id="btn-dropdown" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width='24' height='24' fill="none" stroke="currentColor" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" d="M3.314,4.8h13.372c0.41,0,0.743-0.333,0.743-0.743c0-0.41-0.333-0.743-0.743-0.743H3.314c-0.41,0-0.743,0.333-0.743,0.743C2.571,4.467,2.904,4.8,3.314,4.8z M16.686,15.2H3.314c-0.41,0-0.743,0.333-0.743,0.743s0.333,0.743,0.743,0.743h13.372c0.41,0,0.743-0.333,0.743-0.743S17.096,15.2,16.686,15.2z M16.686,9.257H3.314c-0.41,0-0.743,0.333-0.743,0.743s0.333,0.743,0.743,0.743h13.372c0.41,0,0.743-0.333,0.743-0.743S17.096,9.257,16.686,9.257z"></path></svg></a>
+            <div class="dropdown-menus" id="dropdown-menus">
+                
+                    <a href="/" class="dropdown-menu button">首页</a>
+                
+                    <a href="/tags/" class="dropdown-menu button">标签</a>
+                
+                    <a href="/archives/" class="dropdown-menu button">归档</a>
+                
+                    <a href="/about/" class="dropdown-menu button">关于我</a>
+                
+            </div>
+        
+    </div>
+</header>
+
+
+            <main class="main">
+    
+
+<div class="post-title">
+    <h1 class="post-title__text">
+        修改证件照背景颜色
+    </h1>
+    <div class="post-title__meta">
+        <a href="/archives/2022/07/" class="post-meta__date button">2022-07-12</a>
+        
+ 
+        
+    
+     
+    <span id="busuanzi_container_page_pv" hidden>
+        <span class="separate-dot"></span>
+        <span></span>
+        <span id="busuanzi_value_page_pv"></span>
+        <span>Views</span>
+    </span>
+
+
+
+ 
+
+ 
+    </div>
+</div>
+
+
+    <aside class="post-side">
+        <div class="post-side__toc">
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%A1%88"><span class="toc-number">1.</span> <span class="toc-text">方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">具体实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%BF%E6%8D%A2%E5%9B%BE%E7%89%87%E4%B8%AD%E6%9F%90%E4%B8%AA%E6%8C%87%E5%AE%9A%E7%9A%84%E9%A2%9C%E8%89%B2"><span class="toc-number">2.1.</span> <span class="toc-text">替换图片中某个指定的颜色</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HSV-%E9%A2%9C%E8%89%B2%E9%80%8F%E6%98%8E"><span class="toc-number"></span> <span class="toc-text">HSV 颜色透明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VNGenerateObjectnessBasedSaliencyImageRequest-VNDetectContoursRequest"><span class="toc-number"></span> <span class="toc-text">VNGenerateObjectnessBasedSaliencyImageRequest+VNDetectContoursRequest</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OpenCV"><span class="toc-number"></span> <span class="toc-text">OpenCV</span></a>
+        </div>
+    </aside>
+    <a class="btn-toc button" id="btn-toc" tabindex="0">
+        <svg viewBox="0 0 1024 1024" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M128 256h64V192H128zM320 256h576V192H320zM128 544h64v-64H128zM320 544h576v-64H320zM128 832h64v-64H128zM320 832h576v-64H320z" fill="currentColor"></path>
+        </svg>
+    </a>
+    <div class="toc-menus" id="toc-menus">
+        <div class="toc-title">文章目录</div>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%A1%88"><span class="toc-number">1.</span> <span class="toc-text">方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">具体实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%BF%E6%8D%A2%E5%9B%BE%E7%89%87%E4%B8%AD%E6%9F%90%E4%B8%AA%E6%8C%87%E5%AE%9A%E7%9A%84%E9%A2%9C%E8%89%B2"><span class="toc-number">2.1.</span> <span class="toc-text">替换图片中某个指定的颜色</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HSV-%E9%A2%9C%E8%89%B2%E9%80%8F%E6%98%8E"><span class="toc-number"></span> <span class="toc-text">HSV 颜色透明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VNGenerateObjectnessBasedSaliencyImageRequest-VNDetectContoursRequest"><span class="toc-number"></span> <span class="toc-text">VNGenerateObjectnessBasedSaliencyImageRequest+VNDetectContoursRequest</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OpenCV"><span class="toc-number"></span> <span class="toc-text">OpenCV</span></a>
+    </div>
+
+
+<article class="post content-card">
+    <div class="post__header">
+    
+        <div class="post-thumbnail" style="background-image: url('https://tva1.sinaimg.cn/large/e6c9d24ely1h646nqnf5dj21400q5dhu.jpg');"></div>
+    
+</div>
+    <div class="post__content">
+        <p>近期我们的某个需求中有一个需求是需要替换证件照背景颜色，且我们不希望使用三方框架，且需要使用原生来实现，之前并未接触过此类图片处理相关的任务，因此需要仔细调研下各类实现方式，确认是否满足产品要求。</p>
+<a id="more"></a>
+
+<h3 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h3><p>为证件照替换背景颜色，我们可以想到的无非就是这几种方案</p>
+<ul>
+<li>利用coreImage方法直接替换图片中的某个颜色为另一个颜色</li>
+<li>利用VisionKit边缘检测抠图</li>
+</ul>
+<h3 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h3><h4 id="替换图片中某个指定的颜色"><a href="#替换图片中某个指定的颜色" class="headerlink" title="替换图片中某个指定的颜色"></a>替换图片中某个指定的颜色</h4><p>这个方案我们的思路就是找到图片中对应要替换的颜色的像素点 然后替换<br>首先我们需要一个对比颜色是否相同的方法,这里我们通过对比图片的RGB来判断</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs swift"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">compareColor</span><span class="hljs-params">(</span></span><br><span class="hljs-function"><span class="hljs-params">    firstColor: UIColor,</span></span><br><span class="hljs-function"><span class="hljs-params">    secondColor: UIColor,</span></span><br><span class="hljs-function"><span class="hljs-params">    tolerance: CGFloat</span></span><br><span class="hljs-function"><span class="hljs-params">)</span></span> -&gt; <span class="hljs-type">Bool</span> &#123;<br>    <span class="hljs-keyword">var</span> r1: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">0.0</span>, g1: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">0.0</span>, b1: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">0.0</span>, a1: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">0.0</span>;<br>    <span class="hljs-keyword">var</span> r2: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">0.0</span>, g2: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">0.0</span>, b2: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">0.0</span>, a2: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">0.0</span>;<br><br>    firstColor.getRed(&amp;r1, green: &amp;g1, blue: &amp;b1, alpha: &amp;a1)<br>    secondColor.getRed(&amp;r2, green: &amp;g2, blue: &amp;b2, alpha: &amp;a2)<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">abs</span>(r1 - r2) &lt;= tolerance<br>        &amp;&amp; <span class="hljs-built_in">abs</span>(g1 - g2) &lt;= tolerance<br>        &amp;&amp; <span class="hljs-built_in">abs</span>(b1 - b2) &lt;= tolerance<br>        &amp;&amp; <span class="hljs-built_in">abs</span>(a1 - a2) &lt;= tolerance<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后我们需要一个从图片某个点取色的方法</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs swift"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">UIImage</span> </span>&#123;<br> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getPointColor</span><span class="hljs-params">(at point: CGPoint)</span></span> -&gt; <span class="hljs-type">UIColor?</span> &#123;<br><br>        <span class="hljs-keyword">guard</span> <span class="hljs-type">CGRect</span>(origin: <span class="hljs-type">CGPoint</span>(x: <span class="hljs-number">0</span>, y: <span class="hljs-number">0</span>), size: size).<span class="hljs-built_in">contains</span>(point) <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>        &#125;<br><br>        <span class="hljs-keyword">let</span> pointX = trunc(point.x);<br>        <span class="hljs-keyword">let</span> pointY = trunc(point.y);<br><br>        <span class="hljs-keyword">let</span> width = size.width;<br>        <span class="hljs-keyword">let</span> height = size.height;<br>        <span class="hljs-keyword">let</span> colorSpace = <span class="hljs-type">CGColorSpaceCreateDeviceRGB</span>();<br>        <span class="hljs-keyword">var</span> pixelData: [<span class="hljs-type">UInt8</span>] = [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>]<br><br>        pixelData.withUnsafeMutableBytes &#123; pointer <span class="hljs-keyword">in</span><br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> context = <span class="hljs-type">CGContext</span>(data: pointer.baseAddress, width: <span class="hljs-number">1</span>, height: <span class="hljs-number">1</span>, bitsPerComponent: <span class="hljs-number">8</span>, bytesPerRow: <span class="hljs-number">4</span>, space: colorSpace, bitmapInfo: <span class="hljs-type">CGImageAlphaInfo</span>.premultipliedLast.rawValue), <span class="hljs-keyword">let</span> cgImage = cgImage &#123;<br>                context.setBlendMode(.copy)<br>                context.translateBy(x: -pointX, y: pointY - height)<br>                context.draw(cgImage, <span class="hljs-keyword">in</span>: <span class="hljs-type">CGRect</span>(x: <span class="hljs-number">0</span>, y: <span class="hljs-number">0</span>, width: width, height: height))<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-keyword">let</span> red = <span class="hljs-type">CGFloat</span>(pixelData[<span class="hljs-number">0</span>]) / <span class="hljs-type">CGFloat</span>(<span class="hljs-number">255.0</span>)<br>        <span class="hljs-keyword">let</span> green = <span class="hljs-type">CGFloat</span>(pixelData[<span class="hljs-number">1</span>]) / <span class="hljs-type">CGFloat</span>(<span class="hljs-number">255.0</span>)<br>        <span class="hljs-keyword">let</span> blue = <span class="hljs-type">CGFloat</span>(pixelData[<span class="hljs-number">2</span>]) / <span class="hljs-type">CGFloat</span>(<span class="hljs-number">255.0</span>)<br>        <span class="hljs-keyword">let</span> alpha = <span class="hljs-type">CGFloat</span>(pixelData[<span class="hljs-number">3</span>]) / <span class="hljs-type">CGFloat</span>(<span class="hljs-number">255.0</span>)<br><br>        <span class="hljs-keyword">if</span> #available(iOS <span class="hljs-number">10.0</span>, *) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-type">UIColor</span>(displayP3Red: red, green: green, blue: blue, alpha: alpha)<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-type">UIColor</span>(red: red, green: green, blue: blue, alpha: alpha)<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+<p>下面是颜色替换</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><code class="hljs plain">func replaceColor(_ color: UIColor, with: UIColor, tolerance: CGFloat &#x3D; 0.5) -&gt; UIImage &#123;<br>        guard let imageRef &#x3D; self.cgImage else &#123;<br>            return self<br>        &#125;<br>        &#x2F;&#x2F; 获取要替换颜色的RGBA信息方便后续判断<br>        let withColorComponents &#x3D; with.cgColor.components<br>        let newRed &#x3D; UInt8(withColorComponents![0] * 255)<br>        let newGreen &#x3D; UInt8(withColorComponents![1] * 255)<br>        let newBlue &#x3D; UInt8(withColorComponents![2] * 255)<br>        let newAlpha &#x3D; UInt8(withColorComponents![3] * 255)<br><br>        let width &#x3D; imageRef.width<br>        let height &#x3D; imageRef.height<br>        <br>        let bytesPerPixel &#x3D; 4<br>        let bytesPerRow &#x3D; bytesPerPixel * width<br>        let bitmapByteCount &#x3D; bytesPerRow * height<br>        &#x2F;&#x2F; 申请bitmap要对应的空间<br>        let rawData &#x3D; UnsafeMutablePointer&lt;UInt8&gt;.allocate(capacity: bitmapByteCount)<br>        defer &#123;<br>            rawData.deallocate()<br>        &#125;<br>        <br>        guard let colorSpace &#x3D; CGColorSpace(name: CGColorSpace.genericRGBLinear) else &#123;<br>            return self<br>        &#125;<br>        &#x2F;&#x2F; 根据上述信息创建一个context<br>        guard let context &#x3D; CGContext(<br>            data: rawData,<br>            width: width,<br>            height: height,<br>            bitsPerComponent: 8,<br>            bytesPerRow: bytesPerRow,<br>            space: colorSpace,<br>            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue<br>                | CGBitmapInfo.byteOrder32Big.rawValue<br>        ) else &#123;<br>            return self<br>        &#125;<br>        <br>        let rc &#x3D; CGRect(x: 0, y: 0, width: width, height: height)<br>        &#x2F;&#x2F; 绘制图片信息<br>        context.draw(imageRef, in: rc)<br>        var byteIndex &#x3D; 0<br>        &#x2F;&#x2F; 依次遍历每个像素<br>        while byteIndex &lt; bitmapByteCount &#123;<br>            &#x2F;&#x2F; 获取图片当前位置对应的像素RGBA信息<br>            let red &#x3D; CGFloat(rawData[byteIndex + 0]) &#x2F; 255<br>            let green &#x3D; CGFloat(rawData[byteIndex + 1]) &#x2F; 255<br>            let blue &#x3D; CGFloat(rawData[byteIndex + 2]) &#x2F; 255<br>            let alpha &#x3D; CGFloat(rawData[byteIndex + 3]) &#x2F; 255<br>            let currentColor &#x3D; UIColor(red: red, green: green, blue: blue, alpha: alpha)<br>            &#x2F;&#x2F; 比较当前颜色的RGBA信息与要被替换的图片的RGBA信息 如果在允许范围内 则替换成新的<br>            if compareColor(firstColor: color, secondColor: currentColor, tolerance: tolerance) &#123;<br>                rawData[byteIndex + 0] &#x3D; newRed<br>                rawData[byteIndex + 1] &#x3D; newGreen<br>                rawData[byteIndex + 2] &#x3D; newBlue<br>                rawData[byteIndex + 3] &#x3D; newAlpha<br>            &#125;<br>            byteIndex +&#x3D; 4<br>        &#125;<br>        <br>        &#x2F;&#x2F; 替换完颜色生成对应图片<br>        guard let image &#x3D; context.makeImage() else &#123;<br>            return self<br>        &#125;<br>        let result &#x3D; UIImage(cgImage: image)<br>        return result<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<p>下面我们来找个照片看下替换效果</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h63mxqr7m7j21510u0mzv.jpg" alt="修改图片背景颜色"></p>
+<p>优点:</p>
+<ul>
+<li>简单，直接，不用集成其他库，可实现颜色替换<br>缺点: </li>
+<li>无法很好的适应图片，其中tolerance的设置不同图片可能需要设置不同，无法取一个定值</li>
+<li>适合传入图片背景颜色固定的 不够灵活</li>
+<li>而且相同色值的就进行替换可能会有误伤</li>
+</ul>
+<h2 id="HSV-颜色透明"><a href="#HSV-颜色透明" class="headerlink" title="HSV 颜色透明"></a>HSV 颜色透明</h2><p>在查找方案的时候，网上有讨论要将RGB转换为HSV然后判断对应HSV的颜色，将对应HSV中的透明度设置为0。即将想要删除掉颜色的部分设置为透明，这样的话图片就会从一个有背景颜色的图变换为一个透明背景的图，这样就可以随意更换颜色了。</p>
+<p>在开始之前，我们需要一个方法来将RGBA转换为HSV</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs swift"><span class="hljs-keyword">var</span> hsba: (hue: <span class="hljs-type">CGFloat</span>, saturation: <span class="hljs-type">CGFloat</span>, brightness: <span class="hljs-type">CGFloat</span>, alpha: <span class="hljs-type">CGFloat</span>) &#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     hue：色相</span><br><span class="hljs-comment">     saturation：饱和度</span><br><span class="hljs-comment">     brightness：亮度</span><br><span class="hljs-comment">     alpha：透明度</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">var</span> h: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">var</span> s: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">var</span> b: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">var</span> a: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">self</span>.getHue(&amp;h, saturation: &amp;s, brightness: &amp;b, alpha: &amp;a)<br>    <span class="hljs-keyword">return</span> (h * <span class="hljs-number">360</span>, s, b, a)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>下面我们要找到对应颜色，然后设置透明</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs swift"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">CubeMap</span> <span class="hljs-title">createCubeMap</span>(<span class="hljs-title">float</span> <span class="hljs-title">h</span>, <span class="hljs-title">float</span> <span class="hljs-title">s</span>, <span class="hljs-title">float</span> <span class="hljs-title">v</span>) </span>&#123;<br>    const unsigned int size = <span class="hljs-number">64</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">CubeMap</span> <span class="hljs-title">map</span>;</span><br><span class="hljs-class">    <span class="hljs-title">map</span>.<span class="hljs-title">length</span> = <span class="hljs-title">size</span> * <span class="hljs-title">size</span> * <span class="hljs-title">size</span> * <span class="hljs-title">sizeof</span> (<span class="hljs-title">float</span>) * 4;</span><br><span class="hljs-class">    <span class="hljs-title">map</span>.<span class="hljs-title">dimension</span> = <span class="hljs-title">size</span>;</span><br><span class="hljs-class">    <span class="hljs-title">float</span> *<span class="hljs-title">cubeData</span> = (<span class="hljs-title">float</span> *)<span class="hljs-title">malloc</span> (<span class="hljs-title">map</span>.<span class="hljs-title">length</span>);</span><br><span class="hljs-class">    <span class="hljs-title">float</span> <span class="hljs-title">rgb</span>[3], <span class="hljs-title">hsv</span>[3], *<span class="hljs-title">c</span> = <span class="hljs-title">cubeData</span>;</span><br><span class="hljs-class">    </span><br><span class="hljs-class">    <span class="hljs-title">for</span> (<span class="hljs-title">int</span> <span class="hljs-title">z</span> = 0; <span class="hljs-title">z</span> &lt; <span class="hljs-title">size</span>; <span class="hljs-title">z</span>++)</span>&#123;<br>        rgb[<span class="hljs-number">2</span>] = ((double)z)/(size-<span class="hljs-number">1</span>); <span class="hljs-comment">// Blue value</span><br>        <span class="hljs-keyword">for</span> (int y = <span class="hljs-number">0</span>; y &lt; size; y++)&#123;<br>            rgb[<span class="hljs-number">1</span>] = ((double)y)/(size-<span class="hljs-number">1</span>); <span class="hljs-comment">// Green value</span><br>            <span class="hljs-keyword">for</span> (int x = <span class="hljs-number">0</span>; x &lt; size; x ++)&#123;<br>                rgb[<span class="hljs-number">0</span>] = ((double)x)/(size-<span class="hljs-number">1</span>); <span class="hljs-comment">// Red value</span><br>                rgbToHSV(rgb,hsv);<br>                <span class="hljs-comment">// Use the hue value to determine which to make transparent</span><br>                <span class="hljs-comment">// The minimum and maximum hue angle depends on</span><br>                <span class="hljs-comment">// the color you want to remove</span><br>                float alpha = (hsv[<span class="hljs-number">2</span>] == <span class="hljs-number">1</span> &amp;&amp; hsv[<span class="hljs-number">1</span>] == <span class="hljs-number">0</span>) ? <span class="hljs-number">0</span>.0f: <span class="hljs-number">1</span>.0f;<br><br>                <span class="hljs-comment">// Calculate premultiplied alpha values for the cube</span><br>                <span class="hljs-built_in">c</span>[<span class="hljs-number">0</span>] = rgb[<span class="hljs-number">0</span>] * alpha;<br>                <span class="hljs-built_in">c</span>[<span class="hljs-number">1</span>] = rgb[<span class="hljs-number">1</span>] * alpha;<br>                <span class="hljs-built_in">c</span>[<span class="hljs-number">2</span>] = rgb[<span class="hljs-number">2</span>] * alpha;<br>                <span class="hljs-built_in">c</span>[<span class="hljs-number">3</span>] = alpha;<br>                <span class="hljs-built_in">c</span> += <span class="hljs-number">4</span>; <span class="hljs-comment">// advance our pointer into memory for the next color value</span><br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-built_in">map</span>.data = cubeData;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">map</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+<h2 id="VNGenerateObjectnessBasedSaliencyImageRequest-VNDetectContoursRequest"><a href="#VNGenerateObjectnessBasedSaliencyImageRequest-VNDetectContoursRequest" class="headerlink" title="VNGenerateObjectnessBasedSaliencyImageRequest+VNDetectContoursRequest"></a>VNGenerateObjectnessBasedSaliencyImageRequest+VNDetectContoursRequest</h2><p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h63qaznysnj21fi0fy0v5.jpg" alt="api说明"></p>
+<p>VisionKit中的这两个类VNGenerateObjectnessBasedSaliencyImageRequest可获取图片显著性区域，VNDetectContoursRequest可进行边缘检测通过这两部来抠出识别出显著区域的图片</p>
+<p>直接使用系统的方法，我们这里也不多废话 直接看代码</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs swift"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">detectPhoto</span><span class="hljs-params">(photo: UIImage)</span></span> -&gt; <span class="hljs-type">UIImage</span> &#123;<br>        <br>        <span class="hljs-keyword">let</span> ciOriginImage = <span class="hljs-type">CIImage</span>(cgImage: photo.cgImage!)<br>        <br>        <span class="hljs-keyword">let</span> imageHandler = <span class="hljs-type">VNImageRequestHandler</span>(ciImage: ciOriginImage, options: [:])<br>        <span class="hljs-keyword">let</span> attensionRequest = <span class="hljs-type">VNGenerateObjectnessBasedSaliencyImageRequest</span> &#123; [<span class="hljs-keyword">weak</span> <span class="hljs-keyword">self</span>] request, error <span class="hljs-keyword">in</span><br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> err = error &#123;<br>                <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;发生了错误 \(err.localizedDescription)&quot;</span>)<br>                <span class="hljs-keyword">return</span><br>            &#125;<br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> result = request.results, result.<span class="hljs-built_in">count</span> &gt; <span class="hljs-number">0</span>,<br>               <span class="hljs-keyword">let</span> observation = result.first <span class="hljs-keyword">as</span>? <span class="hljs-type">VNSaliencyImageObservation</span> &#123;<br>                <span class="hljs-comment">// 获取显著区域热力图 接下里对对该图进行边缘检测</span><br>                <span class="hljs-keyword">self</span>?.heatMapProcess(pixelBuffer: observation.pixelBuffer, ciImage: ciOriginImage)<br>            &#125;<br>        &#125;<br>        <br>        <span class="hljs-keyword">do</span> &#123;<br>            <span class="hljs-keyword">try</span> imageHandler.perform([attensionRequest])<br>        &#125; <span class="hljs-keyword">catch</span> &#123;<br>            <span class="hljs-built_in">print</span>(error.localizedDescription)<br>        &#125;<br>        <br>        <span class="hljs-keyword">return</span> photo<br>        <br>    &#125;<br>    <br>    <span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">heatMapProcess</span><span class="hljs-params">(pixelBuffer: CVPixelBuffer, ciImage: CIImage)</span></span> &#123;<br>        <span class="hljs-keyword">let</span> heatImge = <span class="hljs-type">CIImage</span>(cvPixelBuffer: pixelBuffer)<br>        <span class="hljs-keyword">let</span> contourRequest = <span class="hljs-type">VNDetectContoursRequest</span> &#123; [<span class="hljs-keyword">weak</span> <span class="hljs-keyword">self</span>] request, error <span class="hljs-keyword">in</span><br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> err = error &#123;<br>                <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;发生了错误 \(err.localizedDescription)&quot;</span>)<br>                <span class="hljs-keyword">return</span><br>            &#125;<br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> result = request.results, result.<span class="hljs-built_in">count</span> &gt; <span class="hljs-number">0</span>,<br>               <span class="hljs-keyword">let</span> observation = result.first <span class="hljs-keyword">as</span>? <span class="hljs-type">VNContoursObservation</span> &#123;<br>                <span class="hljs-keyword">let</span> cxt = <span class="hljs-type">CIContext</span>()<br>                <span class="hljs-keyword">let</span> origin = cxt.createCGImage(ciImage, from: ciImage.extent)<br>                <span class="hljs-keyword">let</span> <span class="hljs-number">_</span> = <span class="hljs-keyword">self</span>?.drawContour(contourObv: observation, cgImage: <span class="hljs-literal">nil</span>, originImg: origin)<br>            &#125;<br>            <br>        &#125;<br>        contourRequest.revision = <span class="hljs-type">VNDetectContourRequestRevision1</span><br>        contourRequest.contrastAdjustment = <span class="hljs-number">1.0</span><br>        contourRequest.detectsDarkOnLight = <span class="hljs-literal">false</span><br>        contourRequest.maximumImageDimension = <span class="hljs-number">512</span><br>        <br>        <span class="hljs-keyword">let</span> handler = <span class="hljs-type">VNImageRequestHandler</span>(ciImage: heatImge, options: [:])<br>        <br>        <span class="hljs-keyword">do</span> &#123;<br>            <span class="hljs-keyword">try</span> handler.perform([contourRequest])<br>        &#125; <span class="hljs-keyword">catch</span> &#123;<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\(error.localizedDescription)&quot;</span>)<br>        &#125;<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<p>效果如下：<br><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h63rfxtcv7j217n0u0dip.jpg" alt="效果图"></p>
+<p>鉴于实现思路与第一个方案是类似的，所以其优缺点也基本是一致的。这里我们不在赘述</p>
+<p>我们再来看下结果:</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h63qgngqmjj21910u00vi.jpg" alt="VNDetectContoursRequest结果"></p>
+<p>还是会有锯齿的出现，效果不太满意, 我们在来看下这个方案的优缺点</p>
+<p>优点:</p>
+<ul>
+<li>采用的是边缘检测的思路，不会出现颜色替换时范围不可控的问题</li>
+<li>使用系统API 调用很简单 不需要借助其他环境</li>
+</ul>
+<p>缺点:</p>
+<ul>
+<li>系统API需要iOS13+</li>
+<li>效果比锯齿更加明显 </li>
+</ul>
+<h2 id="OpenCV"><a href="#OpenCV" class="headerlink" title="OpenCV"></a>OpenCV</h2><p>在调研过程中，我们发现使用C++实际上有很多现有的方法，但是使用iOS目前可用的比较少，因此我们决定先配置一个C++的OpenCV的环境，先使用C++进行尝试，如果可行在使用Swift进行翻译，这样会快一点</p>
+<p>OpenCV在MacOS上的环境配置大家可以参考我的这篇文章<a href="">Mac 配置C++ OpenCV环境</a></p>
+<p>待续……</p>
+
+    </div>
+     
+    <div class="post-footer__meta"><p>更新于 2022-09-12</p></div> 
+    <div class="post-meta__cats"><a href="/tags/iOS-%E8%AF%81%E4%BB%B6%E7%85%A7-%E8%83%8C%E6%99%AF%E9%A2%9C%E8%89%B2/" class="post-tags__link button"># iOS 证件照 背景颜色</a></div> 
+</article>
+
+
+    <div class="nav">
+        <div class="nav__prev">
+            
+                <a href="/2022/09/11/iOS-how-to-create-Docx/" class="nav__link">
+                    <div>
+                        <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M589.088 790.624L310.464 512l278.624-278.624 45.248 45.248L400.96 512l233.376 233.376z" fill="#808080"></path></svg>
+                    </div>
+                    <div>
+                        <div class="nav__label">
+                            Previous Post
+                        </div>
+                        <div class="nav__title">
+                            iOS文本导出为Docx文件
+                        </div>
+                    </div>
+                </a>
+            
+        </div>
+        <div class="nav__next">
+            
+                <a href="/2021/09/12/0xdead10cc-fix/" class="nav__link">
+                    <div>
+                        <div class="nav__label">
+                            Next Post
+                        </div>
+                        <div class="nav__title">
+                            0xdead10cc问题调研
+                        </div>
+                    </div>
+                    <div>
+                        <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M434.944 790.624l-45.248-45.248L623.04 512l-233.376-233.376 45.248-45.248L713.568 512z" fill="#808080"></path></svg>
+                    </div>
+                </a>
+            
+        </div>
+    </div>
+
+
+
+
+
+</main>
+
+            <footer class="footer">
+    
+
+
+    
+    
+    
+        <span id="busuanzi_container_site_uv" hidden>
+            <span></span>
+            <span id="busuanzi_value_site_uv"></span>
+            <span>Viewers</span>
+            
+                <span>|</span>
+            
+        </span>
+    
+    
+        <span id="busuanzi_container_site_pv" hidden>
+            <span></span>
+            <span id="busuanzi_value_site_pv"></span>
+            <span>Views</span>
+            
+        </span>
+    
+ 
+ 
+
+ 
+    
+        
+        <p class="footer-copyright">
+            Copyright © 2015&nbsp;-&nbsp;2022 <a href="/">LeeWong</a>
+        </p>
+    
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme - <a href="https://github.com/ChrAlpha/hexo-theme-cards" target="_blank">Cards</a></p>
+</footer>
+
+        </div>
+         
+
+ 
+    <script>
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <script async src="https://www.google-analytics.com/analytics.js"></script>
+ 
+
+ 
+
+ 
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement('script');
+            hm.src = 'https://hm.baidu.com/hm.js?DR81zbdrQ3';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+ 
+
+  
+
+
+
+ 
+
+
+    
+ 
+
+
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.4.1/dist/jquery.fancybox.min.css">
+
+    
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.4.1/dist/jquery.fancybox.min.js"></script>
+
+    <script>
+        let lazyloadT = Boolean('false'),
+            auto_fancybox = Boolean('false')
+        if (auto_fancybox) {
+            $(".post__content").find('img').each(function () {
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("href", $(this).attr("src"));
+                if (lazyloadT) {
+                    $(element).attr("href", $(this).attr("data-srcset"));
+                }
+                $(this).wrap(element);
+            });
+        } else {
+            $(".post__content").find("fancybox").find('img').each(function () {
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("href", $(this).attr("src"));
+                if (lazyloadT) {
+                    $(element).attr("href", $(this).attr("data-srcset"));
+                }
+                $(this).wrap(element);
+            });
+        }
+    </script>
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+
+    </body>
+</html>
