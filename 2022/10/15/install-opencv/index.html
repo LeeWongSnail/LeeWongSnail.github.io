@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+    <meta charset="utf-8">
+
+    
+
+    <!-- 渲染优化 -->
+    <meta name="renderer" content="webkit">
+    <meta name="force-rendering" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="HandheldFriendly" content="True" >
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!--icon-->
+
+    
+        <link rel="shortcut icon" href="https://tva1.sinaimg.cn/large/0081Kckwly1glcsnw2jatj303k03k748.jpg">
+    
+    
+    
+    
+    
+
+
+    <!-- meta -->
+
+
+<title>Mac 配置OpenCV C++环境 | LeeWong</title>
+
+
+    <meta name="keywords" content="OpenCV Mac C++, iOS">
+
+
+
+
+    <!-- OpenGraph -->
+ 
+    <meta name="description" content="今天公司需求有部分要涉及到对图片的处理，因此需要集成OpenCV, 本篇文章为记录集成OpenCV环境的过程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mac 配置OpenCV C++环境">
+<meta property="og:url" content="https://www.leewong.cn/2022/10/15/install-opencv/index.html">
+<meta property="og:site_name" content="LeeWong">
+<meta property="og:description" content="今天公司需求有部分要涉及到对图片的处理，因此需要集成OpenCV, 本篇文章为记录集成OpenCV环境的过程">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008vxvgGly1h75tkampjqj316c0u00sz.jpg">
+<meta property="article:published_time" content="2022-10-15T03:28:26.000Z">
+<meta property="article:modified_time" content="2022-10-15T03:39:33.279Z">
+<meta property="article:author" content="LeeWong">
+<meta property="article:tag" content="OpenCV Mac C++">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008vxvgGly1h75tkampjqj316c0u00sz.jpg">
+
+
+    
+<link rel="stylesheet" href="/css/style/main.css">
+ 
+
+
+    
+<link rel="stylesheet" href="/css/style/dark.css">
+
+    
+<script src="/js/darkmode.js"></script>
+
+
+
+    
+    
+    
+        <link rel="stylesheet" id="hl-default-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/default.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')===-1)this.media='all'">
+        
+            <link rel="stylesheet" id="hl-dark-theme" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.2/styles/dark.min.css" media="none" onload="if(getComputedStyle(document.documentElement).getPropertyValue('--color-mode').indexOf('dark')!==-1)this.media='all'">
+        
+    
+
+    
+
+     
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+ 
+
+    <!-- custom head -->
+
+    
+        <meta name="google-site-verification" content="4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU" /> 
+    
+
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+    <body>
+        <div id="app">
+            <header class="header">
+    <div class="header__left">
+        <a href="/" class="button">
+            <span class="logo__text">LeeWong</span>
+        </a>
+    </div>
+    <div class="header__right">
+        
+            <div class="navbar__menus">
+                
+                    <a href="/" class="navbar-menu button">首页</a>
+                
+                    <a href="/tags/" class="navbar-menu button">标签</a>
+                
+                    <a href="/archives/" class="navbar-menu button">归档</a>
+                
+                    <a href="/about/" class="navbar-menu button">关于我</a>
+                
+            </div>
+        
+        
+        
+
+        
+        
+    <a href="javaScript:void(0);" id="btn-toggle-dark">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </a>
+
+
+         
+    <a href="#" class="button" id="b2t" aria-label="回到顶部" title="回到顶部">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="32" height="32">
+            <path d="M233.376 722.752L278.624 768 512 534.624 745.376 768l45.248-45.248L512 444.128zM192 352h640V288H192z" fill="currentColor"></path>
+        </svg>
+    </a>
+
+
+        
+            <a class="dropdown-icon button" id="btn-dropdown" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width='24' height='24' fill="none" stroke="currentColor" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" d="M3.314,4.8h13.372c0.41,0,0.743-0.333,0.743-0.743c0-0.41-0.333-0.743-0.743-0.743H3.314c-0.41,0-0.743,0.333-0.743,0.743C2.571,4.467,2.904,4.8,3.314,4.8z M16.686,15.2H3.314c-0.41,0-0.743,0.333-0.743,0.743s0.333,0.743,0.743,0.743h13.372c0.41,0,0.743-0.333,0.743-0.743S17.096,15.2,16.686,15.2z M16.686,9.257H3.314c-0.41,0-0.743,0.333-0.743,0.743s0.333,0.743,0.743,0.743h13.372c0.41,0,0.743-0.333,0.743-0.743S17.096,9.257,16.686,9.257z"></path></svg></a>
+            <div class="dropdown-menus" id="dropdown-menus">
+                
+                    <a href="/" class="dropdown-menu button">首页</a>
+                
+                    <a href="/tags/" class="dropdown-menu button">标签</a>
+                
+                    <a href="/archives/" class="dropdown-menu button">归档</a>
+                
+                    <a href="/about/" class="dropdown-menu button">关于我</a>
+                
+            </div>
+        
+    </div>
+</header>
+
+
+            <main class="main">
+    
+
+<div class="post-title">
+    <h1 class="post-title__text">
+        Mac 配置OpenCV C++环境
+    </h1>
+    <div class="post-title__meta">
+        <a href="/archives/2022/10/" class="post-meta__date button">2022-10-15</a>
+        
+    <span class="separate-dot"></span><a href="/categories/%E5%9B%BE%E7%89%87%E5%A4%84%E7%90%86/" class="button">图片处理</a>
+
+ 
+        
+    
+     
+    <span id="busuanzi_container_page_pv" hidden>
+        <span class="separate-dot"></span>
+        <span></span>
+        <span id="busuanzi_value_page_pv"></span>
+        <span>Views</span>
+    </span>
+
+
+
+ 
+
+ 
+    </div>
+</div>
+
+
+    <aside class="post-side">
+        <div class="post-side__toc">
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85OpenCV"><span class="toc-number">1.</span> <span class="toc-text">安装OpenCV</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B0%E5%BB%BAXcode%E5%B7%A5%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">新建Xcode工程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E5%BB%BA%E4%B8%80%E4%B8%AAxcode%E5%B7%A5%E7%A8%8B"><span class="toc-number">2.1.</span> <span class="toc-text">新建一个xcode工程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E5%BB%BA%E4%B8%80%E4%B8%AAlib%E6%96%87%E4%BB%B6%E5%A4%B9%EF%BC%8C%E5%AF%BC%E5%85%A5%E5%BA%93%E6%96%87%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text">新建一个lib文件夹，导入库文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">2.3.</span> <span class="toc-text">设置配置文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E4%BB%A3%E7%A0%81"><span class="toc-number">3.</span> <span class="toc-text">运行代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-number">4.</span> <span class="toc-text">参考文档</span></a></li></ol>
+        </div>
+    </aside>
+    <a class="btn-toc button" id="btn-toc" tabindex="0">
+        <svg viewBox="0 0 1024 1024" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M128 256h64V192H128zM320 256h576V192H320zM128 544h64v-64H128zM320 544h576v-64H320zM128 832h64v-64H128zM320 832h576v-64H320z" fill="currentColor"></path>
+        </svg>
+    </a>
+    <div class="toc-menus" id="toc-menus">
+        <div class="toc-title">文章目录</div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85OpenCV"><span class="toc-number">1.</span> <span class="toc-text">安装OpenCV</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B0%E5%BB%BAXcode%E5%B7%A5%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">新建Xcode工程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E5%BB%BA%E4%B8%80%E4%B8%AAxcode%E5%B7%A5%E7%A8%8B"><span class="toc-number">2.1.</span> <span class="toc-text">新建一个xcode工程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E5%BB%BA%E4%B8%80%E4%B8%AAlib%E6%96%87%E4%BB%B6%E5%A4%B9%EF%BC%8C%E5%AF%BC%E5%85%A5%E5%BA%93%E6%96%87%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text">新建一个lib文件夹，导入库文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">2.3.</span> <span class="toc-text">设置配置文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E4%BB%A3%E7%A0%81"><span class="toc-number">3.</span> <span class="toc-text">运行代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-number">4.</span> <span class="toc-text">参考文档</span></a></li></ol>
+    </div>
+
+
+<article class="post content-card">
+    <div class="post__header">
+    
+        <div class="post-thumbnail" style="background-image: url('https://tva1.sinaimg.cn/large/008vxvgGly1h75tkampjqj316c0u00sz.jpg');"></div>
+    
+</div>
+    <div class="post__content">
+        <p>今天公司需求有部分要涉及到对图片的处理，因此需要集成OpenCV, 本篇文章为记录集成OpenCV环境的过程</p>
+<a id="more"></a>
+
+
+<h2 id="安装OpenCV"><a href="#安装OpenCV" class="headerlink" title="安装OpenCV"></a>安装OpenCV</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plain">brew install opencv<br></code></pre></td></tr></table></figure>
+
+<p><code>注意</code>:请务必找一个稳定的vpn使用，否则既耗时又费精力</p>
+<h2 id="新建Xcode工程"><a href="#新建Xcode工程" class="headerlink" title="新建Xcode工程"></a>新建Xcode工程</h2><h3 id="新建一个xcode工程"><a href="#新建一个xcode工程" class="headerlink" title="新建一个xcode工程"></a>新建一个xcode工程</h3><p><img src="https://tva1.sinaimg.cn/large/008vxvgGly1h75pxm7p4qj314k0swwhc.jpg" alt="command line tool"></p>
+<h3 id="新建一个lib文件夹，导入库文件"><a href="#新建一个lib文件夹，导入库文件" class="headerlink" title="新建一个lib文件夹，导入库文件"></a>新建一个lib文件夹，导入库文件</h3><p>直接通过右键，Add Files to “Lib” 方法导入，导入lib文件夹目录为 <code>/usr/local/Cellar/opencv/4.5.3/lib/</code>下的文件，这里先不用考虑太多直接全部导入即可。</p>
+<h3 id="设置配置文件"><a href="#设置配置文件" class="headerlink" title="设置配置文件"></a>设置配置文件</h3><ul>
+<li>设置 HEADER_SEARCH_PATHS = /usr/local/Cellar/opencv/4.5.3/include/opencv4</li>
+<li>设置 LIBRARY_SEARCH_PATHS = /usr/local/Cellar/opencv/4.5.3/lib、/usr/local/Cellar/opencv/4.5.3/lib/opencv4/3rdparty</li>
+</ul>
+<p><img src="https://tva1.sinaimg.cn/large/008vxvgGly1h75qclosyoj31a008wwfg.jpg"></p>
+<h2 id="运行代码"><a href="#运行代码" class="headerlink" title="运行代码"></a>运行代码</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><code class="hljs plain">#include &lt;opencv2&#x2F;opencv.hpp&gt;<br>#include &lt;iostream&gt;<br><br>using namespace std;<br>using namespace cv;<br><br>int main(int argc, char** argv) &#123;<br>    Mat src &#x3D; imread(&quot;&#x2F;Users&#x2F;LeeWong&#x2F;Downloads&#x2F;photo_red.jpeg&quot;);<br>    if (src.empty()) &#123;<br>        printf(&quot;could not load image...\n&quot;);<br>        return -1;<br>    &#125;<br>    imshow(&quot;原圖&quot;, src);<br><br>    &#x2F;&#x2F; 1.將二維影象資料線性化<br>    Mat data;<br>    for (int i &#x3D; 0; i &lt; src.rows; i++)     &#x2F;&#x2F;畫素點線性排列<br>        for (int j &#x3D; 0; j &lt; src.cols; j++)<br>        &#123;<br>            Vec3b point &#x3D; src.at&lt;Vec3b&gt;(i, j);<br>            Mat tmp &#x3D; (Mat_&lt;float&gt;(1, 3) &lt;&lt; point[0], point[1], point[2]);<br>            data.push_back(tmp);<br>        &#125;<br><br>    &#x2F;&#x2F; 2.使用K-means聚類；分離出背景色<br>    int numCluster &#x3D; 4;<br>    Mat labels;<br>    TermCriteria criteria &#x3D; TermCriteria(TermCriteria::EPS + TermCriteria::COUNT, 10, 0.1);<br>    kmeans(data, numCluster, labels, criteria, 3, KMEANS_PP_CENTERS);<br><br>    &#x2F;&#x2F; 3.背景與人物二值化<br>    Mat mask &#x3D; Mat::zeros(src.size(), CV_8UC1);<br>    int index &#x3D; src.rows * 2 + 2;  &#x2F;&#x2F;獲取點（2，2）作為背景色<br>    int cindex &#x3D; labels.at&lt;int&gt;(index);<br>    &#x2F;*  提取背景特徵 *&#x2F;<br>    for (int row &#x3D; 0; row &lt; src.rows; row++) &#123;<br>        for (int col &#x3D; 0; col &lt; src.cols; col++) &#123;<br>            index &#x3D; row * src.cols + col;<br>            int label &#x3D; labels.at&lt;int&gt;(index);<br>            if (label &#x3D;&#x3D; cindex) &#123; &#x2F;&#x2F; 背景<br>                mask.at&lt;uchar&gt;(row, col) &#x3D; 0;<br>            &#125;<br>            else &#123;<br>                mask.at&lt;uchar&gt;(row, col) &#x3D; 255;<br>            &#125;<br>        &#125;<br>    &#125;<br>    &#x2F;&#x2F;imshow(&quot;mask&quot;, mask);<br><br>    &#x2F;&#x2F; 4.腐蝕 + 高斯模糊：影象與背景交匯處高斯模糊化<br>    Mat k &#x3D; getStructuringElement(MORPH_RECT, Size(3, 3), Point(-1, -1));<br>    erode(mask, mask, k);<br>    &#x2F;&#x2F;imshow(&quot;erode-mask&quot;, mask);<br>    GaussianBlur(mask, mask, Size(3, 3), 0, 0);<br>    &#x2F;&#x2F;imshow(&quot;Blur Mask&quot;, mask);<br><br>    &#x2F;&#x2F; 5.更換背景色以及交匯處融合處理<br>    RNG rng(12345);<br>    Vec3b color;  &#x2F;&#x2F;設定的背景色<br>    color[0] &#x3D; 255;&#x2F;&#x2F;rng.uniform(0, 255);<br>    color[1] &#x3D; 255;&#x2F;&#x2F; rng.uniform(0, 255);<br>    color[2] &#x3D; 255;&#x2F;&#x2F; rng.uniform(0, 255);<br>    Mat result(src.size(), src.type());<br><br>    double w &#x3D; 0.0;   &#x2F;&#x2F;融合權重<br>    int b &#x3D; 0, g &#x3D; 0, r &#x3D; 0;<br>    int b1 &#x3D; 0, g1 &#x3D; 0, r1 &#x3D; 0;<br>    int b2 &#x3D; 0, g2 &#x3D; 0, r2 &#x3D; 0;<br><br>    for (int row &#x3D; 0; row &lt; src.rows; row++) &#123;<br>        for (int col &#x3D; 0; col &lt; src.cols; col++) &#123;<br>            int m &#x3D; mask.at&lt;uchar&gt;(row, col);<br>            if (m &#x3D;&#x3D; 255) &#123;<br>                result.at&lt;Vec3b&gt;(row, col) &#x3D; src.at&lt;Vec3b&gt;(row, col); &#x2F;&#x2F; 前景<br>            &#125;<br>            else if (m &#x3D;&#x3D; 0) &#123;<br>                result.at&lt;Vec3b&gt;(row, col) &#x3D; color; &#x2F;&#x2F; 背景<br>            &#125;<br>            else &#123;&#x2F;* 融合處理部分 *&#x2F;<br>                w &#x3D; m &#x2F; 255.0;<br>                b1 &#x3D; src.at&lt;Vec3b&gt;(row, col)[0];<br>                g1 &#x3D; src.at&lt;Vec3b&gt;(row, col)[1];<br>                r1 &#x3D; src.at&lt;Vec3b&gt;(row, col)[2];<br><br>                b2 &#x3D; color[0];<br>                g2 &#x3D; color[1];<br>                r2 &#x3D; color[2];<br><br>                b &#x3D; b1 * w + b2 * (1.0 - w);<br>                g &#x3D; g1 * w + g2 * (1.0 - w);<br>                r &#x3D; r1 * w + r2 * (1.0 - w);<br><br>                result.at&lt;Vec3b&gt;(row, col)[0] &#x3D; b;<br>                result.at&lt;Vec3b&gt;(row, col)[1] &#x3D; g;<br>                result.at&lt;Vec3b&gt;(row, col)[2] &#x3D; r;<br>            &#125;<br>        &#125;<br>    &#125;<br>    imshow(&quot;背景替換&quot;, result);<br><br>    waitKey(0);<br>    return 0;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行代码后，刚好可以看到咱们初步调研的抠图代码，下面是运行效果：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008vxvgGly1h75qlv03isj31a20u0wiu.jpg" alt="运行结果"></p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/46448682/cmake-error-the-source-does-not-appear-to-contain-cmakelists-txt">cmake error ‘the source does not appear to contain CMakeLists.txt’</a></p>
+<p><a target="_blank" rel="noopener" href="https://crysple.github.io/2018/04/04/2018-04-03/">Mac上opencv的安装和Xcode c++的配置</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.361shipin.com/blog/1547348358195052544">Mac下安装opencv，以及xcode的调用添</a></p>
+<p><a target="_blank" rel="noopener" href="https://medium.com/paulchous-fantasy-world/homebrew-%E5%AE%89%E8%A3%9D-opencv4-5-0%E6%90%AD%E9%85%8D-xcode-gui-3106af09fe36">Homebrew 安裝 OpenCV4.5.0搭配 Xcode GUI</a></p>
+<p><a target="_blank" rel="noopener" href="https://velog.io/@parkjbdev/Xcode-OpenCV-%EC%84%A4%EC%B9%98-%EB%B0%8F-%EC%84%B8%ED%8C%85">Xcode OpenCV 설치 및 세팅</a></p>
+
+    </div>
+     
+    <div class="post-footer__meta"><p>更新于 2022-10-15</p></div> 
+    <div class="post-meta__cats"><a href="/categories/%E5%9B%BE%E7%89%87%E5%A4%84%E7%90%86/" class="post-cats__link button">图片处理</a><a href="/tags/OpenCV-Mac-C/" class="post-tags__link button"># OpenCV Mac C++</a></div> 
+</article>
+
+
+    <div class="nav">
+        <div class="nav__prev">
+            
+        </div>
+        <div class="nav__next">
+            
+                <a href="/2022/09/11/iOS-how-to-create-Docx/" class="nav__link">
+                    <div>
+                        <div class="nav__label">
+                            Next Post
+                        </div>
+                        <div class="nav__title">
+                            iOS文本导出为Docx文件
+                        </div>
+                    </div>
+                    <div>
+                        <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M434.944 790.624l-45.248-45.248L623.04 512l-233.376-233.376 45.248-45.248L713.568 512z" fill="#808080"></path></svg>
+                    </div>
+                </a>
+            
+        </div>
+    </div>
+
+
+
+
+
+</main>
+
+            <footer class="footer">
+    
+
+
+    
+    
+    
+        <span id="busuanzi_container_site_uv" hidden>
+            <span></span>
+            <span id="busuanzi_value_site_uv"></span>
+            <span>Viewers</span>
+            
+                <span>|</span>
+            
+        </span>
+    
+    
+        <span id="busuanzi_container_site_pv" hidden>
+            <span></span>
+            <span id="busuanzi_value_site_pv"></span>
+            <span>Views</span>
+            
+        </span>
+    
+ 
+ 
+
+ 
+    
+        
+        <p class="footer-copyright">
+            Copyright © 2015&nbsp;-&nbsp;2022 <a href="/">LeeWong</a>
+        </p>
+    
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme - <a href="https://github.com/ChrAlpha/hexo-theme-cards" target="_blank">Cards</a></p>
+</footer>
+
+        </div>
+         
+
+ 
+    <script>
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', '4NmLVard-jFEKaV6857m9tKb41Tpo4FiKj8L1TJg7lU', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <script async src="https://www.google-analytics.com/analytics.js"></script>
+ 
+
+ 
+
+ 
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement('script');
+            hm.src = 'https://hm.baidu.com/hm.js?DR81zbdrQ3';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+ 
+
+  
+
+
+
+ 
+
+
+    
+ 
+
+
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.4.1/dist/jquery.fancybox.min.css">
+
+    
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.4.1/dist/jquery.fancybox.min.js"></script>
+
+    <script>
+        let lazyloadT = Boolean('false'),
+            auto_fancybox = Boolean('false')
+        if (auto_fancybox) {
+            $(".post__content").find('img').each(function () {
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("href", $(this).attr("src"));
+                if (lazyloadT) {
+                    $(element).attr("href", $(this).attr("data-srcset"));
+                }
+                $(this).wrap(element);
+            });
+        } else {
+            $(".post__content").find("fancybox").find('img').each(function () {
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("href", $(this).attr("src"));
+                if (lazyloadT) {
+                    $(element).attr("href", $(this).attr("data-srcset"));
+                }
+                $(this).wrap(element);
+            });
+        }
+    </script>
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+
+    </body>
+</html>
